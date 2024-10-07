@@ -1,0 +1,8 @@
+For filter  organ/surgery in statistics ->  add select all and change value of labels OK and reset
+CALENDAR IN GREEK
+FILTER & SORT IN PatientList for custom fields
+In all tabs add  buttons for  download pdf/excel and print data
+
+
+pass db 401Gsn@! root
+ ntogram ece7866Qw!

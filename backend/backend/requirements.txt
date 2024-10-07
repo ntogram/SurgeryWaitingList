@@ -1,0 +1,7 @@
+Flask==3.0.2
+Werkzeug>3.0.0
+flask-cors
+flask_sqlalchemy==3.0.2
+Flask-SQLAlchemy==3.0.2
+pymysql
+python-dotenv
