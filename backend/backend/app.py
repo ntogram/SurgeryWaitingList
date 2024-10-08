@@ -5,6 +5,8 @@ from db import db
 from config import Config
 from helpers import is_valid_date,hasRank
 from models import *
+from sqlalchemy import case, func,and_,or_
+from datetime import datetime
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = Config.SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
@@ -190,6 +192,63 @@ def addSurgery():
      db.session.add(surgery)
      db.session.commit()
      return jsonify({"message": f"Surgery with {surgery.surgeryId} added successfully!","id":surgery.surgeryId}), 201
+
+@app.route('/patients/list',methods=['GET'])
+def listWaitingPatients():
+    # query for retrieving the list  of patients along with information related with the status of patient
+    query  = db.session.query(
+        func.concat(Patient.name, ' ', Patient.surname).label('patientName'), # get the conatenation of patient name and surname
+        Patient.property.label("property"), #get the property
+        Surgery.disease.label('disease'),  # get the name of related disease
+        Surgery.surgeryDate.label('surgeryDate'), # get surgery date
+        Soldier.dischargeDate.label('discharge_date'),
+        case((and_(
+                    Surgery.surgeryDate.is_(None),
+                    Surgery.referral == 0,
+                    or_(Soldier.dischargeDate.is_(None),Soldier.dischargeDate >= datetime.now())
+                ),'Ναι'),else_="Όχι").label("active"), #calculate if patient remains in the surgeries list
+         case((Surgery.referral == 1, 'Ναι'),else_='Όχι').label('referral'), # for true return Ναι else return Όχι
+         case(
+            (Soldier.dischargeDate < datetime.now(),"Ναι"),
+            (Soldier.dischargeDate >= datetime.now(),"Όχι"),
+            else_='-').label('dischargeStatus'),
+        
+        
+        
+        
+        
+        
+        #Soldier.dischargeDate < datetime.now()).label('dischargeStatus'),
+        Surgery.surgeryDate.is_not(None).label("surgeryDone") # check if surgeryDate exists
+        # outer join with the corresponding table for getting discharge date for soldier
+        ).outerjoin(Soldier, Patient.ID == Soldier.soldierID).join(
+            Surgery,Patient.ID == Surgery.patientId
+        ) 
+        
+        
+        
+    patients =query.all()
+    patient_list = [
+        {
+            'patientName': patient.patientName,
+            'property': patient.property,
+            'disease': patient.disease,
+            'surgeryDate':patient.surgeryDate,
+            'discharge_date':patient.discharge_date,
+            "active":patient.active,
+            'dischargeStatus':patient.dischargeStatus,
+            'referral':patient.referral,
+            "surgeryDone":patient.surgeryDone,
+            'referralSubmitted':True
+        }
+        for patient in patients
+    ]
+
+    # Return the list as JSON
+    return jsonify(patient_list)
+
+
+
 
 
 @app.route('/')

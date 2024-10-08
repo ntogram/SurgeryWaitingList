@@ -30,3 +30,11 @@ export const addSurgeryData = async (data) =>{
   return response.data;
 
 }
+
+
+export const listPatients = async ()=>{
+  const response = await axios.get(`${API_BASE_URL}//patients/list`);
+  return response.data;
+
+
+}

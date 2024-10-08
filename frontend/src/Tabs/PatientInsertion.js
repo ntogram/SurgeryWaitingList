@@ -533,8 +533,7 @@ const sendData = async () =>{
       <PatientSummary submittedData={submittedData}  /> 
   
 
-      <button ref={returnButtonRef} onClick={onReturnToForm}/>
-      <button onClick={sendData}>check</button>
+     
 
     </div>
   );

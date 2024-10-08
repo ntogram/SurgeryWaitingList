@@ -4,6 +4,7 @@ import { CheckOutlined, EditOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux'; 
 import dayjs from 'dayjs';
 import getColumnSearchProps from '../Search/getColumnSearchProps '; 
+import {listPatients} from '../services/serviceAPI'
 const PatientsList  = () => {
    //style
   //sort

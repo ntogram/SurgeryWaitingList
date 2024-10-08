@@ -23,7 +23,7 @@ class Patient(db.Model):
 
     def __repr__(self):
         return f'<Patient {self.name} {self.surname}>'
-
+    
 
 
 
@@ -68,7 +68,7 @@ class Surgery(db.Model):
 
     
     # Enum for organ
-    organ = Column(Enum('Μύτη', 'Παραρρίνιοι κόλποι', 'Τράχηλος', 'Αυτί', 'Ρινοφάρυγγας', 'Υποφάρυγγας', 'Λάρυγγας','Στοματοφάρυγγας'), nullable=False)
+    organ = Column(Enum('Μύτη', 'Παραρρίνιοι κόλποι', 'Τράχηλος', 'Αυτί', 'Ρινοφάρυγγας', 'Υποφάρυγγας', 'Λάρυγγας','Στοματοφάρυγγας','Άλλη περιοχή'), nullable=False)
     
     # Foreign key references surgerytypes (surgeryTypeId)
     surgeryName = Column(String(255), ForeignKey('surgerytypes.name'), nullable=False)
