@@ -35,6 +35,18 @@ export const addSurgeryData = async (data) =>{
 export const listPatients = async ()=>{
   const response = await axios.get(`${API_BASE_URL}//patients/list`);
   return response.data;
+}
+
+
+export const  updateReferral = async (surgeryId,referral)=>{
+  const response = await axios.put(`${API_BASE_URL}//patients/updateReferral/${surgeryId}`,{"referral":referral})
+  return response.data;
+}
+
+export const updateSurgeryDate = async (surgeryId,surgeryDate) =>{
+  const response = await axios.put(`${API_BASE_URL}//patients/updateReferral/${surgeryId}`,{"referral":referral})
+  return response.data;
+
 
 
 }

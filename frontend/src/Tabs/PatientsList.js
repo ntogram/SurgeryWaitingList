@@ -1,20 +1,21 @@
-import React,{ useState } from 'react';
+import React,{ useState,useEffect} from 'react';
 import { Table,Switch,Button,DatePicker} from 'antd';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux'; 
 import dayjs from 'dayjs';
 import getColumnSearchProps from '../Search/getColumnSearchProps '; 
-import {listPatients} from '../services/serviceAPI'
+import {listPatients,updateReferral,updateSurgeryDate} from '../services/serviceAPI'
 const PatientsList  = () => {
    //style
   //sort
   const [searchText, setSearchText] = useState('');
-  
+  const [patients, setPatients] = useState([]);
   
    const {today,surgeries} = useSelector((state) => state.constants); 
    const surgeryTypes =  (Array.from(new Set(Object.values(surgeries).flat())).sort());
    const booleanAnswers=["Ναι","Όχι","Όλες"]
    const fullProperties = ["Μόνιμος Στρατιωτικός", "Έφεδρος Στρατιωτικός", "Αστυνομικός", "Απόστρατος", "Μέλος", "Ιδιώτης"]
+   
   // generate table headers
     const generateColumns = () => {
         const columns = [
@@ -328,10 +329,10 @@ const generateRandomProperty = () => {
   };
 
 // submit the selected referral answer
-const validateReferral = (id,status=true) => {
+const validateReferral = async (surgeryId,status=true) => {
 
   const updatedPatients = patients.map(patient => {
-    if (patient.id === id) {
+    if (patient.id === surgeryId) {
       return {
         ...patient,
         referralSubmitted: status, // Set the submitted status to true
@@ -341,6 +342,14 @@ const validateReferral = (id,status=true) => {
     return patient;
   });
   setPatients(updatedPatients); // Update state with submission
+  if (status==true){
+    console.log(surgeryId)
+    let selectedPatient = patients.find(({ id }) => id == surgeryId);
+    console.log(selectedPatient)
+    const referral = selectedPatient.referral=='Ναι'?1:0;
+    const response = await updateReferral(selectedPatient.id,referral)
+  }
+  
 };
 
 
@@ -362,7 +371,7 @@ const handleDateSurgeryChange = (date,dateString,id) =>{
 
 
 
-const validateSurgeryDate = (id,status=true) => {
+const validateSurgeryDate = async (id,status=true) => {
     const updatedPatients = patients.map(patient => {
     if (patient.id === id) {
       return {
@@ -376,16 +385,57 @@ const validateSurgeryDate = (id,status=true) => {
     return patient;
   });
   setPatients(updatedPatients); // Update state with submission
+  if (status==true){
+    console.log(surgeryId)
+    let selectedPatient = patients.find(({ id }) => id == surgeryId);
+    console.log(selectedPatient)
+    const referral = selectedPatient.referral=='Ναι'?1:0;
+    const response = await updateSurgeryDate(selectedPatient.id,referral)
+  }
+
+
+
+
+
 };
 
 
 
 
     // generate data
+    useEffect(() => {
+
+      const fetchPatients = async () => {
+        try {
+          const data = await listPatients();  // Call the listPatients method
+          setPatients(data);  // Update state with the fetched data
+        } catch (error) {
+          console.error("Error fetching patients data:", error);
+        }
+      };
+      
+      if (patients.length==0){
+        fetchPatients();
+
+      }
+      
+      //console.log(patients)  
+    }, [patients]);
+
+
+
+
+
+
+
+
+
+
+
  
     const dataSource = generateDataSource(20);
     const columns = generateColumns()
-    const [patients, setPatients] = useState(dataSource);
+   
     return (
         <Table
           columns={columns}

@@ -300,6 +300,18 @@ const sendData = async () =>{
 
   // useEffect to fetch the backend message on component load
   useEffect(() => {
+      const retrievePatientData = async () =>{
+
+
+
+
+
+        
+      }
+
+
+
+
     /*const submitRandomPatients = async () => {
       const randomData = generateRandomPatient();
       await fillAndSubmitForm(randomData,form);

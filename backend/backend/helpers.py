@@ -14,3 +14,10 @@ def hasRank(prop):
         return True
     else:
         return False
+
+
+def isBoolean(v):
+    if v in [0,1]:
+        return True
+    else:
+        return False

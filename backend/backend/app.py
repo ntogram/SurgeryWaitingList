@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from db import db
 from config import Config
-from helpers import is_valid_date,hasRank
+from helpers import is_valid_date,hasRank,isBoolean
 from models import *
 from sqlalchemy import case, func,and_,or_
 from datetime import datetime
@@ -197,10 +197,11 @@ def addSurgery():
 def listWaitingPatients():
     # query for retrieving the list  of patients along with information related with the status of patient
     query  = db.session.query(
+        Surgery.surgeryId.label('id'),
         func.concat(Patient.name, ' ', Patient.surname).label('patientName'), # get the conatenation of patient name and surname
         Patient.property.label("property"), #get the property
         Surgery.disease.label('disease'),  # get the name of related disease
-        Surgery.surgeryDate.label('surgeryDate'), # get surgery date
+       func.date_format(Surgery.surgeryDate, '%Y-%m-%d').label('surgeryDate'), # get surgery date IN YYYY-MM-DD format
         Soldier.dischargeDate.label('discharge_date'),
         case((and_(
                     Surgery.surgeryDate.is_(None),
@@ -230,6 +231,7 @@ def listWaitingPatients():
     patients =query.all()
     patient_list = [
         {
+            'id':patient.id, # actually  surgery id not patient id
             'patientName': patient.patientName,
             'property': patient.property,
             'disease': patient.disease,
@@ -247,10 +249,50 @@ def listWaitingPatients():
     # Return the list as JSON
     return jsonify(patient_list)
 
-
-
-
-
+@app.route('/patients/updateReferral/<int:surgery_id>',methods=['PUT'])
+def updateReferral(surgery_id:int):
+    required_fields = ['referral']
+    data = request.get_json()
+    # error handling for missing fields that are required for updating referral
+    for required_field in required_fields:
+            if required_field not in data:
+                return jsonify({"error": "Missing attribute:{0}".format(required_field)}), 400
+            if isBoolean(data.get(required_field))== False:
+                return jsonify({"error": "Wrong type for attribute:{0}".format(required_field)}), 400 
+    newReferral = data.get('referral')
+    # retrieve the surgery with the given id
+    surgery =db.session.query(Surgery).filter_by(surgeryId=surgery_id).one()
+    #if the surgery doesn't exist
+    if surgery is None:
+            return jsonify({'error': f'Surgery with ID {surgery_id} not found'}), 404
+    surgery.referral =  newReferral
+    if newReferral == 1:
+        newActive =0
+        surgeryDate  = None
+    else:
+        if surgery.surgeryDate is None:
+            newActive = 1
+            surgeryDate = None
+        else:
+            newActive = 0
+            surgeryDate = surgery.surgeryDate
+    surgery.active = newActive
+    surgery.surgeryDate = surgeryDate
+    db.session.commit()
+    return jsonify({'message': f' For surgery with ID {surgery_id}, update was performed successfully', "updated values":{
+        'referral':newReferral,'active':newActive,'surgeryDate':surgeryDate}}),200
+    
+@app.route('/patients/updateSurgeryDate/<int:surgery_id>',methods=['PUT'])    
+def updateSurgeryDate(surgery_id:int):
+    required_fields = ["surgeryDate"]
+    data = request.get_json()
+    # error handling for missing fields that are required for updating surgeryDate
+    for required_field in required_fields:
+            if required_field not in data:
+                return jsonify({"error": "Missing attribute:{0}".format(required_field)}), 400
+    newSurgeryDate = data.get("surgeryDate")
+    print(newSurgeryDate)
+    return jsonify({"answer": newSurgeryDate}) 
 @app.route('/')
 def home():
     return "Hello from the Python backend new!"
