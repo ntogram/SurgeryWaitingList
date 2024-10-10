@@ -1,7 +1,7 @@
 import React,{ useState } from 'react';
 import { useSelector } from 'react-redux'; 
 import { Table } from 'antd';
-
+import ButtonCollection from './utilities/ButtonCollection'
 
 
 const StatisticsBySurgeryType  = () => {
@@ -57,15 +57,17 @@ const StatisticsBySurgeryType  = () => {
     }
     const dataSource = generateDataSource(surgeryTypes,fullProperties);
     const columns = generateColumns(fullProperties)
-    return (
-        <Table
-          columns={columns}
-          
-          dataSource={dataSource}
-          bordered
-          pagination={{ pageSize: 12 }}
-          scroll={{ x: 'max-content' }} 
-        />
+      return(<div>
+                <ButtonCollection/>
+                <Table
+                  columns={columns}
+                  
+                  dataSource={dataSource}
+                  bordered
+                  pagination={{ pageSize: 12 }}
+                  scroll={{ x: 'max-content' }} 
+                />
+        </div>
       );
 
 }

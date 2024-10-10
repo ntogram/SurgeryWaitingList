@@ -1,5 +1,6 @@
 import React,{ useState,useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link,Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
 import 'antd/dist/reset.css'; 
 import PatientInsertion from '../Tabs/PatientInsertion';
@@ -47,7 +48,7 @@ const Navigator = () => {
             </Header>
             <Content style={{ padding: '20px' }}>
               <Routes>
-                <Route path="/" element={<Navigate to="/patientInsertion"  state={{submittedData: null}}/>} />
+                <Route path="/" element={<Navigate to={'/'+`${current}`}  state={{submittedData: null}}/>} />
                 <Route path="/patientInsertion" element={<PatientInsertion />} />
                 <Route path="/patientsList" element={<PatientsList />} />
                 <Route path="/statisticsByOrgan" element={<StatisticsByOrgan />} />

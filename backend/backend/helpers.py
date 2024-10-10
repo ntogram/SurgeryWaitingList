@@ -21,3 +21,10 @@ def isBoolean(v):
         return True
     else:
         return False
+
+
+
+#s="2024-10-02"
+#b =  is_valid_date(s)
+#print(s)
+#print(b)

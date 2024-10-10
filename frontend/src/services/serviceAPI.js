@@ -44,7 +44,7 @@ export const  updateReferral = async (surgeryId,referral)=>{
 }
 
 export const updateSurgeryDate = async (surgeryId,surgeryDate) =>{
-  const response = await axios.put(`${API_BASE_URL}//patients/updateReferral/${surgeryId}`,{"referral":referral})
+  const response = await axios.put(`${API_BASE_URL}//patients/updateSurgeryDate/${surgeryId}`,{"surgeryDate":surgeryDate})
   return response.data;
 
 

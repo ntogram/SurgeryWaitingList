@@ -5,8 +5,23 @@ import { useSelector } from 'react-redux';
 import dayjs from 'dayjs';
 import getColumnSearchProps from '../Search/getColumnSearchProps '; 
 import {listPatients,updateReferral,updateSurgeryDate} from '../services/serviceAPI'
+import ButtonCollection from './utilities/ButtonCollection'
+
+
+
+
+
+
+
+
+
+
+
 const PatientsList  = () => {
    //style
+ 
+
+
   //sort
   const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
@@ -343,9 +358,7 @@ const validateReferral = async (surgeryId,status=true) => {
   });
   setPatients(updatedPatients); // Update state with submission
   if (status==true){
-    console.log(surgeryId)
     let selectedPatient = patients.find(({ id }) => id == surgeryId);
-    console.log(selectedPatient)
     const referral = selectedPatient.referral=='Ναι'?1:0;
     const response = await updateReferral(selectedPatient.id,referral)
   }
@@ -371,9 +384,9 @@ const handleDateSurgeryChange = (date,dateString,id) =>{
 
 
 
-const validateSurgeryDate = async (id,status=true) => {
+const validateSurgeryDate = async (surgeryId,status=true) => {
     const updatedPatients = patients.map(patient => {
-    if (patient.id === id) {
+    if (patient.id === surgeryId) {
       return {
         ...patient,
         surgeryDone: status,
@@ -389,10 +402,13 @@ const validateSurgeryDate = async (id,status=true) => {
     console.log(surgeryId)
     let selectedPatient = patients.find(({ id }) => id == surgeryId);
     console.log(selectedPatient)
-    const referral = selectedPatient.referral=='Ναι'?1:0;
-    const response = await updateSurgeryDate(selectedPatient.id,referral)
+    let surgeryDate =selectedPatient.surgeryDate;
+   // const referral = selectedPatient.referral=='Ναι'?1:0;
+    const response = await updateSurgeryDate(selectedPatient.id,surgeryDate)
   }
-
+  else{
+    const response = await updateSurgeryDate(surgeryId,null)
+  }
 
 
 
@@ -437,13 +453,18 @@ const validateSurgeryDate = async (id,status=true) => {
     const columns = generateColumns()
    
     return (
-        <Table
+      <div>
+       
+          <ButtonCollection/>
+          <Table
           columns={columns}
           pagination={false}
           dataSource={patients}
           bordered
           scroll={{ x: 'max-content' }} 
         />
+      </div>
+      
       );
 
 }

@@ -290,9 +290,29 @@ def updateSurgeryDate(surgery_id:int):
     for required_field in required_fields:
             if required_field not in data:
                 return jsonify({"error": "Missing attribute:{0}".format(required_field)}), 400
+            print(data[required_field])
+            if data[required_field] is not None:
+                if not is_valid_date(data[required_field]):
+                    return jsonify({"error": "Wrong type for attribute:{0}".format(required_field)}), 400 
+    
     newSurgeryDate = data.get("surgeryDate")
-    print(newSurgeryDate)
-    return jsonify({"answer": newSurgeryDate}) 
+     # retrieve the surgery with the given id
+    surgery =db.session.query(Surgery).filter_by(surgeryId=surgery_id).one()
+    #if the surgery doesn't exist
+    if surgery is None:
+            return jsonify({'error': f'Surgery with ID {surgery_id} not found'}), 404
+    surgery.surgeryDate = newSurgeryDate
+    if newSurgeryDate is  None:
+       newActive = 1
+       newReferral = surgery.referral
+    else:
+        newActive = 0
+        newReferral = 0
+    surgery.active = newActive
+    surgery.referral = newReferral
+    db.session.commit()
+    return jsonify({'message': f' For surgery with ID {surgery_id}, update was performed successfully', "updated values":{
+        'referral':newReferral,'active':newActive,'surgeryDate':newSurgeryDate}}),200
 @app.route('/')
 def home():
     return "Hello from the Python backend new!"
