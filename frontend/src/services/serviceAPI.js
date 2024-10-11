@@ -1,7 +1,7 @@
 import axios from "axios";
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
-
+// services used in  PatientInsertion
 export const insertPatiendData = async (data) => {
 
    
@@ -31,7 +31,7 @@ export const addSurgeryData = async (data) =>{
 
 }
 
-
+// services used in PatientsList
 export const listPatients = async ()=>{
   const response = await axios.get(`${API_BASE_URL}//patients/list`);
   return response.data;
@@ -50,3 +50,12 @@ export const updateSurgeryDate = async (surgeryId,surgeryDate) =>{
 
 
 }
+
+export const retrieveStatistics = async (option) =>{
+  const response = await axios.get(`${API_BASE_URL}//statistics/${option}`)
+  return response.data;
+}
+
+
+
+

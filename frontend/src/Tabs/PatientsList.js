@@ -425,6 +425,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
         try {
           const data = await listPatients();  // Call the listPatients method
           setPatients(data);  // Update state with the fetched data
+          console.log(data)
         } catch (error) {
           console.error("Error fetching patients data:", error);
         }
@@ -439,17 +440,6 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
     }, [patients]);
 
 
-
-
-
-
-
-
-
-
-
- 
-    const dataSource = generateDataSource(20);
     const columns = generateColumns()
    
     return (

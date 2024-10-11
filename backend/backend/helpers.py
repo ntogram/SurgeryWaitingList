@@ -22,8 +22,23 @@ def isBoolean(v):
     else:
         return False
 
-
-
+def readStatsFromDB(db,query,keyname):
+     # Execute the query
+    result = db.session.execute(query)
+    # Fetch all results from the query
+    rows = result.fetchall()
+    statistics = []
+    # Convert the results to a list of dictionaries
+    for row in rows:
+        statistics.append({
+            keyname: row._mapping[keyname],
+            'Μόνιμοι Στρατιωτικοί': int(row._mapping['Μόνιμοι Στρατιωτικοί']),
+            'Έφεδροι Στρατιωτικοί': int(row._mapping['Έφεδροι Στρατιωτικοί']),
+            'Αστυνομικοί': int(row._mapping['Αστυνομικοί']),
+            'Απόστρατοι': int(row._mapping['Απόστρατοι']),
+            'Μέλη': int(row._mapping['Μέλη']),
+            'Ιδιώτες': int(row._mapping['Ιδιώτες'])})
+    return statistics
 #s="2024-10-02"
 #b =  is_valid_date(s)
 #print(s)

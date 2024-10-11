@@ -2,6 +2,10 @@ from db import db
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Enum,Date,Text,Boolean,ForeignKey,SmallInteger
 
+
+
+
+# ORM for tables
 class Patient(db.Model):
     __tablename__ = 'patients'  # Specify the table name
 
@@ -87,3 +91,10 @@ class Surgery(db.Model):
     # Relationships
     patient = relationship("Patient", back_populates="surgeries",uselist=False)
     surgeryType = relationship("SurgeryType", back_populates="surgeries",uselist=False)
+
+
+
+class OrganPropertyCombination(db.Model):
+    __tablename__ = 'organ_property_combinations'  # The view name
+    name = Column(String(20), primary_key=True)  # Assuming 'name' is a primary key (organName)
+    property = Column(String(18), primary_key=True)  # Assuming 'property' is also part of the primary key

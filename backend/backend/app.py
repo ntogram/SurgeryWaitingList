@@ -3,10 +3,11 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from db import db
 from config import Config
-from helpers import is_valid_date,hasRank,isBoolean
+from helpers import is_valid_date,hasRank,isBoolean,readStatsFromDB
 from models import *
 from sqlalchemy import case, func,and_,or_
 from datetime import datetime
+from queries import *
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = Config.SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
@@ -193,6 +194,18 @@ def addSurgery():
      db.session.commit()
      return jsonify({"message": f"Surgery with {surgery.surgeryId} added successfully!","id":surgery.surgeryId}), 201
 
+
+
+
+
+# service for calculating waiting time
+@app.route('/waitingTime',methods=["POST"])
+def calculateWaitingTime():
+    pass
+
+
+
+
 @app.route('/patients/list',methods=['GET'])
 def listWaitingPatients():
     # query for retrieving the list  of patients along with information related with the status of patient
@@ -248,6 +261,29 @@ def listWaitingPatients():
 
     # Return the list as JSON
     return jsonify(patient_list)
+
+
+
+
+@app.route('/statistics/<string:option>',methods=['GET'])
+def getStatistics(option:str):
+     # Check if the 'option' is valid (either 'organ' or 'surgery')
+    if option not in ['organ', 'surgery']:
+        return jsonify({'error': 'Invalid option parameter. Accepted values are: surgery, organ.'}), 400
+    # Based on the option, choose the appropriate query and parameter for the function
+    if option == 'organ':
+        statistics = readStatsFromDB(db, QUERY_SURGERIES_BY_ORGAN, 'organ')
+    elif option == 'surgery':
+        statistics = readStatsFromDB(db, QUERY_SURGERIES_BY_SURGERYTYPE, 'surgery')
+    # Return the statistics as a JSON response
+    return jsonify(statistics)
+
+
+
+
+
+
+
 
 @app.route('/patients/updateReferral/<int:surgery_id>',methods=['PUT'])
 def updateReferral(surgery_id:int):
@@ -313,6 +349,15 @@ def updateSurgeryDate(surgery_id:int):
     db.session.commit()
     return jsonify({'message': f' For surgery with ID {surgery_id}, update was performed successfully', "updated values":{
         'referral':newReferral,'active':newActive,'surgeryDate':newSurgeryDate}}),200
+
+
+
+
+
+
+
+
+
 @app.route('/')
 def home():
     return "Hello from the Python backend new!"

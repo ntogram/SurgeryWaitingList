@@ -1,13 +1,19 @@
-import React,{ useState } from 'react';
+import React,{ useState,useEffect} from 'react';
 import { useSelector } from 'react-redux'; 
 import { Table } from 'antd';
 import ButtonCollection from './utilities/ButtonCollection'
+import { retrieveStatistics } from '../services/serviceAPI';
 
 
 const StatisticsByOrgan  = () => {
    //style
     const { fullProperties, surgeries } = useSelector((state) => state.constants); 
     const organs =  Object.keys(surgeries)
+  // state variable for storing table data
+  const [statistics,setStatistics]= useState([])
+
+
+
     // generate table headers
     const generateColumns = (properties) => {
         const columns = [
@@ -41,7 +47,7 @@ const StatisticsByOrgan  = () => {
               Object.fromEntries(properties.map(property => [property, Math.floor(Math.random()*30)]))
             ])
           );
-          console.log(data)
+          //console.log(data)
           return organs.map((organ) => {
             const row = { organ };
             properties.forEach((property) => {
@@ -53,6 +59,35 @@ const StatisticsByOrgan  = () => {
 
 
     }
+
+    useEffect(() => {
+
+      const fetchStatistics = async () => {
+        try {
+          const data = await retrieveStatistics('organ');  // Call the listPatients method
+          setStatistics(data);  // Update state with the fetched data
+          console.log(data)
+        } catch (error) {
+          console.error("Error fetching patients data:", error);
+        }
+      };
+      
+      if (statistics.length==0){
+        fetchStatistics();
+
+      }
+      
+      //console.log(patients)  
+    }, [statistics]);
+
+
+
+
+
+
+
+
+
     const dataSource = generateDataSource(organs,fullProperties);
     const columns = generateColumns(fullProperties)
     return (
@@ -62,7 +97,7 @@ const StatisticsByOrgan  = () => {
         <Table
           columns={columns}
           pagination={false}
-          dataSource={dataSource}
+          dataSource={statistics}
           bordered
           scroll={{ x: 'max-content' }} 
         />

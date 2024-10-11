@@ -2,7 +2,7 @@ import React,{useState} from 'react'
 import { Breadcrumb,Space,Typography,Button} from 'antd';
 import {FilePdfOutlined,FileExcelOutlined,PrinterOutlined,ReloadOutlined} from '@ant-design/icons'
 
-
+// put buttons in separate components
 const ButtonCollection = () =>{
     const [refreshDateTime, setRefreshDateTime] = useState(new Date());
     const options = {
