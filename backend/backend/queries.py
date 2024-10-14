@@ -53,3 +53,20 @@ ORDER BY surgerywaitinglist.surgery_property_combinations.name,surgerywaitinglis
 GROUP BY name
 ORDER BY name;
 """)
+
+
+QUERY_CALC_WAITING_TIME = text("""
+SELECT 
+    CASE 
+        WHEN totalDuration < FLOOR(totalDuration) + 0.5 THEN FLOOR(totalDuration) + 0.5
+        WHEN totalDuration > FLOOR(totalDuration) + 0.5 THEN ROUND(totalDuration)
+        ELSE totalDuration
+    END AS adjustedDuration
+FROM (
+    SELECT SUM(st.estimatedDuration) / 1800 AS totalDuration
+    FROM surgerywaitinglist.surgeries s
+    JOIN surgerywaitinglist.surgerytypes st 
+    ON s.surgeryName = st.name
+    WHERE s.surgeryDate IS NULL AND s.active = 1 AND s.referral = 0 and s.surgeryId != :surgeryId
+) AS DURATION;
+""")

@@ -201,7 +201,21 @@ def addSurgery():
 # service for calculating waiting time
 @app.route('/waitingTime',methods=["POST"])
 def calculateWaitingTime():
-    pass
+    data = request.get_json()
+    required_attributes = ["surgeryId"]
+    for required_attribute in required_attributes:
+            if required_attribute not in data:
+                return jsonify({"error": "Missing attribute:{0}".format(required_attribute)}), 400
+    try:
+        surgeryId = int(data["surgeryId"])
+    except ValueError:
+         return jsonify({"error": "Error date format for surgeryId"}), 400
+    # execute the query for calculating the waiting time
+    result = db.session.execute(QUERY_CALC_WAITING_TIME,{"surgeryId": surgeryId})
+    # Fetch the result row from query
+    rowResult = result.fetchone()
+    estimatedDuration =  float(rowResult[0])
+    return jsonify({"estimatedDuration":estimatedDuration}),200
 
 
 
