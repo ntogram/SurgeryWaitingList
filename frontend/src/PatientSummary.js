@@ -34,7 +34,7 @@ const PatientSummary  = ({submittedData}) => {
                 <Descriptions.Item label="Παρατηρήσεις">{submittedData.comments || 'Καμία'}</Descriptions.Item>
                
     </Descriptions>
-    <WaitingTimeDisplayer/>
+    <WaitingTimeDisplayer surgeryId={submittedData.surgeryId}/>
     </div>
     );
 

@@ -39,12 +39,12 @@ export const listPatients = async ()=>{
 
 
 export const  updateReferral = async (surgeryId,referral)=>{
-  const response = await axios.put(`${API_BASE_URL}//patients/updateReferral/${surgeryId}`,{"referral":referral})
+  const response = await axios.put(`${API_BASE_URL}//patients/updateReferral/${surgeryId}`,{"referral":referral});
   return response.data;
 }
 
 export const updateSurgeryDate = async (surgeryId,surgeryDate) =>{
-  const response = await axios.put(`${API_BASE_URL}//patients/updateSurgeryDate/${surgeryId}`,{"surgeryDate":surgeryDate})
+  const response = await axios.put(`${API_BASE_URL}//patients/updateSurgeryDate/${surgeryId}`,{"surgeryDate":surgeryDate});
   return response.data;
 
 
@@ -52,10 +52,16 @@ export const updateSurgeryDate = async (surgeryId,surgeryDate) =>{
 }
 
 export const retrieveStatistics = async (option) =>{
-  const response = await axios.get(`${API_BASE_URL}//statistics/${option}`)
+  const response = await axios.get(`${API_BASE_URL}//statistics/${option}`);
   return response.data;
 }
 
 
 
+export const getWaitingTime = async (surgeryId) =>{
+  console.log(surgeryId)
+  const response = await axios.post(`${API_BASE_URL}//waitingTime`,{"surgeryId":surgeryId}, { headers: { 'Content-Type': 'application/json' } });
+    return response.data["estimatedDuration"];
 
+
+}

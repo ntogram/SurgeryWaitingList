@@ -124,6 +124,7 @@ const createNewSurgery = async(data) =>{
      // make request for storing surgery data
      let surgeryData ={"ID":patientId,"examDate":data["checkupDate"],"disease":data["diseaseName"],"diseaseDescription":data["diseaseDescription"],"organ":data["organ"],"surgeryName":data["surgery"],"comments":data["comments"]}
      let surgeryId = await createNewSurgery(surgeryData)
+     data["surgeryId"] = surgeryId;
 
 
 
