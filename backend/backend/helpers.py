@@ -1,4 +1,6 @@
 from datetime import datetime
+from datetime import date, timedelta
+from dateutil.relativedelta import relativedelta
 from models import Patient
 def is_valid_date(date_string):
     try:
@@ -43,3 +45,70 @@ def readStatsFromDB(db,query,keyname):
 #b =  is_valid_date(s)
 #print(s)
 #print(b)
+
+def isSummer(m):
+    # check if month is July or August
+    if m in [7,8]:
+        return True
+    else:
+        return False
+
+def isChristmas(m,d):
+    # Check if the new date is in the Christmas period (20-Dec to 10-Jan)
+    is_in_christmas_period = ((m == 12 and d >= 20) or (m == 1 and d <= 10))
+    if is_in_christmas_period:
+        print(1,m,d)
+        return True
+    else:
+        print(2,m,d)
+        return False
+
+def getPostSummerDate(y):
+    # the first surgery  date is approximately 10-09
+     d= datetime(y, 9, 10)
+     return d
+
+def getPostChristmasDate(y,m):
+    # 15-01 is the first surgery date after Christmas
+    newDate = None
+    if m == 12:
+            newDate= datetime(y+1, 1, 15)
+    else:
+            newDate= datetime(y, 1, 15)
+    return  newDate
+
+
+
+# find date of orthodox Easter
+def getEasterDate(y):
+    a = y % 19
+    b = y % 4
+    c = y % 7
+    sum1 = 19*a + 15
+    d = sum1 % 30
+    sum2 = 2*b + 4*c + 6*d + 6
+    e = sum2 % 7
+    f = d+e
+    if f <= 9:
+        easterDate = date(y, 3, 22 + f)  # March 22 + f days
+    else:
+        easterDate = date(y, 4, f - 9)   # April (f - 9)th
+
+    # Step 3: Convert to new style by adding 13 days
+    return easterDate + timedelta(days=13)
+
+
+
+def isEaster(dateVal):
+    if isinstance(dateVal, datetime):
+        dateVal = dateVal.date() 
+    easterDate = getEasterDate(dateVal.year)
+    beforeEaster = easterDate  - timedelta(days=7)
+    afterEaster = easterDate   +   timedelta(days=7)
+    if beforeEaster <= dateVal <= afterEaster:
+        newDate = afterEaster + timedelta(days=1)
+        return True,newDate
+    else:
+        return False,afterEaster
+
+

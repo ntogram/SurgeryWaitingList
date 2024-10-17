@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from db import db
 from config import Config
-from helpers import is_valid_date,hasRank,isBoolean,readStatsFromDB
+from helpers import is_valid_date,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster
 from models import *
 from sqlalchemy import case, func,and_,or_
 from datetime import datetime
@@ -376,10 +376,40 @@ def updateSurgeryDate(surgery_id:int):
 def home():
     return "Hello from the Python backend new!"
 
-
+from dateutil.relativedelta import relativedelta
 @app.route('/api/answer')
 def get_answer():
-    return jsonify({"answer": "This is the answer from the backend new!"})
+     surgeryId = 158
+     retrievedSurgery =  Surgery.query.get(surgeryId)
+     examDate = retrievedSurgery.examDate;
+     # Define the number of months to add
+     N = 7  
+     # Calculate the date N months after the exam date
+     newDate = examDate+ relativedelta(months=N)
+     extraDelay = False
+     period="Normal"
+     # check if proposed surgery date is in Summer Holidays
+     if isSummer(newDate.month) :
+        extraDelay = True
+        period = "Summer"
+        newDate= getPostSummerDate(newDate.year)            
+     
+     
+     # check if proposed surgery date is in Christmas Holidays
+     print(newDate)
+     if isChristmas(newDate.month,newDate.day):
+        extraDelay = True
+        period = "Christmas"
+        newDate = getPostChristmasDate(newDate.year,newDate.month)
+     # check if the proposed surgery date is in Easter Holidats
+     easterFeatures = isEaster(newDate)
+     if easterFeatures[0]:
+         extraDelay = True
+         period = "Easter"
+         newDate = easterFeatures[1]
+
+   
+     return jsonify({"initDate": examDate,"newDate":newDate,"extraDelay":extraDelay,"period":period,"delay":N})
 
 
 
