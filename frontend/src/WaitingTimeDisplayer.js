@@ -4,7 +4,12 @@ import {InfoCircleOutlined} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getWaitingTime } from './services/serviceAPI';
 
+/*
+#1677ff up tp 3
+ up to 5
+ >5
 
+*/
 
 
 const WaitingTimeDisplayer  = ({surgeryId}) => {
@@ -30,7 +35,7 @@ const WaitingTimeDisplayer  = ({surgeryId}) => {
 
     return(<Result
     status="info"
-    icon={<InfoCircleOutlined />}
+    icon={<InfoCircleOutlined style={{ color:"#f5222d"}} />}
     title="Υπολογισμός Χρόνου Αναμονής"
     subTitle={`Ο εκτιμώμενος χρόνος αναμονής είναι ${waitingTime}  ${waitingTime < 2 ? 'μήνας' : 'μήνες'}`}
     extra={<Button type="primary" onClick={() => navigate('/', { state: { submittedData: null } })}>Επιστροφή</Button>}

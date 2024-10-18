@@ -2,6 +2,24 @@ from datetime import datetime
 from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from models import Patient
+import math
+
+def custom_round(val):
+    """Custom rounding logic based on decimal part."""
+    int_part = int(val)  # Get the integer part
+    decimal_part = val - int_part  # Get the decimal part
+
+    if decimal_part > 0.5: # 
+        return math.ceil(val)  # Round up
+    elif decimal_part > 0:  # Handle values with a decimal part
+        return int_part + 0.5
+    else:  # If there's no decimal part
+        return int_part
+
+
+
+
+
 def is_valid_date(date_string):
     try:
         # Try to parse the string with the format YYYY-MM-DD
@@ -112,3 +130,33 @@ def isEaster(dateVal):
         return False,afterEaster
 
 
+def calculateDateDiff(d1,d2):
+    duration = relativedelta(d2, d1)
+    durationInMonths =  duration.months+ (duration.years*12) +duration.days/30
+    # normalize the durationInMonths in int value
+    durationInMonths = custom_round(durationInMonths)
+    return durationInMonths
+
+
+def getExpectedSurgeryDate(examDate,interval):
+    intervalM  =int(interval) # get number of months
+    extra_days = (interval - intervalM) * 30 # get uspplementary days
+    # calculate expected surgery date
+    expectedSurgeryDate = examDate + relativedelta(months=intervalM,days=extra_days)
+    return expectedSurgeryDate
+
+# The surgery date cannot be realized during holidays (Christmas,Easter,Summer). 
+# The expected surgery date may need adaptation
+def adaptSurgeryDate(surgeryDate):
+    # check if expected surgery date is in Summer Holidays
+     if isSummer(surgeryDate.month) :
+        surgeryDate= getPostSummerDate(surgeryDate.year)            
+     
+     # check if expected surgery date is in Christmas Holidays
+     if isChristmas(surgeryDate.month,surgeryDate.day):
+        surgeryDate = getPostChristmasDate(newDate.year,newDate.month)
+     # check if the expected surgery date is in Easter Holidats
+     easterFeatures = isEaster(surgeryDate)
+     if easterFeatures[0]:
+         surgeryDate = easterFeatures[1]
+     return surgeryDate

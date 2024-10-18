@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from db import db
 from config import Config
-from helpers import is_valid_date,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster
+from helpers import is_valid_date,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
 from models import *
 from sqlalchemy import case, func,and_,or_
 from datetime import datetime
@@ -214,8 +214,18 @@ def calculateWaitingTime():
     result = db.session.execute(QUERY_CALC_WAITING_TIME,{"surgeryId": surgeryId})
     # Fetch the result row from query
     rowResult = result.fetchone()
+    print(rowResult)
+    # calculate wait time
     estimatedDuration =  float(rowResult[0])
-    return jsonify({"estimatedDuration":estimatedDuration}),200
+    # Find expected surgery date
+    # get surgery with the given id
+    surgery = db.session.get(Surgery, surgeryId)
+    if surgery:     
+        examDate = surgery.examDate
+        expectedSurgeryDate = getExpectedSurgeryDate(examDate,estimatedDuration) # calculate expected surgery date
+        expectedSurgeryDate = adaptSurgeryDate(expectedSurgeryDate) # adapt surgery  date for cases that it is in holiday periods
+        estimatedDuration = calculateDateDiff(examDate,expectedSurgeryDate)  # calculate new waiting time
+    return jsonify({"estimatedDuration":estimatedDuration,"examDate":examDate,"surgeryDate":expectedSurgeryDate}),200
 
 
 
@@ -408,8 +418,8 @@ def get_answer():
          period = "Easter"
          newDate = easterFeatures[1]
 
-   
-     return jsonify({"initDate": examDate,"newDate":newDate,"extraDelay":extraDelay,"period":period,"delay":N})
+     duration = calculateDateDiff(examDate,newDate)   
+     return jsonify({"initDate": examDate,"newDate":newDate,"extraDelay":extraDelay,"period":period,"delay":N,"duration":duration})
 
 
 
