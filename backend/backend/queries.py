@@ -60,6 +60,7 @@ SELECT
     CASE 
         WHEN totalDuration < FLOOR(totalDuration) + 0.5 THEN FLOOR(totalDuration) + 0.5
         WHEN totalDuration > FLOOR(totalDuration) + 0.5 THEN ROUND(totalDuration)
+        WHEN totalDuration is NULL then 0
         ELSE totalDuration
     END AS adjustedDuration
 FROM (

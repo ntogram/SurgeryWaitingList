@@ -199,6 +199,38 @@ def addSurgery():
 
 
 # service for calculating waiting time
+@app.route('/waitingTime1',methods=["GET"])
+def calculateWaitingTime1():
+    # execute the query for calculating the waiting time
+    result = db.session.execute(QUERY_CALC_WAITING_TIME,{"surgeryId": 254})
+    # Fetch the result row from query
+    rowResult = result.fetchone()
+    print(rowResult)
+    # calculate wait time
+    estimatedDuration =  float(rowResult[0])
+    # Find expected surgery date
+    # get surgery with the given id
+    surgery = db.session.get(Surgery, 254)
+    print(surgery)
+    if surgery:     
+        examDate = surgery.examDate
+        expectedSurgeryDate = getExpectedSurgeryDate(examDate,estimatedDuration) # calculate expected surgery date
+        expectedSurgeryDate = adaptSurgeryDate(expectedSurgeryDate) # adapt surgery  date for cases that it is in holiday periods
+        estimatedDuration = calculateDateDiff(examDate,expectedSurgeryDate)  # calculate new waiting time
+        return jsonify({"estimatedDuration":estimatedDuration,"examDate":examDate,"surgeryDate":expectedSurgeryDate}),200
+    return jsonify({"Error":"Some error occured"}),404
+
+
+
+
+
+
+
+
+
+
+
+# service for calculating waiting time
 @app.route('/waitingTime',methods=["POST"])
 def calculateWaitingTime():
     data = request.get_json()
@@ -211,7 +243,7 @@ def calculateWaitingTime():
     except ValueError:
          return jsonify({"error": "Error date format for surgeryId"}), 400
     # execute the query for calculating the waiting time
-    result = db.session.execute(QUERY_CALC_WAITING_TIME,{"surgeryId": surgeryId})
+    result = db.session.execute(QUERY_CALC_WAITING_TIME,{"surgeryId": 254})
     # Fetch the result row from query
     rowResult = result.fetchone()
     print(rowResult)
