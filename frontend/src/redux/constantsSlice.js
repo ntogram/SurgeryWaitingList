@@ -6,6 +6,9 @@ const initialState = {
   
   properties: ["Στρατιωτικός", "Αστυνομικός", "Απόστρατος", "Μέλος", "Ιδιώτης"],
   fullProperties:["Μόνιμοι Στρατιωτικοί", "Έφεδροι Στρατιωτικοί", "Αστυνομικοί", "Απόστρατοι", "Μέλη", "Ιδιώτες"],
+  NORMAL_COLOR: "#1677ff",
+  WARNING_COLOR: "#faad14",
+  DANGER_COLOR: "#ff4d4f",
 
 
 
@@ -38,8 +41,22 @@ const constantsSlice = createSlice({
   name: 'constants',
   initialState,
   reducers: {
+    getColorByStatus: (state, action) => {
+      const status = action.payload;
+      if (status<=3){
+        return state.NORMAL_COLOR
+      }
+      else if (status<=5){
+        return state.WARNING_COLOR
+      }
+      else{
+        return state.DANGER_COLOR
+      }
+
+
     // You can add actions here if you want to modify the data in future
   }
+}
 });
 
 export default constantsSlice.reducer;

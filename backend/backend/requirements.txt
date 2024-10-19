@@ -6,3 +6,4 @@ Flask-SQLAlchemy==3.0.2
 pymysql
 python-dotenv
 python-dateutil
+cryptography
