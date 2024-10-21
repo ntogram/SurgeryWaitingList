@@ -1,5 +1,6 @@
 import React,{ useState,useEffect} from 'react';
-import { useSelector } from 'react-redux'; 
+import { useSelector, useDispatch } from 'react-redux';
+import {resetRefreshTab} from '../redux/reducers/tabSlice';
 import { Table } from 'antd';
 import ButtonCollection from './utilities/ButtonCollection'
 import { retrieveStatistics } from '../services/serviceAPI';
@@ -11,6 +12,8 @@ const StatisticsByOrgan  = () => {
     const organs =  Object.keys(surgeries)
   // state variable for storing table data
   const [statistics,setStatistics]= useState([])
+  const refreshTab = useSelector((state) => state.tab.refreshTab);
+  const dispatch = useDispatch();
 
 
 
@@ -76,9 +79,13 @@ const StatisticsByOrgan  = () => {
         fetchStatistics();
 
       }
-      
+      if (refreshTab=="statisticsByOrgan"){
+        console.log("redux refreshTab:"+refreshTab)
+        fetchStatistics();
+        dispatch(resetRefreshTab());
+      }
       //console.log(patients)  
-    }, [statistics]);
+    }, [statistics,refreshTab]);
 
 
 

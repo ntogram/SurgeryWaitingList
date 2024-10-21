@@ -1,27 +1,35 @@
 import React,{ useState,useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link,Navigate } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link,Navigate,useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { Layout, Menu } from 'antd';
 import 'antd/dist/reset.css'; 
+import  {setTab}  from '../redux/reducers/tabSlice';
 import PatientInsertion from '../Tabs/PatientInsertion';
 import StatisticsBySurgeryType from '../Tabs/StatisticsBySurgeryType';
 import StatisticsByOrgan from '../Tabs/StatisticsByOrgan';
 import PatientsList from '../Tabs/PatientsList';
 const Navigator = () => {
     const { Header, Content, Footer } = Layout; 
-   
-    // Retrieve the last selected tab from localStorage, default to 'patientInsertion'
-    const [current, setCurrent] = useState(localStorage.getItem('selectedTab') || 'patientInsertion');
+    
+    const current = useSelector((state) => state.tab.selectedTab);
+    const dispatch = useDispatch();
+    
+    
+    
+    
     const changeTab = (e) => {
-      console.log('click ', e);
-      setCurrent(e.key);
-      localStorage.setItem('selectedTab', e.key);
+      dispatch(setTab(e.key)); // call redux setTab for change current tab and store it in local storage
     };
     useEffect (() => {
+       console.log(window.location.pathname); 
+      let url_loc =window.location.pathname.substring(1);
       // Check if a stored tab is present in localStorage and update state on component mount
-      const savedTab = localStorage.getItem('selectedTab');
+      let savedTab = localStorage.getItem('selectedTab');
+      if (savedTab != url_loc){
+          savedTab = url_loc;
+      }
       if (savedTab) {
-          setCurrent(savedTab);
+        dispatch(setTab(savedTab));
       }
                    }, []);
 

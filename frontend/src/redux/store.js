@@ -1,8 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import constantsReducer from './constantsSlice'; // Import the reducer
-
+import constantsReducer from './reducers/constantsSlice'; // Import the reducer
+import tabReducer from './reducers/tabSlice';
 export const store = configureStore({
   reducer: {
-    constants: constantsReducer, // Add your slice here
+    constants: constantsReducer,
+    tab:tabReducer // Add your slice here
   },
 });

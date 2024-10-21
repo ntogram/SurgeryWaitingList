@@ -1,7 +1,8 @@
 import React,{ useState,useEffect} from 'react';
 import { Table,Switch,Button,DatePicker} from 'antd';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons';
-import { useSelector } from 'react-redux'; 
+import { useSelector, useDispatch } from 'react-redux';
+import {resetRefreshTab} from '../redux/reducers/tabSlice';
 import dayjs from 'dayjs';
 import getColumnSearchProps from '../Search/getColumnSearchProps '; 
 import {listPatients,updateReferral,updateSurgeryDate} from '../services/serviceAPI'
@@ -30,7 +31,12 @@ const PatientsList  = () => {
    const surgeryTypes =  (Array.from(new Set(Object.values(surgeries).flat())).sort());
    const booleanAnswers=["Ναι","Όχι","Όλες"]
    const fullProperties = ["Μόνιμος Στρατιωτικός", "Έφεδρος Στρατιωτικός", "Αστυνομικός", "Απόστρατος", "Μέλος", "Ιδιώτης"]
-   
+   // get name of refresh tab
+   const refreshTab = useSelector((state) => state.tab.refreshTab);
+   const dispatch = useDispatch();
+
+
+
   // generate table headers
     const generateColumns = () => {
         const columns = [
@@ -425,7 +431,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
         try {
           const data = await listPatients();  // Call the listPatients method
           setPatients(data);  // Update state with the fetched data
-          console.log(data)
+          
         } catch (error) {
           console.error("Error fetching patients data:", error);
         }
@@ -435,9 +441,19 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
         fetchPatients();
 
       }
+      console.log(refreshTab)
+      if (refreshTab=="patientsList"){
+        fetchPatients();
+        console.log("redux refreshTab:"+refreshTab)
+        dispatch(resetRefreshTab());
+      }
+
+
+
+
       
       //console.log(patients)  
-    }, [patients]);
+    }, [patients,refreshTab]);
 
 
     const columns = generateColumns()

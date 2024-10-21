@@ -1,5 +1,6 @@
 import React,{ useState,useEffect} from 'react';
-import { useSelector } from 'react-redux'; 
+import { useSelector, useDispatch } from 'react-redux';
+import {resetRefreshTab} from '../redux/reducers/tabSlice'; 
 import { Table } from 'antd';
 import ButtonCollection from './utilities/ButtonCollection'
 import { retrieveStatistics } from '../services/serviceAPI';
@@ -9,6 +10,8 @@ const StatisticsBySurgeryType  = () => {
     const { fullProperties, surgeries } = useSelector((state) => state.constants); 
     const surgeryTypes =  Array.from(new Set(Object.values(surgeries).flat())).sort();
     const [statistics,setStatistics]= useState([])
+    const refreshTab = useSelector((state) => state.tab.refreshTab);
+    const dispatch = useDispatch();
     // generate table headers
     const generateColumns = (properties) => {
         const columns = [
@@ -73,9 +76,14 @@ const StatisticsBySurgeryType  = () => {
         fetchStatistics();
 
       }
+      if (refreshTab=="statisticsBySurgeryType"){
+        console.log("redux refreshTab:"+refreshTab)
+        fetchStatistics();
+        dispatch(resetRefreshTab());
+      }
       
       //console.log(patients)  
-    }, [statistics]);
+    }, [statistics,refreshTab]);
 
 
 

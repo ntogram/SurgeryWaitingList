@@ -1,7 +1,7 @@
 import React,{useState} from 'react'
 import { Breadcrumb,Space,Typography,Button} from 'antd';
 import {FilePdfOutlined,FileExcelOutlined,PrinterOutlined,ReloadOutlined} from '@ant-design/icons'
-
+import RefreshButton from './RefreshButton';
 // put buttons in separate components
 const ButtonCollection = () =>{
     const [refreshDateTime, setRefreshDateTime] = useState(new Date());
@@ -14,13 +14,10 @@ const ButtonCollection = () =>{
       second: 'numeric',
       hour12: false
                     };
-    const refresh = () => {
-                      console.log("f")
-                      setRefreshDateTime(new Date()); // Update state with new date and time
-                    };
+   
      const toolboxItems =[
       {
-        title: <Button shape="circle" color="primary" variant="link" icon={<ReloadOutlined/>} onClick={refresh}/>
+        title:<RefreshButton refreshDateTime={setRefreshDateTime}/>
       },
       {
         title: <Button shape="circle" color="primary" variant="link" icon={<PrinterOutlined/>}/>
