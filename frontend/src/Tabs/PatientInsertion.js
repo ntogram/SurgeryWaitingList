@@ -4,11 +4,20 @@ import { insertPatiendData,addRank,addDischargeDate,addSurgeryData} from '../ser
 import { useSelector } from 'react-redux'; 
 import axios from 'axios';
 import dayjs from 'dayjs';
+//import 'dayjs/locale/el'
 import { Form, Input, Button,DatePicker,Select,Result} from 'antd';
 import PatientSummary from '../PatientSummary'
 import { useNavigate } from 'react-router-dom';
 import { Faker, el } from '@faker-js/faker'; 
+//import moment from 'moment';
+//import 'moment/locale/el';
+//import locale from 'antd/es/date-picker/locale/el_GR';
 import 'antd/dist/reset.css';
+
+
+// Set Moment.js locale to Greek
+//moment.locale('el');
+//dayjs.locale('el');
 const PatientInsertion  = () => {
   const location = useLocation();
   const [message, setMessage] = useState('');  // State to store the backend message
@@ -25,7 +34,7 @@ const PatientInsertion  = () => {
   console.log(location.state)
   const faker = new Faker({locale: [el]})
   
-  
+
   
   
   
@@ -380,7 +389,7 @@ const sendData = async () =>{
           name="birthDate"
           rules={[{ required: true, message: 'Παρακαλώ επιλέξτε την ημερομηνία γέννησης του ασθενή' }]}
         >
-          <DatePicker variant="filled" style={{maxWidth: '60%',width: '100%' }} maxDate={today} /> 
+          <DatePicker variant="filled"  style={{maxWidth: '60%',width: '100%' }} maxDate={today} /> 
         </Form.Item>
          {/* checkupDate */}
          <Form.Item
@@ -388,7 +397,7 @@ const sendData = async () =>{
           name="checkupDate"
           rules={[{ required: true, message: 'Παρακαλώ επιλέξτε την ημερομηνία εξέτασης του ασθενή' }]}
         >
-          <DatePicker variant="filled" style={{maxWidth: '60%',width: '100%' }} maxDate={today} /> 
+          <DatePicker variant="filled"  style={{maxWidth: '60%',width: '100%' }} maxDate={today} /> 
         </Form.Item>
 
 

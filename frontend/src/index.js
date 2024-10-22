@@ -5,12 +5,22 @@ import App from './App';
 import { Provider } from 'react-redux';
 import { store } from './redux/store';  
 import reportWebVitals from './reportWebVitals';
+import { ConfigProvider} from 'antd';
+import dayjs from 'dayjs';
+import 'dayjs/locale/el'
+
+
+import el_GR from 'antd/locale/el_GR';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
    <Provider store={store}>
+  
+    <ConfigProvider locale={el_GR}>
     <App />
+    </ConfigProvider>
+    
   </Provider>
   </React.StrictMode>
 );
