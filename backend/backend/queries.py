@@ -68,6 +68,6 @@ FROM (
     FROM surgerywaitinglist.surgeries s
     JOIN surgerywaitinglist.surgerytypes st 
     ON s.surgeryName = st.name
-    WHERE s.surgeryDate IS NULL AND s.active = 1 AND s.referral = 0 and s.surgeryId != :surgeryId
+    WHERE s.surgeryDate IS NULL AND s.active = 1 AND s.referral = 0 and s.surgeryId != :surgeryId  AND s.examDate<=:examDate
 ) AS DURATION;
 """)

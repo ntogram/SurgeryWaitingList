@@ -97,10 +97,11 @@ const StatisticsByOrgan  = () => {
 
     const dataSource = generateDataSource(organs,fullProperties);
     const columns = generateColumns(fullProperties)
+    const columnNames = columns.map((col) => col.title)
     return (
        <div>
        
-      <ButtonCollection/>
+      <ButtonCollection dataSource={statistics} columns={columnNames}/>
         <Table
           columns={columns}
           pagination={false}

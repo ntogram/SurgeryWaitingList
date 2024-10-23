@@ -12,14 +12,15 @@ import { getWaitingTime } from './services/serviceAPI';
 */
 
 
-const WaitingTimeDisplayer  = ({surgeryId}) => {
+const WaitingTimeDisplayer  = ({surgeryId,examDate}) => {
     const navigate = useNavigate();
     const [waitingTime,setWaitingTime] =useState(-1);
     
     useEffect(() => {
         const fetchWaitingTime = async () => {
-                const estimatedTime = await getWaitingTime(surgeryId);
-               console.log(estimatedTime);
+                console.log(examDate)
+                const estimatedTime = await getWaitingTime(surgeryId,examDate);
+                console.log(estimatedTime);
                 setWaitingTime(estimatedTime);
 
         }

@@ -2,8 +2,9 @@ import React,{useState} from 'react'
 import { Breadcrumb,Space,Typography,Button} from 'antd';
 import {FilePdfOutlined,FileExcelOutlined,PrinterOutlined,ReloadOutlined} from '@ant-design/icons'
 import RefreshButton from './RefreshButton';
+import DownloadPDF from './DownloadPDF';
 // put buttons in separate components
-const ButtonCollection = () =>{
+const ButtonCollection = ({columns,dataSource}) =>{
     const [refreshDateTime, setRefreshDateTime] = useState(new Date());
     const options = {
       year: 'numeric',
@@ -15,6 +16,9 @@ const ButtonCollection = () =>{
       hour12: false
                     };
    
+                    
+
+
      const toolboxItems =[
       {
         title:<RefreshButton refreshDateTime={setRefreshDateTime}/>
@@ -23,7 +27,7 @@ const ButtonCollection = () =>{
         title: <Button shape="circle" color="primary" variant="link" icon={<PrinterOutlined/>}/>
       },
       {
-        title: <Button shape="circle" color="primary" variant="link" icon={<FilePdfOutlined/>}/>
+        title: <DownloadPDF dataSource={dataSource} columns={columns}/>
       },
       {
         title:  <Button shape="circle" color="primary" variant="link" icon={<FileExcelOutlined/>}/>

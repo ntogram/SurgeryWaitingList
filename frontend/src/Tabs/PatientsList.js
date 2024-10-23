@@ -7,7 +7,7 @@ import dayjs from 'dayjs';
 import getColumnSearchProps from '../Search/getColumnSearchProps '; 
 import {listPatients,updateReferral,updateSurgeryDate} from '../services/serviceAPI'
 import ButtonCollection from './utilities/ButtonCollection'
-
+ 
 
 
 
@@ -457,11 +457,12 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
 
 
     const columns = generateColumns()
+    const columnNames = columns.map((col) => col.title)
    
     return (
       <div>
        
-          <ButtonCollection/>
+          <ButtonCollection dataSource={patients} columns={columnNames}/>
           <Table
           columns={columns}
           pagination={false}

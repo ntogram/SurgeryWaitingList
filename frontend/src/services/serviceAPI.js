@@ -58,9 +58,9 @@ export const retrieveStatistics = async (option) =>{
 
 
 
-export const getWaitingTime = async (surgeryId) =>{
-  console.log(surgeryId)
-  const response = await axios.post(`${API_BASE_URL}//waitingTime`,{"surgeryId":surgeryId}, { headers: { 'Content-Type': 'application/json' } });
+export const getWaitingTime = async (surgeryId,examDate) =>{
+
+  const response = await axios.post(`${API_BASE_URL}//waitingTime`,{"surgeryId":surgeryId,"examDate":examDate}, { headers: { 'Content-Type': 'application/json' } });
     return response.data["estimatedDuration"];
 
 

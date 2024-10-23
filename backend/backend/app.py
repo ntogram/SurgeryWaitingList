@@ -149,6 +149,9 @@ def addDischargeDate():
                 return jsonify({"error": "Missing attribute:{0}".format(required_attribute)}), 400
      soldierId = data.get("ID")
      dischargeDate=data.get("dischargeDate")
+     valid = is_valid_date(dischargeDate)
+     if valid== False:
+            return jsonify({"error": "Error date format for dischargeDate"}), 400
      #check if  the discharge date has been already stored for the patient (soldier) with soldierID
      existing_soldier = Soldier.query.filter_by(soldierID=soldierId).first()
      if existing_soldier is None:
@@ -178,6 +181,9 @@ def addSurgery():
                 return jsonify({"error": "Missing attribute:{0}".format(required_attribute)}), 400
      patientId = data.get("ID")
      examDate = data.get("examDate")
+     valid = is_valid_date(examDate)
+     if valid== False:
+        return jsonify({"error": "Error date format for examDate"}), 400 
      disease =  data.get("disease")
      organ = data.get("organ")
      surgeryName = data.get("surgeryName")
@@ -234,7 +240,7 @@ def calculateWaitingTime1():
 @app.route('/waitingTime',methods=["POST"])
 def calculateWaitingTime():
     data = request.get_json()
-    required_attributes = ["surgeryId"]
+    required_attributes = ["surgeryId","examDate"]
     for required_attribute in required_attributes:
             if required_attribute not in data:
                 return jsonify({"error": "Missing attribute:{0}".format(required_attribute)}), 400
@@ -242,8 +248,16 @@ def calculateWaitingTime():
         surgeryId = int(data["surgeryId"])
     except ValueError:
          return jsonify({"error": "Error date format for surgeryId"}), 400
+
+    # check if the given exam date is valid
+    examDate = data.get("examDate")
+    valid = is_valid_date(examDate)
+    if valid== False:
+        return jsonify({"error": "Error date format for examDate"}), 400 
+
+
     # execute the query for calculating the waiting time
-    result = db.session.execute(QUERY_CALC_WAITING_TIME,{"surgeryId": 254})
+    result = db.session.execute(QUERY_CALC_WAITING_TIME,{"surgeryId": surgeryId,"examDate":examDate})
     # Fetch the result row from query
     rowResult = result.fetchone()
     print(rowResult)

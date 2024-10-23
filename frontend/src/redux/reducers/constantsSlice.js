@@ -6,7 +6,6 @@ import dayjs from 'dayjs';
 const initialState = {
   dateFormat :'YYYY-MM-DD',
   today:dayjs(dayjs().format('YYYY-MM-DD'),'YYYY-MM-DD'),
-  
   properties: ["Στρατιωτικός", "Αστυνομικός", "Απόστρατος", "Μέλος", "Ιδιώτης"],
   fullProperties:["Μόνιμοι Στρατιωτικοί", "Έφεδροι Στρατιωτικοί", "Αστυνομικοί", "Απόστρατοι", "Μέλη", "Ιδιώτες"],
 
