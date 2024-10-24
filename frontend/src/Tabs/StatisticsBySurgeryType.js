@@ -91,9 +91,8 @@ const StatisticsBySurgeryType  = () => {
 
     const dataSource = generateDataSource(surgeryTypes,fullProperties);
     const columns = generateColumns(fullProperties)
-    const columnNames = columns.map((col) => col.title)
       return(<div>
-                <ButtonCollection dataSource={statistics} columns={columnNames}/>
+                <ButtonCollection dataSource={statistics} columns={columns}/>
                 <Table
                   columns={columns}
                   

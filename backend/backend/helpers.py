@@ -154,7 +154,7 @@ def adaptSurgeryDate(surgeryDate):
      
      # check if expected surgery date is in Christmas Holidays
      if isChristmas(surgeryDate.month,surgeryDate.day):
-        surgeryDate = getPostChristmasDate(newDate.year,newDate.month)
+        surgeryDate = getPostChristmasDate(surgeryDate.year,surgeryDate.month)
      # check if the expected surgery date is in Easter Holidats
      easterFeatures = isEaster(surgeryDate)
      if easterFeatures[0]:

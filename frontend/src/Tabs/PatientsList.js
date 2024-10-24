@@ -457,12 +457,11 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
 
 
     const columns = generateColumns()
-    const columnNames = columns.map((col) => col.title)
-   
+    
     return (
       <div>
        
-          <ButtonCollection dataSource={patients} columns={columnNames}/>
+          <ButtonCollection dataSource={patients} columns={columns}/>
           <Table
           columns={columns}
           pagination={false}
