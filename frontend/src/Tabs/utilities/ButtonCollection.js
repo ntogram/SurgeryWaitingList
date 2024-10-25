@@ -2,7 +2,7 @@ import React,{useState} from 'react'
 import { Breadcrumb,Space,Typography,Button} from 'antd';
 import {FilePdfOutlined,FileExcelOutlined,PrinterOutlined,ReloadOutlined} from '@ant-design/icons'
 import RefreshButton from './RefreshButton';
-import PDFhandler from './PDFhandler';
+import Filehandler from './Filehandler';
 // put buttons in separate components
 const ButtonCollection = ({columns,dataSource}) =>{
     const [refreshDateTime, setRefreshDateTime] = useState(new Date());
@@ -24,13 +24,13 @@ const ButtonCollection = ({columns,dataSource}) =>{
         title:<RefreshButton refreshDateTime={setRefreshDateTime}/>
       },
       {
-        title: <PDFhandler dataSource={dataSource} columns={columns} op={"Εκτύπωση"}/>
+        title: <Filehandler dataSource={dataSource} columns={columns} op={"Εκτύπωση"}/>
       },
       {
-        title: <PDFhandler dataSource={dataSource} columns={columns} op={"Αποθήκευση"}/>
+        title: <Filehandler dataSource={dataSource} columns={columns} op={"Αποθήκευση PDF"}/>
       },
       {
-        title:  <Button shape="circle" color="primary" variant="link" icon={<FileExcelOutlined/>}/>
+        title:  <Filehandler dataSource={dataSource} columns={columns} op={"Αποθήκευση Excel"}/>
       },
       {
         title: refreshDateTime.toLocaleString('el-GR', options)

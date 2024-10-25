@@ -1,12 +1,15 @@
 import React,{useState} from 'react'
 import {Button} from 'antd';
-import {FilePdfOutlined,PrinterOutlined} from '@ant-design/icons'
+import {FilePdfOutlined,PrinterOutlined,FileExcelOutlined} from '@ant-design/icons'
 import { useSelector} from 'react-redux';
+// imports for exporting/printing pdf
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import callAddFont from './pdfFont'
-
-const PDFhandler = ({columns,dataSource,op}) =>{
+// imports for exporting excel
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+const Filehandler = ({columns,dataSource,op}) =>{
     const current = useSelector((state) => state.tab.selectedTab);
     const today = useSelector((state) => state.constants.today); // get title of current tab
     
@@ -16,10 +19,15 @@ const PDFhandler = ({columns,dataSource,op}) =>{
       if (op==undefined){
           return null
       }
-      else if (op=="Αποθήκευση"){
+      else if (op=="Αποθήκευση PDF"){
         return <FilePdfOutlined/>
       }
-      else{
+      else if (op=="Αποθήκευση Excel"){
+        return <FileExcelOutlined/>
+      }
+      else  
+  
+        {
 
           return <PrinterOutlined/>
 
@@ -28,12 +36,25 @@ const PDFhandler = ({columns,dataSource,op}) =>{
 
 
     }
+    // Extract excel headers
+    const getHeaders = ()=>{
+      const headers = columns.map(col => col.title);
+      return headers;
+    }
+    // Extract excel data
+    const getRows = () =>{
+      const rows = dataSource.map(record =>columns.map(col => record[col.key]));
+      return rows
+    }
+
+
+
     const createPdf = ()=>{
-      // 
+      //  form doc title
       const title = formDocTitle();
       // Extract table column headers and rows
-      const columnNames = columns.map((col) => col.title)
-      const tableRows = dataSource.map( (record)=>columns.map((col) => record[col.key]));
+      const columnNames = getHeaders();
+      const tableRows = getRows();
       // create pdf file
       const doc = new jsPDF();
       // Call the font loading function with the correct context
@@ -55,19 +76,25 @@ const PDFhandler = ({columns,dataSource,op}) =>{
       const docfile ={"doc":doc,"title":title}
       return docfile;
     }
-    const download = () =>{
+    const downloadPdf = () =>{
       // retrieve pdf created by invoking createPdf  along with document file  
       const docfile = createPdf();
       // extract document title & file
       const title = docfile["title"];
       const doc =  docfile["doc"];
       // Form filename
-      const extension = ".pdf"
-      const filename = title +" "+today.format('YYYY-MM-DD')+extension
+      const extension="pdf";
+      const filename = formFileName(title,extension);
       // save doc as filename
       doc.save(filename);
     }
   
+
+
+
+
+
+
    const print = () => {
     // retrieve pdf created by invoking createPdf  along with document file  
     const docfile = createPdf();
@@ -78,12 +105,43 @@ const PDFhandler = ({columns,dataSource,op}) =>{
     window.open(doc.output('bloburl'), '_blank'); // Open print dialog
    }
 
-  
+   const  downloadExcel = () =>{
+      //  form doc title
+      const title = formDocTitle();
+      // Extract table column headers and rows
+      const columnNames = getHeaders();
+      const tableRows = getRows();
+      // Create a workbook and a worksheet
+      const workbook = XLSX.utils.book_new();
+      let worksheetData = [];
+      worksheetData = worksheetData.concat([columnNames], tableRows);
+      // create worksheet with worksheetData
+      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+      // add the worksheet to workbook.  appended worksheet named as title
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Φύλλο1");
+      // create excel
+      const excelBuffer = XLSX.write(workbook, {bookType: "xlsx",type: "array"});
+      // create file for excel 
+      const file = new Blob([excelBuffer], { type: "application/octet-stream" });
+      // Form filename
+      const extension="xlsx";
+      const filename = formFileName(title,extension);
+      saveAs(file, filename);
+
+   }
+
+
+
+
   
    const handleClick = () => {
-    if (op === "Αποθήκευση") {
-        download();
-    } else if (op === "Εκτύπωση") {
+    if (op === "Αποθήκευση PDF") {
+      downloadPdf();
+    }
+    else if (op==="Αποθήκευση Excel"){
+      downloadExcel();
+    }
+     else if (op === "Εκτύπωση") {
         print();
     }
 }
@@ -107,6 +165,11 @@ const PDFhandler = ({columns,dataSource,op}) =>{
   }  
 
 
+  // give string (title of file ) and the file extension (e.g. pdf,xlsx)
+  const formFileName = (title,extension)=>{
+    const filename = title +" "+today.format('YYYY-MM-DD')+"."+extension
+    return filename;
+  }
 
 
 
@@ -116,4 +179,4 @@ const PDFhandler = ({columns,dataSource,op}) =>{
 
 }
 
-export default PDFhandler;
+export default Filehandler;

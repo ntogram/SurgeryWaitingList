@@ -88,7 +88,9 @@ const PatientsList  = () => {
               
               !record.surgeryDone?
              <div>
-             <span><DatePicker variant="filled" style={{maxWidth: '60%',width: '100%' }}  onChange={(date,dateString,id)=>handleDateSurgeryChange(date,dateString,record.id)} defaultValue={today} maxDate={today} /></span><Button 
+             <span><DatePicker variant="filled" style={{maxWidth: '60%',width: '100%' }}  onChange={(date,dateString,id)=>handleDateSurgeryChange(date,dateString,record.id)} 
+             defaultValue={record.surgeryDate!=null?dayjs(record.surgeryDate):today} 
+             maxDate={today.add(1, 'day')} /></span><Button 
               type="primary" 
               shape="circle"
               style={{ marginLeft: '5%',backgroundColor: '#28a745', borderColor: '#28a745', color: '#fff' }} 
@@ -374,8 +376,10 @@ const validateReferral = async (surgeryId,status=true) => {
 
 // set the selected  surgery date
 const handleDateSurgeryChange = (date,dateString,id) =>{
- 
-  
+      console.log(dateString)
+    if(dateString==null){
+      dateString = today.format('YYYY-MM-DD');
+    }
      const updatedPatients = patients.map(patient => {
      if (patient.id === id) {
        return {
