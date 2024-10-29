@@ -36,3 +36,7 @@
     transform: rotate(360deg);
   }
 }
+
+.ant-table-row.selected-row {
+  background-color: #e6f7ff !important; /* Customize as needed */
+}

@@ -31,7 +31,7 @@ const WaitingTimeDisplayer  = ({surgeryId,examDate}) => {
         }
 
     }, [waitingTime]);
-
+    // an intensity message color is selected based on waiting time 
     const getColorByStatus = (t) =>{
         const NORMAL_COLOR ="#1677ff";
         const WARNING_COLOR = "#faad14";
@@ -49,11 +49,28 @@ const WaitingTimeDisplayer  = ({surgeryId,examDate}) => {
 
     }
 
+
+
+    const getWaitingTimeExpr = ()=>{
+      if (waitingTime==0.5){
+        return "2 εβδομάδες"
+      }
+      else if (waitingTime==1){
+        return waitingTime.toString() +" μήνας"
+      }
+      else {
+           return waitingTime.toString() +" μήνες"
+      }
+    }
+
+
+
+
     return(<Result
     status="info"
     icon={<InfoCircleOutlined style={{ color:getColorByStatus(waitingTime)}} />}
     title="Υπολογισμός Χρόνου Αναμονής"
-    subTitle={`Ο εκτιμώμενος χρόνος αναμονής είναι ${waitingTime}  ${waitingTime < 2 ? 'μήνας' : 'μήνες'}`}
+    subTitle={`Ο εκτιμώμενος χρόνος αναμονής είναι ${getWaitingTimeExpr()}`}
     extra={<Button type="primary" onClick={() => navigate('/', { state: { submittedData: null } })}>Επιστροφή</Button>}
     />
     );

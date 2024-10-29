@@ -75,10 +75,8 @@ def isChristmas(m,d):
     # Check if the new date is in the Christmas period (20-Dec to 10-Jan)
     is_in_christmas_period = ((m == 12 and d >= 20) or (m == 1 and d <= 10))
     if is_in_christmas_period:
-        print(1,m,d)
         return True
     else:
-        print(2,m,d)
         return False
 
 def getPostSummerDate(y):

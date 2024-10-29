@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import {Button} from 'antd';
+import {Button,Tooltip } from 'antd';
 import {FilePdfOutlined,PrinterOutlined,FileExcelOutlined} from '@ant-design/icons'
 import { useSelector} from 'react-redux';
 // imports for exporting/printing pdf
@@ -174,7 +174,7 @@ const Filehandler = ({columns,dataSource,op}) =>{
 
 
 
-    return <Button shape="circle" color="primary" variant="link" icon={retrieveBtnIcon()} onClick={handleClick}/>
+    return  <Tooltip placement="bottom" arrow={false} title={op}><Button shape="circle" color="primary" variant="link" icon={retrieveBtnIcon()} onClick={handleClick}/></Tooltip>
 
 
 }

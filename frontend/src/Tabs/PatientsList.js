@@ -1,9 +1,10 @@
 import React,{ useState,useEffect} from 'react';
-import { Table,Switch,Button,DatePicker} from 'antd';
+import { Table,Switch,Button,DatePicker,Checkbox} from 'antd';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import {resetRefreshTab} from '../redux/reducers/tabSlice';
 import dayjs from 'dayjs';
+
 import getColumnSearchProps from '../Search/getColumnSearchProps '; 
 import {listPatients,updateReferral,updateSurgeryDate} from '../services/serviceAPI'
 import ButtonCollection from './utilities/ButtonCollection'
@@ -26,7 +27,7 @@ const PatientsList  = () => {
   //sort
   const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
-  
+  const [selectedRowKeys, setSelectedRowKeys] = useState([]); 
    const {today,surgeries} = useSelector((state) => state.constants); 
    const surgeryTypes =  (Array.from(new Set(Object.values(surgeries).flat())).sort());
    const booleanAnswers=["Ναι","Όχι","Όλες"]
@@ -34,12 +35,30 @@ const PatientsList  = () => {
    // get name of refresh tab
    const refreshTab = useSelector((state) => state.tab.refreshTab);
    const dispatch = useDispatch();
+   
 
 
 
+
+   const [selectedSurgeries, setSelectedSurgeries] = useState([]);
+
+  const getRowClassName = (record) => {
+    return selectedSurgeries.includes(record.id) ? '.ant-table-row.selected-row' : '';
+  };
+
+  const rowSelection = {
+    selectedRowKeys: selectedSurgeries,
+    onChange: (newSelectedRowKeys) => {
+      console.log('Selected row keys:', newSelectedRowKeys);
+      setSelectedSurgeries(newSelectedRowKeys);
+    },
+  };
+
+   
   // generate table headers
     const generateColumns = () => {
         const columns = [
+          
           {
             title: 'Α/Α', 
             dataIndex: 'id',
@@ -467,11 +486,17 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
        
           <ButtonCollection dataSource={patients} columns={columns}/>
           <Table
+           rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+          }}
           columns={columns}
           pagination={false}
           dataSource={patients}
           bordered
           scroll={{ x: 'max-content' }} 
+          rowKey="id"
+          
         />
       </div>
       
