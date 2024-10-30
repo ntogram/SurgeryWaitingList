@@ -1,5 +1,5 @@
 import React,{ useState,useEffect} from 'react';
-import { Table,Switch,Button,DatePicker,Checkbox} from 'antd';
+import { Table,Switch,Button,DatePicker,Tooltip} from 'antd';
 import { CheckOutlined, EditOutlined } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import {resetRefreshTab} from '../redux/reducers/tabSlice';
@@ -27,7 +27,6 @@ const PatientsList  = () => {
   //sort
   const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]); 
    const {today,surgeries} = useSelector((state) => state.constants); 
    const surgeryTypes =  (Array.from(new Set(Object.values(surgeries).flat())).sort());
    const booleanAnswers=["Ναι","Όχι","Όλες"]
@@ -51,7 +50,14 @@ const PatientsList  = () => {
     onChange: (newSelectedRowKeys) => {
       console.log('Selected row keys:', newSelectedRowKeys);
       setSelectedSurgeries(newSelectedRowKeys);
+
+
+
     },
+    getCheckboxProps: (record) => ({
+      disabled: record.referral === 'Ναι'
+
+    })
   };
 
    
@@ -109,7 +115,10 @@ const PatientsList  = () => {
              <div>
              <span><DatePicker variant="filled" style={{maxWidth: '60%',width: '100%' }}  onChange={(date,dateString,id)=>handleDateSurgeryChange(date,dateString,record.id)} 
              defaultValue={record.surgeryDate!=null?dayjs(record.surgeryDate):today} 
-             maxDate={today.add(1, 'day')} /></span><Button 
+             maxDate={today.add(1, 'day')} /></span>
+             
+             <Tooltip placement="bottom" arrow={false} title={"Επικύρωση"}>
+             <Button 
               type="primary" 
               shape="circle"
               style={{ marginLeft: '5%',backgroundColor: '#28a745', borderColor: '#28a745', color: '#fff' }} 
@@ -117,8 +126,12 @@ const PatientsList  = () => {
              
             >
               <CheckOutlined />
-            </Button></div>
-            :<div><span>{record.surgeryDate}</span><Button 
+            </Button>
+            </Tooltip>
+            </div>
+            :<div><span>{record.surgeryDate}</span>
+            <Tooltip placement="bottom" arrow={false} title={"Επεξεργασία"}>
+            <Button 
             type="primary" 
             shape="circle"
             style={{ marginLeft: '35%' }} 
@@ -126,7 +139,10 @@ const PatientsList  = () => {
             
           >
            <EditOutlined />
-          </Button></div>}</div>
+          </Button>
+          </Tooltip>
+          
+          </div>}</div>
             
           },
           {
@@ -190,6 +206,7 @@ const PatientsList  = () => {
                       unCheckedChildren="Όχι" 
                     />
                     {/* Add space and then the Submit button */}
+                    <Tooltip placement="bottom" arrow={false} title={"Επικύρωση"}>
                     <Button 
                       type="primary" 
                       shape="circle"
@@ -199,9 +216,14 @@ const PatientsList  = () => {
                     >
                       <CheckOutlined />
                     </Button>
+                    </Tooltip>
                   </div>
                 ) : (
-                  <div>{record.referral}<Button 
+                  <div>{record.referral}
+                  
+
+                  <Tooltip placement="bottom" arrow={false} title={"Επεξεργασία"}>
+                  <Button 
                   type="primary" 
                   shape="circle"
                   style={{ marginLeft: '15%' }} 
@@ -209,7 +231,10 @@ const PatientsList  = () => {
                 
                 >
                   <EditOutlined />
-                </Button></div> // Show referral status after submission
+                </Button>
+                </Tooltip>
+                
+                </div> // Show referral status after submission
                 )}
               </div>
             )
@@ -399,16 +424,18 @@ const handleDateSurgeryChange = (date,dateString,id) =>{
     if(dateString==null){
       dateString = today.format('YYYY-MM-DD');
     }
-     const updatedPatients = patients.map(patient => {
-     if (patient.id === id) {
-       return {
-         ...patient,
-         surgeryDate:dateString
-     }
-    }
-     return patient;
-   });
-   setPatients(updatedPatients); 
+    setPatients((prevPatients) => {
+      const updatedPatients = prevPatients.map((patient) => {
+          if (patient.id === id) {
+              return {
+                  ...patient,
+                  surgeryDate: dateString,
+              };
+          }
+          return patient;
+      });
+      return updatedPatients;
+  });
   }
 
 
@@ -447,7 +474,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
 
 
 
-    // generate data
+
     useEffect(() => {
 
       const fetchPatients = async () => {
@@ -476,7 +503,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
 
       
       //console.log(patients)  
-    }, [patients,refreshTab]);
+    }, [patients,refreshTab,selectedSurgeries]);
 
 
     const columns = generateColumns()
@@ -484,7 +511,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
     return (
       <div>
        
-          <ButtonCollection dataSource={patients} columns={columns}/>
+          <ButtonCollection dataSource={patients} columns={columns} ids={selectedSurgeries} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate}/>
           <Table
            rowSelection={{
             type: "checkbox",

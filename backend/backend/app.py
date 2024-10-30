@@ -468,6 +468,10 @@ def get_answer():
      return jsonify({"initDate": examDate,"newDate":newDate,"extraDelay":extraDelay,"period":period,"delay":N,"duration":duration})
 
 
+# Admin View
+
+
+
 
 
 

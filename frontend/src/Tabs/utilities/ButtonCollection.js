@@ -1,11 +1,14 @@
-import React,{useState} from 'react'
-import { Breadcrumb,Space,Typography,Button} from 'antd';
-import {FilePdfOutlined,FileExcelOutlined,PrinterOutlined,ReloadOutlined} from '@ant-design/icons'
+import React,{useState,useEffect} from 'react'
+import { Breadcrumb,Space,Button,DatePicker} from 'antd';
 import RefreshButton from './RefreshButton';
 import Filehandler from './Filehandler';
+import { useSelector} from 'react-redux';
+import GlobalDateSelector from './GlobalDateSelector';
 // put buttons in separate components
-const ButtonCollection = ({columns,dataSource}) =>{
+const ButtonCollection = ({columns,dataSource,ids,handleDateSurgeryChange,validateSurgeryDate}) =>{
     const [refreshDateTime, setRefreshDateTime] = useState(new Date());
+    const current = useSelector((state) => state.tab.selectedTab);
+    
     const options = {
       year: 'numeric',
       month: 'long',
@@ -19,7 +22,7 @@ const ButtonCollection = ({columns,dataSource}) =>{
                     
 
 
-     const toolboxItems =[
+     let toolboxItems =[
       {
         title:<RefreshButton refreshDateTime={setRefreshDateTime}/>
       },
@@ -33,10 +36,28 @@ const ButtonCollection = ({columns,dataSource}) =>{
         title:  <Filehandler dataSource={dataSource} columns={columns} op={"Αποθήκευση Excel"}/>
       },
       {
-        title: refreshDateTime.toLocaleString('el-GR', options)
+        title: refreshDateTime.toLocaleString('el-GR', options),
+        
          
       }];
-     
+      
+      if (current=="patientsList"){
+          toolboxItems.push({title:<GlobalDateSelector ids={ids} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate}/>})
+       
+
+
+      }
+
+
+
+
+      useEffect(() => {
+          console.log("ids:",ids)
+
+      },[ids])
+
+
+
       return ( <Breadcrumb
         items={toolboxItems}
         separator=<Space/>
