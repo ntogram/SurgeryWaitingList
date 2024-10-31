@@ -1,11 +1,27 @@
 from db import db
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Enum,Date,Text,Boolean,ForeignKey,SmallInteger
-
+import datetime
 
 
 
 # ORM for tables
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+    
+    username = Column(String(255), primary_key=True, unique=True, nullable=False)
+    password = Column(String(255), nullable=False)
+
+class TokenBlacklist(db.Model):
+    __tablename__ = 'token_blacklist'
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    jti = db.Column(db.String(45), unique=True, nullable=False)  # JWT ID
+    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+
+
+
 class Patient(db.Model):
     __tablename__ = 'patients'  # Specify the table name
 
@@ -98,3 +114,6 @@ class OrganPropertyCombination(db.Model):
     __tablename__ = 'organ_property_combinations'  # The view name
     name = Column(String(20), primary_key=True)  # Assuming 'name' is a primary key (organName)
     property = Column(String(18), primary_key=True)  # Assuming 'property' is also part of the primary key
+
+
+

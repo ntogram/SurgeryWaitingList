@@ -1,7 +1,7 @@
 import React from 'react';
-import { Form, Input, Button } from 'antd';
+import { Form, Input, Button} from 'antd';
 import { UserOutlined, LockOutlined,LoginOutlined,UndoOutlined} from '@ant-design/icons';
-
+import AdminPageHeader from './AdminPageHeader'
 const LoginForm = () => {
    // Create form instance
    const [form] = Form.useForm();
@@ -18,7 +18,11 @@ const LoginForm = () => {
    };
 
   return (
+    <div>
+      <AdminPageHeader adminPageName={'Σύνδεση'}/>
+
     <div style={{ width: '15%', margin: '5% auto' }}>
+     
       <Form
         name="login_form"
         className="login-form"
@@ -60,6 +64,7 @@ const LoginForm = () => {
           </Button>
         </Form.Item>
       </Form>
+    </div>
     </div>
   );
 };

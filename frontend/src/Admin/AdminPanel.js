@@ -1,6 +1,9 @@
-import React from 'react';
-import { DatePicker, Form,Button,Popconfirm,Typography } from 'antd';
+import {React,useState} from 'react';
+import { DatePicker, Form,Button,Popconfirm,Typography, Space } from 'antd';
 import {DeleteOutlined,QuestionCircleFilled} from '@ant-design/icons';
+import AdminPageHeader from './AdminPageHeader'
+
+
 const { RangePicker } = DatePicker;
 const { Title} = Typography;
 
@@ -8,6 +11,20 @@ const { Title} = Typography;
 const AdminPanel = () => {
  // Create form instance
  const [form] = Form.useForm();
+ const [formCompleted, setFormCompleted] = useState(true);
+
+// Function to check if form is completed
+const handleFormChange = () => {
+  const hasErrors = form
+    .getFieldsError()
+    .some(({ errors }) => errors.length > 0);
+    console.log(hasErrors)
+  return hasErrors
+  //setFormCompleted(!hasErrors && form.isFieldsTouched());
+
+};
+
+
 
  // Handle form submission
  const onFinish = (values) => {
@@ -17,13 +34,19 @@ const AdminPanel = () => {
 
 
 
-    return <Form
+
+
+    return <div>
+    <AdminPageHeader adminPageName={'Επεξεργασία'}/>
+    <Space direction='vertical' align='center'>
+    <Form
     name="basic"
     form={form} 
     initialValues={{ remember: true}}
-    style={{ maxWidth: '20%', width: '100%' }} 
+    
     autoComplete="off"
     onFinish={onFinish}
+    onFieldsChange={handleFormChange} 
   > 
   
    <Form.Item
@@ -32,7 +55,8 @@ const AdminPanel = () => {
   rules={[{ required: true, message: 'Παρακαλώ δώστε χρονικό διάστημα' }]}>
         <RangePicker />
    </Form.Item>
-   <Popconfirm disabled={false}
+   {formCompleted ?
+   <Popconfirm 
     title={<Title level={4} type={"warning"}>Ειδοποίηση Διαγραφής</Title>}
     description={<Title level={5} type={"warning"} italic={true} strong={true}>Είστε σίγουροι ότι θέλετε να διαγράψετε τις εγγραφές των χειρουργείων για την συγκεκριμένη χρονική περίοδο;</Title>}
     cancelText= {<Title level={4} type={"warning"} italic={true} strong={true}>Όχι</Title>} cancelButtonProps={{danger:true,variant:"solid",type:"primary",size:"large"}} 
@@ -48,11 +72,16 @@ const AdminPanel = () => {
         <Button type="primary" htmlType="submit" danger  icon={<DeleteOutlined />} className="login-form-button">
                     Διαγραφή
         </Button>
-   </Popconfirm>
+   </Popconfirm>:<Button type="primary" htmlType="submit" danger  icon={<DeleteOutlined />} className="login-form-button">
+                    Διαγραφή
+        </Button>}
+
 
 
 
     </Form>
+    </Space>
+    </div>
 }
 
 export default AdminPanel;

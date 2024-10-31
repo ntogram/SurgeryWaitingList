@@ -1,6 +1,11 @@
 from flask import Flask,request,jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
+from flask_bcrypt import Bcrypt
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity,get_jwt
 from db import db
 from config import Config
 from helpers import is_valid_date,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
@@ -11,11 +16,20 @@ from queries import *
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = Config.SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
+app.config["SECRET_KEY"] = Config.SECRET_KEY
+app.config["JWT_SECRET_KEY"] = Config.JWT_SECRET_KEY
+app.config["SESSION_COOKIE_SECURE"] = Config. SESSION_COOKIE_SECURE 
+app.config["SESSION_COOKIE_HTTPONLY"] = Config.SESSION_COOKIE_HTTPONLY
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = Config.JWT_ACCESS_TOKEN_EXPIRES
 db.init_app(app)  # Initialize the db with the Flask app
 
 
 CORS(app)
-
+jwt = JWTManager(app)
+bcrypt = Bcrypt(app)
+limiter = Limiter(key_func=get_remote_address)
+limiter.init_app(app)
+#limiter = Limiter(app, key_func=get_remote_address)
 
 @app.route('/api/test')
 def test_patient_insertion():
@@ -469,9 +483,68 @@ def get_answer():
 
 
 # Admin View
+# register user
+@app.route('/register', methods=['POST'])
+def register():
+    # get data provided by user
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    # throw error if user with the given username already exists
+    if User.query.filter_by(username=username).first():
+        return jsonify({"error": "User already exists"}), 400
+    # hash given password
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    #create user with the given username and the hashed value of password
+    new_user = User(username=username, password=hashed_password)
+    #store user
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({"message": "User registered successfully"}), 201
+
+# Rate limit login to 5 attempts per minute per IP
+@app.route('/login', methods=['POST'])
+@limiter.limit("5 per minute")
+def login():
+    # get data given from login form
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+    # check if  there is user account with the given username
+    user = User.query.filter_by(username=username).first()
+    # check if the given password is correct
+    if user and bcrypt.check_password_hash(user.password, password):
+        # if the given password is correct, retrieve access token
+        access_token = create_access_token(identity=user.username)
+        return jsonify({"access_token": access_token}), 200
+    # if the given password is wrong
+    return jsonify({"error": "Invalid username or password"}), 401
 
 
+@app.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    # Get the JWT ID (jti) from the current token
+    jti = get_jwt()['jti']
 
+    # Add the token to the blacklist
+    blacklisted_token = TokenBlacklist(jti=jti)
+    db.session.add(blacklisted_token)
+    db.session.commit()
+
+    return jsonify({"message": "Successfully logged out"}), 200
+
+@app.route('/protected', methods=['GET'])
+@jwt_required()
+def protected():
+    # Check if the token is blacklisted
+    jti = get_jwt()['jti']
+    if TokenBlacklist.query.filter_by(jti=jti).first() is not None:
+        return jsonify({"error": "Token has been revoked"}), 401
+
+    current_user_username = get_jwt_identity()
+    return jsonify({"message": f"Hello, {current_user_username}!"}), 200
 
 
 

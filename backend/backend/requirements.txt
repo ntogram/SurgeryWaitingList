@@ -7,3 +7,6 @@ pymysql
 python-dotenv
 python-dateutil
 cryptography
+Flask-JWT-Extended
+Flask-Bcrypt
+Flask-Limiter
