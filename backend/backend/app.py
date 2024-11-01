@@ -5,7 +5,7 @@ from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity,get_jwt
+from flask_jwt_extended import create_access_token,create_refresh_token, jwt_required, get_jwt_identity,get_jwt
 from db import db
 from config import Config
 from helpers import is_valid_date,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
@@ -21,6 +21,8 @@ app.config["JWT_SECRET_KEY"] = Config.JWT_SECRET_KEY
 app.config["SESSION_COOKIE_SECURE"] = Config. SESSION_COOKIE_SECURE 
 app.config["SESSION_COOKIE_HTTPONLY"] = Config.SESSION_COOKIE_HTTPONLY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = Config.JWT_ACCESS_TOKEN_EXPIRES
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = Config.JWT_REFRESH_TOKEN_EXPIRES
+app.config["JWT_TOKEN_LOCATION"] = Config.JWT_TOKEN_LOCATION
 db.init_app(app)  # Initialize the db with the Flask app
 
 
@@ -517,20 +519,49 @@ def login():
     if user and bcrypt.check_password_hash(user.password, password):
         # if the given password is correct, retrieve access token
         access_token = create_access_token(identity=user.username)
-        return jsonify({"access_token": access_token}), 200
+        refresh_token = create_refresh_token(identity=user.username)
+        #primary address -> access token  secondary address -> refresh token
+        return jsonify({"primary address": access_token,"secondary address":refresh_token}), 200
     # if the given password is wrong
     return jsonify({"error": "Invalid username or password"}), 401
+
+
+@app.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)  # Ensure only refresh tokens are allowed
+def refresh():
+    current_user = get_jwt_identity()
+    new_access_token = create_access_token(identity=current_user)
+    return jsonify({"access_token": new_access_token}), 200
+
+
 
 
 @app.route('/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    # Get the JWT ID (jti) from the current token
-    jti = get_jwt()['jti']
+    # Get the JWT ID (jti) from the current access token
+    jti_access = get_jwt()['jti']
+    
+    # Blacklist the access token
+    blacklisted_access_token = TokenBlacklist(jti=jti_access)
+    db.session.add(blacklisted_access_token)
 
-    # Add the token to the blacklist
-    blacklisted_token = TokenBlacklist(jti=jti)
-    db.session.add(blacklisted_token)
+    # Get the refresh token from the request header if provided
+    refresh_token = request.headers.get('X-Refresh-Token')  # Use the custom header
+    if refresh_token:
+        jti_refresh = decode_jwt(refresh_token)['jti']  # Extract jti from the refresh token
+        blacklisted_refresh_token = TokenBlacklist(jti=jti_refresh)
+        db.session.add(blacklisted_refresh_token)
+
+    db.session.commit()
+
+    return jsonify({"message": "Successfully logged out"}), 200
+
+
+
+
+
+
     db.session.commit()
 
     return jsonify({"message": "Successfully logged out"}), 200

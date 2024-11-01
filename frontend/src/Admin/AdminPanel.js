@@ -2,6 +2,7 @@ import {React,useState} from 'react';
 import { DatePicker, Form,Button,Popconfirm,Typography, Space } from 'antd';
 import {DeleteOutlined,QuestionCircleFilled} from '@ant-design/icons';
 import AdminPageHeader from './AdminPageHeader'
+import dayjs from "dayjs";
 
 
 const { RangePicker } = DatePicker;
@@ -9,18 +10,21 @@ const { Title} = Typography;
 
 
 const AdminPanel = () => {
+
+ const maxDate = dayjs();
  // Create form instance
  const [form] = Form.useForm();
- const [formCompleted, setFormCompleted] = useState(true);
+ const [formCompleted, setFormCompleted] = useState(false);
 
 // Function to check if form is completed
 const handleFormChange = () => {
+  //  when hasErrors is true when form is not completed or is completed wrongly in this case formCompleted=false otherwise 
+  // hasErrors=false  and formCompleted=true
   const hasErrors = form
     .getFieldsError()
     .some(({ errors }) => errors.length > 0);
     console.log(hasErrors)
-  return hasErrors
-  //setFormCompleted(!hasErrors && form.isFieldsTouched());
+  setFormCompleted(!hasErrors);
 
 };
 
@@ -32,7 +36,11 @@ const handleFormChange = () => {
    // You can use this data to call an API for login authentication
  };
 
+const disableFutureDates = (current) =>{
 
+  return current && current > maxDate;
+
+}
 
 
 
@@ -43,17 +51,17 @@ const handleFormChange = () => {
     name="basic"
     form={form} 
     initialValues={{ remember: true}}
-    
+    onFieldsChange={handleFormChange}
     autoComplete="off"
     onFinish={onFinish}
-    onFieldsChange={handleFormChange} 
+    
   > 
   
    <Form.Item
   label="Χρονικό Διάστημα"
   name="dateRange"
   rules={[{ required: true, message: 'Παρακαλώ δώστε χρονικό διάστημα' }]}>
-        <RangePicker />
+        <RangePicker disabledDate={disableFutureDates} />
    </Form.Item>
    {formCompleted ?
    <Popconfirm 

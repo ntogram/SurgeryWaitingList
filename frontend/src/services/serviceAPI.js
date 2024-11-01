@@ -65,3 +65,35 @@ export const getWaitingTime = async (surgeryId,examDate) =>{
 
 
 }
+
+
+// service for admin views
+
+//login as administrator
+export const login = async (username,password) =>{
+  const response = await axios.post(`${API_BASE_URL}//login`, { "username":username, "password":password },{ headers: { 'Content-Type': 'application/json' } });
+  return response.data;
+
+
+
+}
+// logout -- send tokens that must be blacklisted
+export const logout = async (accessToken,refreshToken) =>{
+  const response = axios.post(`${API_BASE_URL}//logout`, {}, {
+    headers: { 
+        Authorization: `Bearer ${accessToken}`,
+        'X-Refresh-Token': refreshToken
+    }})
+  return response.data
+  }
+
+export const refresh = async (refreshToken) =>{
+  const response = await axios.post(`${API_BASE_URL}//refresh`, {}, {
+    headers: { Authorization: `Bearer ${refreshToken}` },
+});
+  return response.data['access_token']
+}
+
+
+
+

@@ -25,7 +25,7 @@ const Navigator = () => {
     useEffect (() => {
        console.log(window.location.pathname); 
       let url_loc =window.location.pathname.substring(1);
-      if (url_loc!="admin"){
+      if (url_loc.startsWith("admin")){
 
 
         // Check if a stored tab is present in localStorage and update state on component mount
