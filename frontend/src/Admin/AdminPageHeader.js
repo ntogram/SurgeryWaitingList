@@ -21,6 +21,7 @@ const AdminPageHeader = ({ adminPageName }) => {
       </Col>
 
       {/* Logoff Button Column (10%) */}
+      {adminPageName === "Επεξεργασία" && (
       <Col flex="5%" style={{ textAlign: 'right' }}>
       <Tooltip placement="bottom" arrow={false} title={"Αποσύνδεση"}>
         <Button ghost color='danger' variant="link"  shape='circle'
@@ -30,7 +31,7 @@ const AdminPageHeader = ({ adminPageName }) => {
           
         </Button>
         </Tooltip>
-      </Col>
+      </Col>)}
     </Row>
   );
 };

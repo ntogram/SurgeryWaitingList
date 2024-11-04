@@ -521,9 +521,9 @@ def login():
         access_token = create_access_token(identity=user.username)
         refresh_token = create_refresh_token(identity=user.username)
         #primary address -> access token  secondary address -> refresh token
-        return jsonify({"primary address": access_token,"secondary address":refresh_token}), 200
+        return jsonify({"access_token": access_token,"refresh_token":refresh_token,"isLoggedIn":True}), 200
     # if the given password is wrong
-    return jsonify({"error": "Invalid username or password"}), 401
+    return jsonify({"errorMessage": "Λάνθασμένο όνομα χρήστη ή κωδικός πρόσβασης","isLoggedIn":False,"access_token": None,"refresh_token":None}), 401
 
 
 @app.route('/refresh', methods=['POST'])
@@ -566,7 +566,7 @@ def logout():
 
     return jsonify({"message": "Successfully logged out"}), 200
 
-@app.route('/protected', methods=['GET'])
+@app.route('/deleteSurgeries', methods=['GET'])
 @jwt_required()
 def protected():
     # Check if the token is blacklisted

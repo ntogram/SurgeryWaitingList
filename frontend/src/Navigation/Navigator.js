@@ -1,6 +1,8 @@
 import React,{ useState,useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link,Navigate,useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import ProtectedRoute from './ProtectedRoute';
+import { AuthManager } from '../Auth/AuthManager';
 import { Layout, Menu } from 'antd';
 import 'antd/dist/reset.css'; 
 import  {setTab}  from '../redux/reducers/tabSlice';
@@ -25,7 +27,7 @@ const Navigator = () => {
     useEffect (() => {
        console.log(window.location.pathname); 
       let url_loc =window.location.pathname.substring(1);
-      if (url_loc.startsWith("admin")){
+      if (!url_loc.startsWith("admin")){
 
 
         // Check if a stored tab is present in localStorage and update state on component mount
@@ -41,6 +43,7 @@ const Navigator = () => {
 
 
     return (
+       <AuthManager>
         <Router>
           <Layout>
             {window.location.pathname.startsWith("/admin/") ? null:<Header>
@@ -68,12 +71,16 @@ const Navigator = () => {
                 <Route path="/statisticsByOrgan" element={<StatisticsByOrgan />} />
                 <Route path="/statisticsBySurgeryType" element={<StatisticsBySurgeryType />} />
                 <Route path="/admin/login" element={<LoginForm/>} />
-                <Route path="/admin/manage" element={<AdminPanel/>} />
+                <Route element={<ProtectedRoute />}>
+                    <Route  path="/admin/manage" element={<AdminPanel/>} />
+                </Route>
+                <Route path="*" element={<Navigate to={'/'+`${current}`} />}/>
               </Routes>
             </Content>
             <Footer style={{ textAlign: 'center' }}>©2024 Δημιουργήθηκε από ΓΕΠ</Footer>
           </Layout>
         </Router>
+        </AuthManager>
       );
 
 

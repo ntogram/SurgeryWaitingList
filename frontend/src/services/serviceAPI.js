@@ -72,6 +72,8 @@ export const getWaitingTime = async (surgeryId,examDate) =>{
 //login as administrator
 export const login = async (username,password) =>{
   const response = await axios.post(`${API_BASE_URL}//login`, { "username":username, "password":password },{ headers: { 'Content-Type': 'application/json' } });
+  console.log(response);
+  console.log(response.data)
   return response.data;
 
 

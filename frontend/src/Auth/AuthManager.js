@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import {login,logout,refresh} from './services'; 
+import {login,logout,refresh} from '../services/serviceAPI'; 
 
 const AuthContext = createContext();
 
@@ -13,12 +13,18 @@ export const AuthManager = ({ children }) => {
     });
 
     const signIn = async (username, password) => {
+        let data={}
         try {
             const response = await login(username, password);
-            const data = response.data
-            setAuth({ isLoggedIn: true, accessToken: data['access_token'], refreshToken: data['refresh_token'] });
+            data = response;
+            setAuth(data);
+            return data;
+            
         } catch (error) {
-            setAuth({ isLoggedIn: false, accessToken: null, refreshToken: null, errorMessage:error });
+            data = { isLoggedIn: false, accessToken: null, refreshToken: null, errorMessage:error };
+            setAuth(data);
+            return data;
+
         }
     }
 

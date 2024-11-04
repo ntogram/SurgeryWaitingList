@@ -1,14 +1,60 @@
-import React from 'react';
-import { Form, Input, Button} from 'antd';
+import React,{UseMemo} from 'react';
+import { Form, Input, Button,notification} from 'antd';
 import { UserOutlined, LockOutlined,LoginOutlined,UndoOutlined} from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import AdminPageHeader from './AdminPageHeader'
+import { useAuth } from '../Auth/AuthManager';
+
+
 const LoginForm = () => {
    // Create form instance
    const [form] = Form.useForm();
+   const { auth,signIn } = useAuth();
+   const navigate = useNavigate();
+   const [api, contextHolder] = notification.useNotification();
+   // Handle form submission 
+   const submitForm = async (values) => {
+   // retriece form values
+    const username = values["username"];
+    const password = values["password"];
+    console.log('Success:');
+    console.log("username:",username);
+    console.log("password:", password);
+     // call login operation
+    const response= await signIn(username,password);
+    console.log(response)
+    console.log(auth)
+    if (response["isLoggedIn"]==true){
+        // Redirect to /admin/manage
+        navigate('/admin/manage');
+    }
+    else{
+      // open notification for login failure
+      const errorObj = response["errorMessage"]
+      let errorMsg = "";
+      if ("response" in errorObj){
+        errorMsg = errorObj["response"]["data"]["errorMessage"]
 
-   // Handle form submission
-   const onFinish = (values) => {
-     console.log('Success:', values);
+      }
+      else{
+        console.log(errorObj)
+        console.log(errorObj["message"])
+        errorMsg = errorObj["message"]// may need fix for other types of error
+      }
+      // display notification for login failure
+      api.error({
+        message: 'Αποτυχία Σύνδεσης',
+        description:errorMsg
+      });
+
+
+    }
+   
+
+
+
+
+
      // You can use this data to call an API for login authentication
    };
  
@@ -18,7 +64,9 @@ const LoginForm = () => {
    };
 
   return (
+    
     <div>
+      {contextHolder}
       <AdminPageHeader adminPageName={'Σύνδεση'}/>
 
     <div style={{ width: '15%', margin: '5% auto' }}>
@@ -27,7 +75,7 @@ const LoginForm = () => {
         name="login_form"
         className="login-form"
         initialValues={{ remember: true }}
-        onFinish={onFinish}
+        onFinish={submitForm}
       >
         <Form.Item
           name="username"
