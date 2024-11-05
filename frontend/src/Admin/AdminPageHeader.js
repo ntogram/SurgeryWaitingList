@@ -2,8 +2,18 @@
 import React from 'react';
 import { Breadcrumb, Button, Row, Col,Tooltip} from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
-
+import { useAuth } from '../Auth/AuthManager';
 const AdminPageHeader = ({ adminPageName }) => {
+  const { auth,signOut } = useAuth();
+  const logout=  async () =>{
+
+
+  }
+
+
+
+
+
   return (
     <Row align="middle" style={{ padding: '0 16px' }}>
       {/* Breadcrumb Column (90%) */}
@@ -27,6 +37,7 @@ const AdminPageHeader = ({ adminPageName }) => {
         <Button ghost color='danger' variant="link"  shape='circle'
            size={'large'}
           icon={<LogoutOutlined />}
+          onClick={logout}
         >
           
         </Button>
