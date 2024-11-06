@@ -5,7 +5,7 @@ from flask_jwt_extended import JWTManager
 from flask_bcrypt import Bcrypt
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from flask_jwt_extended import create_access_token,create_refresh_token, jwt_required, get_jwt_identity,get_jwt
+from flask_jwt_extended import create_access_token,create_refresh_token, jwt_required, get_jwt_identity,get_jwt,decode_token
 from db import db
 from config import Config
 from helpers import is_valid_date,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
@@ -549,7 +549,7 @@ def logout():
     # Get the refresh token from the request header if provided
     refresh_token = request.headers.get('X-Refresh-Token')  # Use the custom header
     if refresh_token:
-        jti_refresh = decode_jwt(refresh_token)['jti']  # Extract jti from the refresh token
+        jti_refresh = decode_token(refresh_token)['jti']  # Extract jti from the refresh token
         blacklisted_refresh_token = TokenBlacklist(jti=jti_refresh)
         db.session.add(blacklisted_refresh_token)
 

@@ -1,4 +1,4 @@
-import React,{UseMemo} from 'react';
+import React,{useEffect,useState} from 'react';
 import { Form, Input, Button,notification} from 'antd';
 import { UserOutlined, LockOutlined,LoginOutlined,UndoOutlined} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -37,7 +37,6 @@ const LoginForm = () => {
 
       }
       else{
-        console.log(errorObj)
         console.log(errorObj["message"])
         errorMsg = errorObj["message"]// may need fix for other types of error
       }
@@ -62,6 +61,27 @@ const LoginForm = () => {
    const handleReset = () => {
      form.resetFields(); // Reset the form fields
    };
+  
+   useEffect(() => {
+      if ("errorMessage" in auth){
+        const notificationId= "LogOutError"
+        api.destroy(notificationId)
+
+
+        api.error({
+          message: 'Πρόβλημα Αποσύνδεσης',
+          description:auth["errorMessage"],
+          key: notificationId
+        });
+       
+      }
+      
+
+
+
+   }, [auth]);
+
+
 
   return (
     

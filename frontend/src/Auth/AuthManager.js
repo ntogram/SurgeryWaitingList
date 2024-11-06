@@ -13,8 +13,7 @@ export const AuthManager = ({ children }) => {
     const [auth, setAuth] = useState({
         isLoggedIn: false,
         accessToken: null,
-        refreshToken: null,
-        username:null
+        refreshToken: null
     });
    
 
@@ -34,7 +33,7 @@ export const AuthManager = ({ children }) => {
             return data;
             
         } catch (error) {
-            data = { isLoggedIn: false, accessToken: null, refreshToken: null,username:null, errorMessage:error };
+            data = { isLoggedIn: false, accessToken: null, refreshToken: null, errorMessage:error };
             setAuth(data);
             return data;
 
@@ -43,13 +42,26 @@ export const AuthManager = ({ children }) => {
 
     const signOut = async () => {
         try {
+            
             const response = await logout(auth.accessToken, auth.refreshToken);
-            setAuth({ isLoggedIn: false, accessToken: null, refreshToken: null,username:null });
+            let data = { isLoggedIn: false, accessToken: null, refreshToken: null }
+            if ("errorMessage" in response){
+                data["errorMessage"] = response["errorMessage"]
+            }
+
+
+            setAuth(data);
             sessionStorage.removeItem("accessToken");
             sessionStorage.removeItem("refreshToken");
+            return data;
         } catch (error) {
+            console.log("test3")
             console.error("Logout failed:", error);
-            setAuth({ isLoggedIn: false, accessToken: null, refreshToken: null,username:null, errorMessage:error });
+            let data ={ isLoggedIn: false, accessToken: null, refreshToken: null, errorMessage:error }
+            sessionStorage.removeItem("accessToken");
+            sessionStorage.removeItem("refreshToken");
+            setAuth(data);
+            return data;
         }
     };
 
@@ -59,7 +71,7 @@ export const AuthManager = ({ children }) => {
             setAuth(prev => ({ ...prev, accessToken: newAccessToken }));
             sessionStorage.setItem("accessToken", newAccessToken);
         } catch (error) {
-            setAuth({ isLoggedIn: false, accessToken: null, refreshToken: null,username:null, errorMessage:error });
+            setAuth({ isLoggedIn: false, accessToken: null, refreshToken: null, errorMessage:error });
             sessionStorage.removeItem("accessToken");
             sessionStorage.removeItem("refreshToken");
         }

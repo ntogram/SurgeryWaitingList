@@ -80,14 +80,28 @@ export const login = async (username,password) =>{
 
 }
 // logout -- send tokens that must be blacklisted
-export const logout = async (accessToken,refreshToken) =>{
-  const response = axios.post(`${API_BASE_URL}//logout`, {}, {
-    headers: { 
+export const logout = async (accessToken, refreshToken) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/logout`, {}, {
+      headers: { 
         Authorization: `Bearer ${accessToken}`,
         'X-Refresh-Token': refreshToken
-    }})
-  return response.data
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    let errorMsg ="";
+    if ("response" in error){
+      errorMsg = error["response"]["data"]["msg"]
+    }
+    else{
+      errorMsg ="Σφάλμα Διακομιστή"
+    }
+    return {"errorMessage":errorMsg}
   }
+}
 
 export const refresh = async (refreshToken) =>{
   const response = await axios.post(`${API_BASE_URL}//refresh`, {}, {

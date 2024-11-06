@@ -1,14 +1,18 @@
 
 import React from 'react';
-import { Breadcrumb, Button, Row, Col,Tooltip} from 'antd';
+import axios from 'axios'; 
+import { Breadcrumb, Button, Row, Col,Tooltip,notification} from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
 import { useAuth } from '../Auth/AuthManager';
 const AdminPageHeader = ({ adminPageName }) => {
   const { auth,signOut } = useAuth();
+  const [api, contextHolder] = notification.useNotification();
   const logout=  async () =>{
-
-
-  }
+       // call logout operation
+      const response= await signOut();
+      
+    }
+  
 
 
 
@@ -16,6 +20,7 @@ const AdminPageHeader = ({ adminPageName }) => {
 
   return (
     <Row align="middle" style={{ padding: '0 16px' }}>
+      {contextHolder}
       {/* Breadcrumb Column (90%) */}
       <Col flex="95%">
         <Breadcrumb

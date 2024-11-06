@@ -11,7 +11,7 @@ const ProtectedRoute = () => {
             const savedAccessToken = sessionStorage.getItem("accessToken");
             const savedRefreshToken = sessionStorage.getItem("refreshToken");
 
-            if (savedAccessToken && savedRefreshToken) {
+            if (savedAccessToken && savedRefreshToken && loading) {
                 setAuth({
                     isLoggedIn: true,
                     accessToken: savedAccessToken,
@@ -36,7 +36,7 @@ const ProtectedRoute = () => {
     
     
     
-    console.log(auth)
+   // console.log(auth)
     if (loading) {
         return <div>Loading...</div>;  // You can replace this with a spinner or custom loading component
     }
