@@ -13,11 +13,15 @@ const ProtectedRoute = () => {
 
 
         const loadSavedTokens = (savedAccessToken,savedRefreshToken)=>{
-            setAuth({
-                isLoggedIn: true,
-                accessToken: savedAccessToken,
-                refreshToken: savedRefreshToken,
-            });
+
+            if (savedAccessToken!=null && savedRefreshToken!=null){
+                setAuth({
+                    isLoggedIn: true,
+                    accessToken: savedAccessToken,
+                    refreshToken: savedRefreshToken,
+                });
+            }
+            
           
         }
         
@@ -28,8 +32,12 @@ const ProtectedRoute = () => {
             const savedRefreshToken = sessionStorage.getItem("refreshToken");
             const tokenValidity = hasValidokens(savedAccessToken,savedRefreshToken)
             console.log(tokenValidity)
-            if (auth.accessToken == null ||  auth.refreshToken ==null){
-                loadSavedTokens(savedAccessToken,savedRefreshToken)
+            let newAccessToken=null;
+            if ((auth.accessToken == null ||  auth.refreshToken ==null) && tokenValidity!=0){
+                newAccessToken =await refreshSession(savedRefreshToken);
+                if (!(newAccessToken==null)){
+                    loadSavedTokens(newAccessToken,savedRefreshToken)
+                }
             }
 
 
@@ -43,20 +51,20 @@ const ProtectedRoute = () => {
             if (tokenValidity==2 && loading){
                 // access token expires and use refresh token for renew it
                 console.log(auth)
-                let newAccessToken =await refreshSession(savedRefreshToken);
+                newAccessToken =await refreshSession(savedRefreshToken);
                 setLoading(false);
             }
             if (tokenValidity ==0 && loading){
                 
                 setLoading(false)
+               
             }
         }
-            
+        console.log("fg")    
             
        
       
-
-
+       
 
 
         console.log(loading)
