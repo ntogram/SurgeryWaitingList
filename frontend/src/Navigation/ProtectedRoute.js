@@ -18,7 +18,7 @@ const ProtectedRoute = () => {
                 accessToken: savedAccessToken,
                 refreshToken: savedRefreshToken,
             });
-            setLoading(false);
+          
         }
         
 
@@ -28,16 +28,28 @@ const ProtectedRoute = () => {
             const savedRefreshToken = sessionStorage.getItem("refreshToken");
             const tokenValidity = hasValidokens(savedAccessToken,savedRefreshToken)
             console.log(tokenValidity)
+            if (auth.accessToken == null ||  auth.refreshToken ==null){
+                loadSavedTokens(savedAccessToken,savedRefreshToken)
+            }
+
+
+
+
             if (tokenValidity ==1 && loading){
                 // valid access token
-                loadSavedTokens(savedAccessToken,savedRefreshToken);
+                loadSavedTokens(savedAccessToken,savedRefreshToken)
+                setLoading(false)
             }
             if (tokenValidity==2 && loading){
                 // access token expires and use refresh token for renew it
-                await refreshSession();
+                console.log(auth)
+                let newAccessToken =await refreshSession(savedRefreshToken);
                 setLoading(false);
             }
-            
+            if (tokenValidity ==0 && loading){
+                
+                setLoading(false)
+            }
         }
             
             
@@ -47,7 +59,7 @@ const ProtectedRoute = () => {
 
 
 
-
+        console.log(loading)
         initializeAuth(); 
        // checkAndRefreshToken()
     }, [auth]);

@@ -31,9 +31,11 @@ const LoginForm = () => {
     else{
       // open notification for login failure
       const errorObj = response["errorMessage"]
+     
       let errorMsg = "";
       if ("response" in errorObj){
         errorMsg = errorObj["response"]["data"]["errorMessage"]
+        
 
       }
       else{
@@ -45,11 +47,10 @@ const LoginForm = () => {
         message: 'Αποτυχία Σύνδεσης',
         description:errorMsg
       });
-
+      console.log(errorMsg)
 
     }
    
-
 
 
 
@@ -64,19 +65,44 @@ const LoginForm = () => {
   
    useEffect(() => {
       if ("errorMessage" in auth){
+        /// destroy existing notification alert for logout error
         const notificationId= "LogOutError"
         api.destroy(notificationId)
+        // display  error for logout
+        console.log(auth)
+        if (typeof auth["errorMessage"] === "string") {
+                api.error({
+                  message: 'Πρόβλημα Αποσύνδεσης',
+                  description:auth["errorMessage"],
+                  key: notificationId
+                });
+      }
+      else if (typeof auth["errorMessage"] === "object" && auth["errorMessage"].isAxiosError){
+        let errorObj = auth["errorMessage"];
+        let requestURL = errorObj["response"]["request"]["responseURL"];
+        if (!requestURL.includes("login")){
+          const errorMsg = errorObj["response"]["data"]["msg"]
+          api.error({
+            message: 'Πρόβλημα Δικτύου',
+            description:errorMsg,
+            key: notificationId
+          });
+        }
+       
 
 
-        api.error({
-          message: 'Πρόβλημα Αποσύνδεσης',
-          description:auth["errorMessage"],
-          key: notificationId
-        });
+      }
+
+
+
+
+
+
+      
        
       }
       
-
+     
 
 
    }, [auth]);

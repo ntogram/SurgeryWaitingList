@@ -33,13 +33,15 @@ export const AuthManager = ({ children }) => {
     // check if the existing tokens are valid
    const hasValidokens =  (accessToken,refreshToken) => {
         // check if access token is valid
+        console.log("access token validity")
         if (accessToken!=null && !isTokenExpired(accessToken)) {
             return 1; // 1 when access token is valid
         }
         // access token expired 
         // check if there is valid refresh token
+        console.log("refresh token validity")
         if (refreshToken!=null && !isTokenExpired(refreshToken)) {
-            return true; // 2 when refresh token is valid
+            return 2; // 2 when refresh token is valid
         }
         return 0;  // when both tokens are invalid
 
@@ -65,16 +67,15 @@ export const AuthManager = ({ children }) => {
         }
     }
 
-    const signOut = async () => {
-        const tokenValidity = hasValidokens(auth.accessToken, auth.refreshToken)
-        console.log(tokenValidity)
-        let accessToken =auth.accessToken;
-       if (tokenValidity==2){
-             accessToken = await refreshSession();
-        }
+    const signOut = async (access_token,refresh_token) => {
+       
+
+
+
+
+
         try {
-            
-            const response = await logout(accessToken, auth.refreshToken);
+            const response = await logout(access_token, refresh_token);
             let data = { isLoggedIn: false, accessToken: null, refreshToken: null }
             if ("errorMessage" in response){
                 data["errorMessage"] = response["errorMessage"]
@@ -96,9 +97,9 @@ export const AuthManager = ({ children }) => {
         }
     };
 
-    const refreshSession = async () =>{
+    const refreshSession = async (refresh_token) =>{
         try {
-            const newAccessToken = await refresh(auth.refreshToken);
+            const newAccessToken = await refresh(refresh_token);
             setAuth(prev => ({ ...prev, accessToken: newAccessToken }));
             sessionStorage.setItem("accessToken", newAccessToken);
             return newAccessToken;

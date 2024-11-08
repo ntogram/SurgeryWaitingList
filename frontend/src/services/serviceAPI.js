@@ -111,5 +111,22 @@ export const refresh = async (refreshToken) =>{
 }
 
 
-
+export const deleteSurgeries = async (accessToken) => {
+  try {
+      const response = await axios.delete(`${API_BASE_URL}//deleteSurgeries`, {
+          headers: {
+              Authorization: `Bearer ${accessToken}`,  // Include the access token
+          },
+      });
+      console.log(response.data);  // Handle response data as needed
+      return response.data;
+  } catch (error) {
+      if (error.response && error.response.status === 401) {
+          console.error("Unauthorized: Token may be revoked or expired.");
+          // Handle token revocation or expiration, e.g., refresh token logic
+      } else {
+          console.error("Error deleting surgeries:", error);
+      }
+  }
+};
 

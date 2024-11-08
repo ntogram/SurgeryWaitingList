@@ -5,12 +5,20 @@ import { Breadcrumb, Button, Row, Col,Tooltip,notification} from 'antd';
 import { LogoutOutlined } from '@ant-design/icons';
 import { useAuth } from '../Auth/AuthManager';
 const AdminPageHeader = ({ adminPageName }) => {
-  const { auth,signOut } = useAuth();
+  const { auth,signOut,hasValidokens,refreshSession} = useAuth();
   const [api, contextHolder] = notification.useNotification();
   const logout=  async () =>{
-       // call logout operation
-      const response= await signOut();
-      
+      // check  tokens validity
+      const tokenValidity=hasValidokens(auth.accessToken,auth.refreshToken);
+      // acess token expired refresh it
+      let access_token = auth.accessToken;
+      let refresh_token =  auth.refreshToken;
+      if (tokenValidity == 2){
+        access_token = await refreshSession(refresh_token);
+      }
+      // call operation for sign out
+      const response= await signOut(access_token,refresh_token);
+     
     }
   
 

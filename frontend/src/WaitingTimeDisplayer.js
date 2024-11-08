@@ -52,7 +52,10 @@ const WaitingTimeDisplayer  = ({surgeryId,examDate}) => {
 
 
     const getWaitingTimeExpr = ()=>{
-      if (waitingTime==0.5){
+      if (waitingTime==0){
+        return "μηδενικός"
+      }
+      else if (waitingTime==0.5){
         return "2 εβδομάδες"
       }
       else if (waitingTime==1){

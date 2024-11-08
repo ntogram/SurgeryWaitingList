@@ -3,14 +3,14 @@ import { DatePicker, Form,Button,Popconfirm,Typography, Space} from 'antd';
 import {DeleteOutlined,QuestionCircleFilled} from '@ant-design/icons';
 import AdminPageHeader from './AdminPageHeader'
 import dayjs from "dayjs";
-
-
+import { useAuth } from '../Auth/AuthManager';
+import {deleteSurgeries} from '../services/serviceAPI'
 const { RangePicker } = DatePicker;
 const { Title} = Typography;
 
 
 const AdminPanel = () => {
-
+ const { auth,hasValidokens,refreshSession} = useAuth();
  const maxDate = dayjs();
  // Create form instance
  const [form] = Form.useForm();
@@ -43,6 +43,25 @@ const disableFutureDates = (current) =>{
 }
 
 
+const clearSurgeries = async ()=>{
+  // check  tokens validity
+  /*const tokenValidity=hasValidokens(auth.accessToken,auth.refreshToken);
+  // acess token expired refresh it
+  let access_token = auth.accessToken;
+  let refresh_token =  auth.refreshToken;
+  if (tokenValidity == 2){
+    access_token = await refreshSession(refresh_token);
+  }
+*/
+  console.log("ok")
+
+
+
+}
+
+
+
+
 
     return <div>
     <AdminPageHeader adminPageName={'Επεξεργασία'}/>
@@ -53,7 +72,7 @@ const disableFutureDates = (current) =>{
     initialValues={{ remember: true}}
     onFieldsChange={handleFormChange}
     autoComplete="off"
-    onFinish={onFinish}
+    
     
   > 
   
@@ -74,7 +93,7 @@ const disableFutureDates = (current) =>{
         },
       }}
     okText={<Title level={4} type={"warning"} italic={true} strong={true}>Ναι</Title>}
-    
+    onConfirm={clearSurgeries}
     icon={<QuestionCircleFilled />} 
   >
         <Button type="primary" htmlType="submit" danger  icon={<DeleteOutlined />} className="login-form-button">

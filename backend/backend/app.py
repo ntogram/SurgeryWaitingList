@@ -566,7 +566,7 @@ def logout():
 
     return jsonify({"message": "Successfully logged out"}), 200
 
-@app.route('/deleteSurgeries', methods=['GET'])
+@app.route('/deleteSurgeries', methods=['DELETE'])
 @jwt_required()
 def protected():
     # Check if the token is blacklisted
