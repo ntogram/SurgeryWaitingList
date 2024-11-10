@@ -29,9 +29,7 @@ def is_valid_date(date_string):
         return False
 
 
-def isAfter(startDateStr,endDateStr):
-    startDate = datetime.strptime(startDateStr, '%Y-%m-%d')
-    endDate = datetime.strptime(endDateStr, '%Y-%m-%d')
+def isAfter(startDate,endDate):
     if endDate < startDate:
             return False
     return True

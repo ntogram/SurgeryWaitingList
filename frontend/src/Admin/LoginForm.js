@@ -73,7 +73,7 @@ const LoginForm = () => {
         console.log(auth)
         if (typeof auth["errorMessage"] === "string") {
                 api.error({
-                  message: 'Πρόβλημα Επικοινωνίας με Διακομιστή',
+                  message: 'Σφάλμα Επικοινωνίας με Διακομιστή',
                   description:auth["errorMessage"],
                   key: notificationId
                 });

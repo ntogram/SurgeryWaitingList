@@ -594,13 +594,21 @@ def protected():
 
     startDate = data["startDate"]
     endDate = data["endDate"]
+     # Convert string dates to datetime objects
+    startDateObj = datetime.strptime(startDate, '%Y-%m-%d')
+    endDateObj = datetime.strptime(endDate, '%Y-%m-%d')
     # check if end date is after start date
-    endDateStatus = isAfter(startDate,endDate)
-    if endDateStatus == False:
-        return jsonify({"error": "Λάθος τιμή για το πεδίο {0}. Αποδεκτές ημερομηνίες όσες είναι μετά από {1}".format(errorFields["endDate"],startDate)}), 400 
-    return jsonify({'message': f'Οι  εγγραφές για τις επεμβάσεις  των ασθενών που εξετάστηκαν από {startDate} εώς {endDate} έχουν  διαγραφεί επιτυχώς'}),200
-
-
+    endDateStatus = isAfter(startDateObj,endDateObj)
+    if endDateStatus == True:
+        # Delete surgeries within the date range
+        deleted_count = Surgery.query.filter(Surgery.examDate >= startDateObj,Surgery.examDate <= endDateObj).delete()
+        db.session.commit()
+        if deleted_count > 0:
+             return jsonify({'message': f'{deleted_count}  εγγραφές για τις επεμβάσεις  των ασθενών που εξετάστηκαν από {startDate} εώς {endDate} έχουν  διαγραφεί επιτυχώς','count':deleted_count}),200
+        else:
+            return jsonify({'message': f'Δε βρέθηκαν εγγραφές για επεμβάσεις ασθενών που εξετάστηκαν από {startDate} εώς {endDate}.','count':deleted_count}), 404
+    else:
+         return jsonify({"error": "Λάθος τιμή για το πεδίο {0}. Αποδεκτές ημερομηνίες όσες είναι μετά από {1}".format(errorFields["endDate"],startDate)}), 400 
 
 
 

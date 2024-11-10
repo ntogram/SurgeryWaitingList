@@ -140,8 +140,14 @@ export const deleteSurgeries = async (accessToken, startDate, endDate) => {
           console.error("Error deleting surgeries:", error);
       
       if ("response" in error){
-        msg =  error["response"]["data"]["error"]
-      
+        let errorResponse = error["response"]["data"]
+        if ("error" in errorResponse){
+          msg =  error["response"]["data"]["error"]
+        }
+        else if ("count" in errorResponse){
+          errorObj = {"message":errorResponse["message"],"count":errorResponse["count"]}
+          return errorObj
+        }
       }
       else{
         msg =  "Σφάλμα Διακομιστή"

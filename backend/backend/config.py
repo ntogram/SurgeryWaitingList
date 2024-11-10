@@ -17,8 +17,8 @@ class Config(DeclarativeBase):
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY')
     SESSION_COOKIE_SECURE = True  # Send cookies only over HTTPS
     SESSION_COOKIE_HTTPONLY = True  # JavaScript cannot access the session cookie
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes= 1)  # Access Token expiration
-    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes = 1) # Refresh Token expiration
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes= 20)  # Access Token expiration
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(minutes = 45) # Refresh Token expiration
     JWT_TOKEN_LOCATION = ["headers"]
 
 

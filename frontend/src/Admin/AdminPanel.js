@@ -71,11 +71,18 @@ const clearSurgeries = async ()=>{
     api.error({message:"Σφάλμα Διαγραφής Χειρουργείων",description:msg})
   }
   else{
+    if (response["count"]==0){
+      api.warning({
+        message: 'Διαγραφή Χειρουργείων',
+        description:msg
+      });
+    }
+    else{
     api.success({
       message: 'Διαγραφή Χειρουργείων',
       description:msg
     });
-
+  }
 
   }
 
