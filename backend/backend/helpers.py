@@ -29,6 +29,17 @@ def is_valid_date(date_string):
         return False
 
 
+def isAfter(startDateStr,endDateStr):
+    startDate = datetime.strptime(startDateStr, '%Y-%m-%d')
+    endDate = datetime.strptime(endDateStr, '%Y-%m-%d')
+    if endDate < startDate:
+            return False
+    return True
+
+
+
+
+
 def hasRank(prop):
     if prop in ["Στρατιωτικός", "Αστυνομικός"]:
         return True

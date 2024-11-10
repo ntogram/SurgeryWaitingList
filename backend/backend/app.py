@@ -8,11 +8,13 @@ from flask_limiter.util import get_remote_address
 from flask_jwt_extended import create_access_token,create_refresh_token, jwt_required, get_jwt_identity,get_jwt,decode_token
 from db import db
 from config import Config
-from helpers import is_valid_date,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
+from helpers import is_valid_date,isAfter,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
 from models import *
 from sqlalchemy import case, func,and_,or_
+
 from datetime import datetime
 from queries import *
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = Config.SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = Config.SQLALCHEMY_TRACK_MODIFICATIONS
@@ -572,10 +574,33 @@ def protected():
     # Check if the token is blacklisted
     jti = get_jwt()['jti']
     if TokenBlacklist.query.filter_by(jti=jti).first() is not None:
-        return jsonify({"error": "Token has been revoked"}), 401
+        return jsonify({"errorMessage": "Token has been revoked"}), 401
 
     current_user_username = get_jwt_identity()
-    return jsonify({"message": f"Hello, {current_user_username}!"}), 200
+    required_fields = ["startDate","endDate"]
+    errorFields ={"startDate":"Αρχική Ημερομηνία","endDate":"Τελική Ημερομηνία"}
+    # get data given from  delete surgeries form
+    data = request.get_json()
+    # check if the date range  is given 
+    for required_field in required_fields:
+            if required_field not in data:
+                return jsonify({"error": "Λείπει το πεδίο: {0}".format(errorFields[required_field])}), 400
+            print(data[required_field])
+            # check if dates have the appropriate format
+            if data[required_field] is not None:
+                if not is_valid_date(data[required_field]):
+                    return jsonify({"error": " Μη έγκυρη τιμή για το πεδίο: {0}".format(errorFields[required_field])}), 400 
+
+
+    startDate = data["startDate"]
+    endDate = data["endDate"]
+    # check if end date is after start date
+    endDateStatus = isAfter(startDate,endDate)
+    if endDateStatus == False:
+        return jsonify({"error": "Λάθος τιμή για το πεδίο {0}. Αποδεκτές ημερομηνίες όσες είναι μετά από {1}".format(errorFields["endDate"],startDate)}), 400 
+    return jsonify({'message': f'Οι  εγγραφές για τις επεμβάσεις  των ασθενών που εξετάστηκαν από {startDate} εώς {endDate} έχουν  διαγραφεί επιτυχώς'}),200
+
+
 
 
 

@@ -111,22 +111,44 @@ export const refresh = async (refreshToken) =>{
 }
 
 
-export const deleteSurgeries = async (accessToken) => {
+export const deleteSurgeries = async (accessToken, startDate, endDate) => {
   try {
-      const response = await axios.delete(`${API_BASE_URL}//deleteSurgeries`, {
+      // Use a single slash for the API endpoint and include the headers in the proper place
+      const response = await axios.delete(`${API_BASE_URL}/deleteSurgeries`, {
+          data: { "startDate":startDate,"endDate": endDate },
           headers: {
-              Authorization: `Bearer ${accessToken}`,  // Include the access token
+              Authorization: `Bearer ${accessToken}`,  // Include the access token in the header
           },
       });
       console.log(response.data);  // Handle response data as needed
       return response.data;
   } catch (error) {
+      let msg=""
+      let errorObj = null;
       if (error.response && error.response.status === 401) {
           console.error("Unauthorized: Token may be revoked or expired.");
+          
+          
+          if ("response" in error){
+            msg =  "Η συνδεση έληξε"
+          
+          }
+          errorObj ={"message":msg,"expired":true}
+          return errorObj
           // Handle token revocation or expiration, e.g., refresh token logic
       } else {
           console.error("Error deleting surgeries:", error);
+      
+      if ("response" in error){
+        msg =  error["response"]["data"]["error"]
+      
       }
+      else{
+        msg =  "Σφάλμα Διακομιστή"
+      }
+    }
+      errorObj =  {"message":msg,"error":true}
+      return errorObj
+
   }
 };
-

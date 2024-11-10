@@ -1,5 +1,5 @@
 import {React,useState} from 'react';
-import { DatePicker, Form,Button,Popconfirm,Typography, Space} from 'antd';
+import { DatePicker, Form,Button,Popconfirm,Typography, Space,notification} from 'antd';
 import {DeleteOutlined,QuestionCircleFilled} from '@ant-design/icons';
 import AdminPageHeader from './AdminPageHeader'
 import dayjs from "dayjs";
@@ -10,12 +10,12 @@ const { Title} = Typography;
 
 
 const AdminPanel = () => {
- const { auth,hasValidokens,refreshSession} = useAuth();
+ const { auth,setAuth,hasValidokens,refreshSession} = useAuth();
  const maxDate = dayjs();
  // Create form instance
  const [form] = Form.useForm();
  const [formCompleted, setFormCompleted] = useState(false);
-
+ const [api, contextHolder] = notification.useNotification();
 // Function to check if form is completed
 const handleFormChange = () => {
   //  when hasErrors is true when form is not completed or is completed wrongly in this case formCompleted=false otherwise 
@@ -45,15 +45,43 @@ const disableFutureDates = (current) =>{
 
 const clearSurgeries = async ()=>{
   // check  tokens validity
-  /*const tokenValidity=hasValidokens(auth.accessToken,auth.refreshToken);
+  const tokenValidity=hasValidokens(auth.accessToken,auth.refreshToken);
   // acess token expired refresh it
   let access_token = auth.accessToken;
   let refresh_token =  auth.refreshToken;
   if (tokenValidity == 2){
     access_token = await refreshSession(refresh_token);
   }
-*/
+
   console.log("ok")
+  // Retrieve date range criteria for delete
+  const formData = form.getFieldsValue(); 
+  const dateRange = formData.dateRange;
+  console.log(dateRange)
+  const startDate = dateRange[0].format("YYYY-MM-DD");
+  const endDate = dateRange[1].format("YYYY-MM-DD");
+  const response = await deleteSurgeries(auth.accessToken,startDate,endDate)
+  console.log(response)
+  let msg = response["message"]
+  if ("expired" in response){
+    console.log(msg)
+    setAuth({ isLoggedIn: false, accessToken: null, refreshToken: null, errorMessage:msg });
+  }
+  else if  ("error" in response){
+    api.error({message:"Σφάλμα Διαγραφής Χειρουργείων",description:msg})
+  }
+  else{
+    api.success({
+      message: 'Διαγραφή Χειρουργείων',
+      description:msg
+    });
+
+
+  }
+
+  
+  //console.log("Start Date:", startDate);
+  //console.log("End Date:", endDate);
 
 
 
@@ -64,6 +92,7 @@ const clearSurgeries = async ()=>{
 
 
     return <div>
+      {contextHolder}
     <AdminPageHeader adminPageName={'Επεξεργασία'}/>
     <Space direction='vertical' align='center'>
     <Form

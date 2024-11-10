@@ -10,3 +10,4 @@ cryptography
 Flask-JWT-Extended
 Flask-Bcrypt
 Flask-Limiter
+flask-wtf
