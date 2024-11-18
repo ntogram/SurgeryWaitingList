@@ -55,7 +55,7 @@ const PatientsList  = () => {
 
     },
     getCheckboxProps: (record) => ({
-      disabled: record.referral === 'Ναι'
+      disabled: (record.referral === 'Ναι' || record.dischargeStatus=='Ναι')
 
     })
   };
