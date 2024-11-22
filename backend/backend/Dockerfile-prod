@@ -15,7 +15,7 @@ RUN pip install --no-index --find-links=/app/packages -r requirements.txt
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=development
 # Set a default value for WORKERS
-ENV WORKERS=4
+ENV WORKERS="4"
 
 
 
@@ -24,4 +24,4 @@ ENV WORKERS=4
 EXPOSE 5000
 
 # Run the application
-CMD ["gunicorn", "-w", "${WORKERS}", "-b", "0.0.0.0:5000", "app:app"]
+CMD sh -c "gunicorn -w ${WORKERS} -b 0.0.0.0:5000 app:app"
