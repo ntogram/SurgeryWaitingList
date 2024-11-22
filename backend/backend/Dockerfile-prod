@@ -1,0 +1,27 @@
+# Use an official Python runtime as a parent image
+FROM python:3.12-slim
+#FROM local/python:3.12-slim
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the current directory contents into the container at /app
+COPY . .
+# Set an environment variable to ignore compatibility checks
+ENV PIP_IGNORE_INSTALLED=1
+# Install the dependencies
+#RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-index --find-links=/app/packages -r requirements.txt
+# Set environment variables
+ENV FLASK_APP=app.py
+ENV FLASK_ENV=development
+# Set a default value for WORKERS
+ENV WORKERS=4
+
+
+
+
+# Make port 5000 available to the world outside this container
+EXPOSE 5000
+
+# Run the application
+CMD ["gunicorn", "-w", "${WORKERS}", "-b", "0.0.0.0:5000", "app:app"]
