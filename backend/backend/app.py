@@ -302,6 +302,7 @@ def listWaitingPatients():
         func.concat(Patient.name, ' ', Patient.surname).label('patientName'), # get the conatenation of patient name and surname
         Patient.property.label("property"), #get the property
         Surgery.disease.label('disease'),  # get the name of related disease
+       func.date_format(Surgery.examDate, '%Y-%m-%d').label('examDate'), # get exam date IN YYYY-MM-DD format
        func.date_format(Surgery.surgeryDate, '%Y-%m-%d').label('surgeryDate'), # get surgery date IN YYYY-MM-DD format
         Soldier.dischargeDate.label('discharge_date'),
         case((and_(
@@ -336,6 +337,7 @@ def listWaitingPatients():
             'patientName': patient.patientName,
             'property': patient.property,
             'disease': patient.disease,
+            'examDate':patient.examDate,
             'surgeryDate':patient.surgeryDate,
             'discharge_date':patient.discharge_date,
             "active":patient.active,
