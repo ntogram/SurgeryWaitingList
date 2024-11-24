@@ -114,8 +114,8 @@ const PatientsList  = () => {
               !record.surgeryDone?
              <div>
              <span><DatePicker variant="filled" style={{maxWidth: '60%',width: '100%' }}  onChange={(date,dateString,id)=>handleDateSurgeryChange(date,dateString,record.id)} 
-             defaultValue={record.surgeryDate!=null?dayjs(record.surgeryDate):today} 
-             maxDate={today.add(1, 'day')} /></span>
+             defaultValue={record.surgeryDate!=null?dayjs(record.surgeryDate):today} minDate={dayjs(record.examDate)}
+             maxDate={today} /></span>
              
              <Tooltip placement="bottom" arrow={false} title={"Επικύρωση"}>
              <Button 
@@ -162,10 +162,7 @@ const PatientsList  = () => {
             onFilter: (value, record) => {
                 if (value=="Όλες"){
                   return true;}
-                console.log("value:",value)
-                console.log("active fun:",isActive(record))
-                console.log("active:",record.active)
-                console.log("con",record.active== value)
+               
                 return isActive(record)== value
 
             } 
@@ -420,7 +417,7 @@ const validateReferral = async (surgeryId,status=true) => {
 
 // set the selected  surgery date
 const handleDateSurgeryChange = (date,dateString,id) =>{
-      console.log(dateString)
+      
     if(dateString==null){
       dateString = today.format('YYYY-MM-DD');
     }
@@ -455,16 +452,14 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
   });
   setPatients(updatedPatients); // Update state with submission
   if (status==true){
-    console.log(surgeryId)
     let selectedPatient = patients.find(({ id }) => id == surgeryId);
-    console.log(selectedPatient)
     let surgeryDate =selectedPatient.surgeryDate;
    // const referral = selectedPatient.referral=='Ναι'?1:0;
     const response = await updateSurgeryDate(selectedPatient.id,surgeryDate)
   }
-  else{
+ /* else{
     const response = await updateSurgeryDate(surgeryId,null)
-  }
+  }*/
 
 
 
