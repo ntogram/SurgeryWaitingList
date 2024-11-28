@@ -21,7 +21,7 @@ const StatisticsByOrgan  = () => {
     const generateColumns = (properties) => {
         const columns = [
           {
-            title: 'Ανατομικές περιοχές', // Cell 0,0
+            title: 'Ανατομική περιοχή', // Cell 0,0
             dataIndex: 'organ',
             key: 'organ',
             fixed: 'left',

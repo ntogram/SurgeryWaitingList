@@ -28,7 +28,7 @@ const GlobalDateSelector= ({ids,handleDateSurgeryChange,validateSurgeryDate})=>{
 
 
     return <div>
-    <span><DatePicker variant="filled" style={{maxWidth: '60%',width: '100%' }}  onChange={(date,dateString)=>handleMultiDateSurgeryChange(date,dateString)} 
+    <span><DatePicker variant="filled" style={{maxWidth: '70%',width: '100%' }}  onChange={(date,dateString)=>handleMultiDateSurgeryChange(date,dateString)} 
     defaultValue={today} 
     maxDate={today.add(1, 'day')} /></span><Button 
      type="primary" 
