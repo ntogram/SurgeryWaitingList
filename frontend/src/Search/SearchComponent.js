@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Input, Button, Space } from 'antd';
+import { Input, Button, Space,Tooltip} from 'antd';
 import { SearchOutlined, UndoOutlined } from '@ant-design/icons';
 
 const SearchComponent = ({ dataIndex, selectedKeys, setSelectedKeys, confirm, clearFilters }) => {
@@ -27,18 +27,21 @@ const SearchComponent = ({ dataIndex, selectedKeys, setSelectedKeys, confirm, cl
           onPressEnter={handleSearch}
           style={{ flex: 1, marginRight: 8 }}
         />
-        <Button
+        <Tooltip placement="bottom" arrow={false} title={"Αναζήτηση"}><Button
           type="primary"
           onClick={handleSearch}
           icon={<SearchOutlined />}
           size="small"
         />
+        </Tooltip>
+        <Tooltip placement="bottom" arrow={false} title={"Αναίρεση"}>
         <Button
           onClick={handleReset}
           size="small"
           danger
           icon={<UndoOutlined />}
         />
+        </Tooltip>
       </Space>
     </div>
   );

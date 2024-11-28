@@ -61,6 +61,7 @@ const ButtonCollection = ({columns,dataSource,ids,handleDateSurgeryChange,valida
       return ( <Breadcrumb
         items={toolboxItems}
         separator=<Space/>
+        style={{color: 'rgba(0, 0, 0, 0.88)'}}
       />)
   
   

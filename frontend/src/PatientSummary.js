@@ -26,7 +26,7 @@ const PatientSummary  = ({submittedData}) => {
                 <Descriptions.Item label="Ημερομηνία Εξέτασης">{dayjs(submittedData.checkupDate).format(dateFormat)}</Descriptions.Item>
                 <Descriptions.Item label="Ιδιότητα">{submittedData.property}</Descriptions.Item>
                 {submittedData.rank &&<Descriptions.Item label="Βαθμός">{submittedData.rank}</Descriptions.Item>}
-                {submittedData.dischargeDate && <Descriptions.Item label="μερομηνία Απόλυσης">{dayjs(submittedData.dischargeDate).format(dateFormat)}</Descriptions.Item>}
+                {submittedData.dischargeDate && <Descriptions.Item label="Ημερομηνία Απόλυσης">{dayjs(submittedData.dischargeDate).format(dateFormat)}</Descriptions.Item>}
                 <Descriptions.Item label="Όνομα Πάθησης">{submittedData.diseaseName}</Descriptions.Item>
                 <Descriptions.Item label="Περιγραφή Πάθησης">{submittedData.diseaseDescription}</Descriptions.Item>
                 <Descriptions.Item label="Ανατομική Περιοχή">{submittedData.organ}</Descriptions.Item>

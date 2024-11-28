@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Input, Button, Space } from 'antd';
+import { Input, Button, Space,Tooltip} from 'antd';
 import { SearchOutlined, UndoOutlined } from '@ant-design/icons';
 import SearchComponent from './SearchComponent'; // Make sure to adjust the import path
 
@@ -15,7 +15,9 @@ const getColumnSearchProps = (dataIndex, searchText, setSearchText) => {
       />
     ),
     filterIcon: (filtered) => (
+      <Tooltip placement="bottom" arrow={false} title={"Αναζήτηση"}>
       <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />
+      </Tooltip>
     ),
     onFilter: (value, record) => {
         console.log(value)

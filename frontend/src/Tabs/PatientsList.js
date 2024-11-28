@@ -96,8 +96,7 @@ const PatientsList  = () => {
             key: 'disease',
             fixed: 'left', 
             sorter: (value1, value2) => value1['disease'].localeCompare(value2['disease']),
-            filters: (surgeryTypes.concat("Όλες")).map( surgeryType =>({text:surgeryType,value:surgeryType})),
-            onFilter: (value, record) => value=="Όλες"?true:record.disease.includes(value)
+           
           },
           {
             title: 'Χειρουργήθηκε στις', 
