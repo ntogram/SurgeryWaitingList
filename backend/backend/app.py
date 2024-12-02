@@ -1,3 +1,4 @@
+import sys
 from flask import Flask,request,jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
@@ -11,7 +12,7 @@ from config import Config
 from helpers import is_valid_date,isAfter,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
 from models import *
 from sqlalchemy import case, func,and_,or_
-
+from waitress import serve
 from datetime import datetime
 from queries import *
 
@@ -615,6 +616,22 @@ def protected():
 
 
 if __name__ == '__main__':
+ # Check for command-line argument
+    if len(sys.argv) != 2:
+        print("Usage: python app.py [dev|prod]")
+    else:
+        mode = sys.argv[1].lower()
 
-    app.run(host='0.0.0.0', port=5000,debug=True)
+        if mode == "--dev" or mode=="dev":
+            # For development, use Flask's built-in server
+            print("Running in development mode...")
+            app.run(host='0.0.0.0', port=5000, debug=True)
+
+        elif mode == "--prod" or mode=="prod":
+            # For production, use Waitress server
+            print("Running in production mode...")
+            serve(app, host='127.0.0.1', port=5000)
+
+        else:
+            print("Error: Invalid argument. Please use 'dev' or 'prod'.")
     
