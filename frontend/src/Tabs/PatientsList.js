@@ -91,6 +91,14 @@ const PatientsList  = () => {
             onFilter: (value, record) => value=="Όλοι"?true:record.property.includes(value)
           },
           {
+            title: 'Ημερομηνία Εξέτασης', 
+            dataIndex: 'examDate',
+            key: 'examDate',
+            fixed: 'left', 
+            sorter: (value1,value2)=>new Date(value1) - new Date(value2)
+           
+          },
+          {
             title: 'Πάθηση', 
             dataIndex: 'disease',
             key: 'disease',
@@ -113,7 +121,7 @@ const PatientsList  = () => {
               !record.surgeryDone?
              <div>
              <span><DatePicker variant="filled" style={{maxWidth: '60%',width: '100%' }}  onChange={(date,dateString,id)=>handleDateSurgeryChange(date,dateString,record.id)} 
-             defaultValue={record.surgeryDate!=null?dayjs(record.surgeryDate):today} minDate={dayjs(record.examDate)}
+             defaultValue={record.surgeryDate!=null?dayjs(record.surgeryDate):null} minDate={dayjs(record.examDate)}
              maxDate={today} /></span>
              
              <Tooltip placement="bottom" arrow={false} title={"Επικύρωση"}>

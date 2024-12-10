@@ -29,7 +29,7 @@ class Patient(db.Model):
     name = db.Column(db.String(45), nullable=True)
     surname = db.Column(db.String(45), nullable=True)
     fatherName = db.Column(db.String(45), nullable=True)
-    birthDate = db.Column(db.String(45), nullable=True)  # Consider changing to Date type if needed
+    age = db.Column(db.Integer, nullable=True) 
     property = db.Column(Enum('Μόνιμος Στρατιωτικός', 'Έφεδρος Στρατιωτικός', 
                                'Αστυνομικός', 'Απόστρατος', 
                                'Μέλος', 'Ιδιώτης'), nullable=True)
@@ -38,7 +38,7 @@ class Patient(db.Model):
     surgeries = relationship("Surgery", back_populates="patient")
 
     __table_args__ = (
-        db.UniqueConstraint('name', 'surname', 'fatherName', 'birthDate', name='PATIENTDATA'),
+        db.UniqueConstraint('name', 'surname', 'fatherName', 'age', 'property', name='PATIENTDATA'),
     )
 
     def __repr__(self):

@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import axios from 'axios';
 import dayjs from 'dayjs';
 //import 'dayjs/locale/el'
-import { Form, Input, Button,DatePicker,Select,Result} from 'antd';
+import { Form, Input, Button,DatePicker,Select,InputNumber } from 'antd';
 import PatientSummary from '../PatientSummary'
 import { useNavigate } from 'react-router-dom';
 import { Faker, el } from '@faker-js/faker'; 
@@ -385,11 +385,11 @@ const sendData = async () =>{
         </Form.Item>
          {/* birthDate Field*/}
          <Form.Item
-          label="Ημερομηνία Γέννησης"
-          name="birthDate"
-          rules={[{ required: true, message: 'Παρακαλώ επιλέξτε την ημερομηνία γέννησης του ασθενή' }]}
+          label="Ηλικία"
+          name="age"
+          rules={[{ required: true, message: 'Παρακαλώ επιλέξτε την ηλικία του ασθενή' }]}
         >
-          <DatePicker variant="filled"  style={{maxWidth: '60%',width: '100%' }} maxDate={today} /> 
+         <InputNumber variant={"filled"} min={0} max={110}  changeOnWheel={true} controls={true} />
         </Form.Item>
          {/* checkupDate */}
          <Form.Item
@@ -397,7 +397,7 @@ const sendData = async () =>{
           name="checkupDate"
           rules={[{ required: true, message: 'Παρακαλώ επιλέξτε την ημερομηνία εξέτασης του ασθενή' }]}
         >
-          <DatePicker variant="filled"  style={{maxWidth: '60%',width: '100%' }} maxDate={today} /> 
+          <DatePicker variant="filled"  style={{maxWidth: '100%',width: '100%' }} maxDate={today} /> 
         </Form.Item>
 
 
@@ -459,7 +459,7 @@ const sendData = async () =>{
           name="dischargeDate"
           rules={[{ required: true, message: 'Παρακαλώ επιλέξτε την ημερομηνία απόλυσης' }]}
         >
-          <DatePicker variant="filled" style={{maxWidth: '60%',width: '100%' }} minDate={today} /> 
+          <DatePicker variant="filled" style={{maxWidth: '100%',width: '100%' }} minDate={today} /> 
         </Form.Item>
           )}
 
@@ -477,7 +477,7 @@ const sendData = async () =>{
                 name="diseaseDescription"
                 rules={[{ required: true, message: 'Παρακαλώ δώστε ένα κείμενο μέχρι 4000 χαρακτήρες για περιγραφή της  πάθησης' }]}
               >
-                 <TextArea rows={4} variant='filled' placeholder="Περιγραφή Πάθησης" maxLength={textBoxLength} />
+                 <TextArea style={{resize: 'both',overflow: 'auto',maxWidth:'none'}} variant='filled' placeholder="Περιγραφή Πάθησης"  />
         </Form.Item>
          {/* Dropdown with Autocomplete  for organ selection */}
          <Form.Item
@@ -528,7 +528,7 @@ const sendData = async () =>{
                 label="Παρατηρήσεις"
                 name="comments"
               >
-                 <TextArea rows={4} variant='filled' placeholder="Σχόλια" maxLength={textBoxLength} />
+                 <TextArea rows={4} style={{resize: 'both',overflow: 'auto',maxWidth:'none'}} variant='filled' placeholder="Σχόλια" maxLength={textBoxLength} />
         </Form.Item>
 
        
