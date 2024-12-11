@@ -9,9 +9,14 @@ import { Form, Input, Button,DatePicker,Select,InputNumber } from 'antd';
 import PatientSummary from '../PatientSummary'
 import { useNavigate } from 'react-router-dom';
 import { Faker, el } from '@faker-js/faker'; 
-//import moment from 'moment';
-//import 'moment/locale/el';
-//import locale from 'antd/es/date-picker/locale/el_GR';
+
+
+import privateImg from "./armyRankIcons/ges_geniko_379_300.jpg";
+
+
+
+
+
 import 'antd/dist/reset.css';
 
 
@@ -26,7 +31,7 @@ const PatientInsertion  = () => {
   const today=dayjs(dayjs().format(dateFormat),dateFormat);
   const [submissionCount, setSubmissionCount] = useState(0);
   const { TextArea } = Input;
-  const { properties, surgeries, ranks } = useSelector((state) => state.constants); 
+  const { properties, surgeries, ranks, armyRanks} = useSelector((state) => state.constants); 
   const navigate = useNavigate();                
   const returnButtonRef = useRef(null);
 
@@ -41,6 +46,7 @@ const PatientInsertion  = () => {
 
   const [selectedProperty, setSelectedProperty] = useState(null); 
   const [selectedRank,setSelectedRank] =  useState(null); 
+  const [selectedArmyRank,setSelectedArmyRank] =  useState(null); 
   const [selectedOrgan,setSelectedOrgan]=useState(null)            
   const [form] = Form.useForm(); 
 
@@ -57,7 +63,9 @@ const PatientInsertion  = () => {
         setSelectedProperty(value);
         // reset rank
         setSelectedRank(null);
-        form.setFieldsValue({ rank: null });
+        // reset army rank
+        setSelectedArmyRank(null)
+        form.setFieldsValue({ rank: null,armyRank:null });
         console.log(selectedRank)
 
       }
@@ -427,6 +435,7 @@ const sendData = async () =>{
 
         {/* Display dropdown for selecting rank if property=Στρατιωτικός or Αστυνομικός */}
         {(selectedProperty === 'Στρατιωτικός' || selectedProperty === 'Αστυνομικός') && (
+          
           <Form.Item
             label="Βαθμός"
             name="rank"
@@ -445,13 +454,53 @@ const sendData = async () =>{
             >
               {ranks[selectedProperty].map(rank => (
                 <Select.Option key={rank} value={rank}>
-                  {rank}
+                  {rank} 
                 </Select.Option>
               ))}
             </Select>
           </Form.Item>
         )}
         
+        {(selectedProperty === 'Στρατιωτικός') && (
+          
+          <Form.Item
+            label="Όπλο/Σώμα"
+            name="armyRank"
+            rules={[{ required: true, message: 'Παρακαλώ επιλέξτε όπλο/σώμα' }]}
+          >
+            <Select
+              placeholder="Επιλέξτε όπλο/σώμα"
+              variant="filled"
+              value={selectedArmyRank}
+
+              onChange={(value) => selectedArmyRank(value)}
+              showSearch={true}
+              optionFilterProp={selectedProperty === 'Στρατιωτικός' ? "children" : null}
+              filterOption={(input, option) =>{
+                console.log(option)
+                return option.children[0].toLowerCase().includes(input.toLowerCase())}
+              }
+            >
+              {armyRanks.map(armyRank => (
+                <Select.Option key={armyRank} value={armyRank}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <img src={privateImg} alt={armyRank} style={{ width: 20, height: 20, marginRight: 8 }}/>
+                          {armyRank}
+                    </div>
+
+    
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          
+
+
+
+
+
+
+        )}
         {/* display discharge date  when property=Στρατιωτικός  rank="Στρατιώτης (Στρ)" }*/}
          {(selectedProperty == 'Στρατιωτικός' && selectedRank =="Στρατιώτης (Στρ)")   && (
           <Form.Item

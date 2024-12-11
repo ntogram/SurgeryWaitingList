@@ -95,8 +95,7 @@ const PatientsList  = () => {
             dataIndex: 'examDate',
             key: 'examDate',
             fixed: 'left', 
-            sorter: (value1,value2)=>new Date(value1) - new Date(value2)
-           
+            sorter: (value1,value2)=>new Date(value1.examDate) - new Date(value2.examDate)
           },
           {
             title: 'Πάθηση', 
