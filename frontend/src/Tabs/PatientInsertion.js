@@ -9,9 +9,8 @@ import { Form, Input, Button,DatePicker,Select,InputNumber } from 'antd';
 import PatientSummary from '../PatientSummary'
 import { useNavigate } from 'react-router-dom';
 import { Faker, el } from '@faker-js/faker'; 
+//import aimg from './armyRankIcons/ges.jpg'
 
-
-import privateImg from "./armyRankIcons/ges_geniko_379_300.jpg";
 
 
 
@@ -31,7 +30,8 @@ const PatientInsertion  = () => {
   const today=dayjs(dayjs().format(dateFormat),dateFormat);
   const [submissionCount, setSubmissionCount] = useState(0);
   const { TextArea } = Input;
-  const { properties, surgeries, ranks, armyRanks} = useSelector((state) => state.constants); 
+  const { properties, surgeries, ranks, armyRankMap} = useSelector((state) => state.constants); 
+  const armyRanks = Object.keys(armyRankMap);
   const navigate = useNavigate();                
   const returnButtonRef = useRef(null);
 
@@ -103,6 +103,13 @@ const createNewSurgery = async(data) =>{
   return surgeryId
 }
 
+const  renderArmyRankIcon = (iconName) =>{
+  const path="/armyRankIcons/";
+  const extension=".jpg";
+  const name = path+iconName+extension;
+  console.log(name);
+  return name;
+}
 
 
 
@@ -484,7 +491,7 @@ const sendData = async () =>{
               {armyRanks.map(armyRank => (
                 <Select.Option key={armyRank} value={armyRank}>
                     <div style={{ display: "flex", alignItems: "center" }}>
-                    <img src={privateImg} alt={armyRank} style={{ width: 20, height: 20, marginRight: 8 }}/>
+                    <img src={renderArmyRankIcon(armyRankMap[armyRank])} alt={armyRank} style={{ width: 50, height: 50, marginRight: 8 }}/>
                           {armyRank}
                     </div>
 
