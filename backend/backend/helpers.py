@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from dateutil.relativedelta import relativedelta
 from models import Patient
 import math
-
+from sqlalchemy import text
 def custom_round(val):
     """Custom rounding logic based on decimal part."""
     int_part = int(val)  # Get the integer part
@@ -51,8 +51,20 @@ def isBoolean(v):
     else:
         return False
 
-def readStatsFromDB(db,query,keyname):
-     # Execute the query
+def readStatsFromDB(db,query,conditionType,keyname):
+    # Insert the full condition SQL expression into the query string
+    dquery = str(query).format(TYPE_CONDITION=conditionType)
+
+    # Log the final query for debugging
+    #print("Executing Query:\n", dquery)
+    query = text(dquery)
+
+ 
+
+   
+
+
+    # Execute the query
     result = db.session.execute(query)
     # Fetch all results from the query
     rows = result.fetchall()
@@ -147,7 +159,7 @@ def calculateDateDiff(d1,d2):
 
 def getExpectedSurgeryDate(examDate,interval):
     intervalM  =int(interval) # get number of months
-    extra_days = (interval - intervalM) * 30 # get uspplementary days
+    extra_days = (interval - intervalM) * 30 # get supplementary days
     # calculate expected surgery date
     expectedSurgeryDate = examDate + relativedelta(months=intervalM,days=extra_days)
     return expectedSurgeryDate

@@ -57,17 +57,17 @@ def test_patient_insertion():
 # insert patient personal  data
 @app.route('/patients/personalData', methods=['POST'])
 def add_patient():
-    required_attributes = ["patientName","patientSurname","fatherName","birthDate","property"]
+    required_attributes = ["patientName","patientSurname","fatherName","age","property"]
     data = request.get_json()  # Get JSON data from the request
     print(data.keys())
     for required_attribute in required_attributes:
             if required_attribute not in data:
                 return jsonify({"error": "Missing attribute:{0}".format(required_attribute)}), 400
-            if  required_attribute == "birthDate":
-                birthDate =data.get("birthDate")
-                valid = is_valid_date(birthDate)
+            if  required_attribute == "age":
+                age =data.get("age")
+                valid = isinstance(age,int)
                 if valid== False:
-                    return jsonify({"error": "Error date format for birthDate"}), 400
+                    return jsonify({"error": "Error number format for age"}), 400
             if required_attribute == "property":        
                     propertyVal = data.get("property")
                     if propertyVal not in ["Στρατιωτικός", "Αστυνομικός", "Απόστρατος", "Μέλος", "Ιδιώτης"]:
@@ -92,12 +92,12 @@ def add_patient():
     fatherName = data.get('fatherName')
    
     # check if patient already exists
-    existing_patient = Patient.query.filter_by(name=name, surname=surname,fatherName=fatherName,birthDate=birthDate).first()
+    existing_patient = Patient.query.filter_by(name=name, surname=surname,fatherName=fatherName,age=age).first()
     if existing_patient is None:
         # Create a new Patient object
         try:
         
-            new_patient = Patient(name=name, surname=surname,fatherName=fatherName,birthDate=birthDate,property=propertyVal)
+            new_patient = Patient(name=name, surname=surname,fatherName=fatherName,age=age,property=propertyVal)
             db.session.add(new_patient)
             db.session.commit()
            
@@ -141,19 +141,23 @@ def add_rank():
                 return jsonify({"error": "Missing attribute:{0}".format(required_attribute)}), 400
     officerId = data.get("ID")
     rank =  data.get("rank")
+    armyRank =  None
+    if "armyRank" in data:
+        armyRank =data.get("armyRank")
     #check if  the rank has been already stored for the patient(army officer or policeman) with officerID
     existing_officer = Officer.query.filter_by(officerID=officerId).first()
     if existing_officer is None:
         # store the rank
-        new_officer =  Officer(officerID=officerId,armyRank=rank)
+        new_officer =  Officer(officerID=officerId,officerRank=rank,armyRank=armyRank)
         db.session.add(new_officer)
         db.session.commit()
         return jsonify({"message": f"Rank for Patient with {officerId} added successfully!"}), 201
     else:
-        if existing_officer.armyRank == rank:
+        if existing_officer.officerRank == rank or existing_officer.armyRank == armyRank:
              return jsonify({"message": f"Rank for Patient with {officerId} has already been stored"}), 200
         else:
-            existing_officer.armyRank = rank
+            existing_officer.officerRank = rank
+            existing_officer.armyRank =  armyRank
             db.session.commit()
             return jsonify({"message": f"Rank for Patient with {officerId} has been updated"}), 200
 
@@ -282,14 +286,18 @@ def calculateWaitingTime():
     print(rowResult)
     # calculate wait time
     estimatedDuration =  float(rowResult[0])
+    print("initial estimation:",estimatedDuration)
     # Find expected surgery date
     # get surgery with the given id
     surgery = db.session.get(Surgery, surgeryId)
     if surgery:     
         examDate = surgery.examDate
         expectedSurgeryDate = getExpectedSurgeryDate(examDate,estimatedDuration) # calculate expected surgery date
+        print("expected date before adaptation:",expectedSurgeryDate)
         expectedSurgeryDate = adaptSurgeryDate(expectedSurgeryDate) # adapt surgery  date for cases that it is in holiday periods
+        print("expected date before adaptation:",expectedSurgeryDate)
         estimatedDuration = calculateDateDiff(examDate,expectedSurgeryDate)  # calculate new waiting time
+        print("final estimation:",estimatedDuration)
     return jsonify({"estimatedDuration":estimatedDuration,"examDate":examDate,"surgeryDate":expectedSurgeryDate}),200
 
 
@@ -361,13 +369,22 @@ def getStatistics(option:str):
      # Check if the 'option' is valid (either 'organ' or 'surgery')
     if option not in ['organ', 'surgery']:
         return jsonify({'error': 'Invalid option parameter. Accepted values are: surgery, organ.'}), 400
+    
+    # for retrieving statistics for all surgeries condition TRUE
+    # for retrieving statistics for pending surgeries  surgeryDate IS NULL AND ACTIVE=1
+    # for retrieving statistics for completed surgeries surgeryDate IS NOT NULL AND ACTIVE=0
+    allStatistics={"Όλες":{"condition":"TRUE","results":None},"Εκκρεμείς":{"condition":"surgeryDate IS NULL AND ACTIVE=1","results":None},"Ολοκληρωμένες":{"condition":"surgeryDate IS NOT NULL AND ACTIVE=0","results":None}}
     # Based on the option, choose the appropriate query and parameter for the function
     if option == 'organ':
-        statistics = readStatsFromDB(db, QUERY_SURGERIES_BY_ORGAN, 'organ')
+        for statType in allStatistics:
+            allStatistics[statType]["results"] = readStatsFromDB(db, QUERY_SURGERIES_BY_ORGAN,allStatistics[statType]["condition"],'organ')
     elif option == 'surgery':
-        statistics = readStatsFromDB(db, QUERY_SURGERIES_BY_SURGERYTYPE, 'surgery')
+         for statType in allStatistics:
+            allStatistics[statType]["results"] = readStatsFromDB(db, QUERY_SURGERIES_BY_ORGAN,allStatistics[statType]["condition"],'surgery')
     # Return the statistics as a JSON response
-    return jsonify(statistics)
+    #print(allStatistics)
+    allResults = {key: value["results"] for key, value in allStatistics.items()}
+    return jsonify(allResults)
 
 
 

@@ -49,10 +49,25 @@ const PatientInsertion  = () => {
   const [selectedArmyRank,setSelectedArmyRank] =  useState(null); 
   const [selectedOrgan,setSelectedOrgan]=useState(null)            
   const [form] = Form.useForm(); 
-
+  const [armyRankOpen, setArmyRankOpen] = useState(false); 
 
 
   const [submittedData, setSubmittedData] = useState(location.state?.submittedData );
+
+
+
+  const handleArmyRankOpen = (open) => {
+    setArmyRankOpen(open);
+  };
+
+
+
+
+
+
+
+
+
   const searchField = (input, option) =>{
                
     return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0}
@@ -66,7 +81,7 @@ const PatientInsertion  = () => {
         // reset army rank
         setSelectedArmyRank(null)
         form.setFieldsValue({ rank: null,armyRank:null });
-        console.log(selectedRank)
+        
 
       }
 
@@ -107,7 +122,6 @@ const  renderArmyRankIcon = (iconName) =>{
   const path="/armyRankIcons/";
   const extension=".jpg";
   const name = path+iconName+extension;
-  console.log(name);
   return name;
 }
 
@@ -121,7 +135,6 @@ const  renderArmyRankIcon = (iconName) =>{
     let data= form.getFieldsValue();
     data={
             ...data,
-            "birthDate":dayjs(data.birthDate).format(dateFormat),
             "checkupDate":dayjs(data.checkupDate).format(dateFormat),
             "dischargeDate":data.dischargeDate?dayjs(data.dischargeDate).format(dateFormat):null
         }
@@ -136,8 +149,9 @@ const  renderArmyRankIcon = (iconName) =>{
     // make request for adding rank for army officers and policemen
     if (propsWithRank.includes(propertyVal)){
       let rank = data["rank"];
-      let officerData = {"ID":patientId,"rank":rank}
-      console.log(patientId)
+      let armyRank = data.armyRank?data.armyRank:null;
+      let officerData = {"ID":patientId,"rank":rank,"armyRank":armyRank}
+      //console.log(patientId)
       addRank(officerData);
       // make request for adding discharge date for soldiers
       if (propertyVal =="Στρατιωτικός" && rank =="Στρατιώτης (Στρ)" ){
@@ -479,21 +493,26 @@ const sendData = async () =>{
               placeholder="Επιλέξτε όπλο/σώμα"
               variant="filled"
               value={selectedArmyRank}
-
-              onChange={(value) => selectedArmyRank(value)}
+              onChange={(value) => setSelectedArmyRank(value)}
+              onDropdownVisibleChange={handleArmyRankOpen} 
               showSearch={true}
               optionFilterProp={selectedProperty === 'Στρατιωτικός' ? "children" : null}
               filterOption={(input, option) =>{
                 console.log(option)
-                return option.children[0].toLowerCase().includes(input.toLowerCase())}
+                return option.value.toLowerCase().includes(input.toLowerCase())}
               }
+             
             >
               {armyRanks.map(armyRank => (
-                <Select.Option key={armyRank} value={armyRank}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                    <img src={renderArmyRankIcon(armyRankMap[armyRank])} alt={armyRank} style={{ width: 50, height: 50, marginRight: 8 }}/>
-                          {armyRank}
-                    </div>
+                <Select.Option key={armyRank} value={armyRank} label={armyRank}>
+                    
+                 {armyRankOpen? 
+                         
+                            (<div style={{ display: "flex", alignItems: "center" }}>
+                              <img src={renderArmyRankIcon(armyRankMap[armyRank])} alt={armyRank} style={{ width: 50, height: 50, marginRight: 8 }}/>{armyRank}
+                    </div>):armyRank}
+                    
+                          
 
     
                 </Select.Option>

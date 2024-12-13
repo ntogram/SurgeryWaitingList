@@ -26,10 +26,10 @@ class Patient(db.Model):
     __tablename__ = 'patients'  # Specify the table name
 
     ID = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(45), nullable=True)
-    surname = db.Column(db.String(45), nullable=True)
-    fatherName = db.Column(db.String(45), nullable=True)
-    age = db.Column(db.Integer, nullable=True) 
+    name = db.Column(db.String(45), nullable=False)
+    surname = db.Column(db.String(45), nullable=False)
+    fatherName = db.Column(db.String(45), nullable=False)
+    age = db.Column(db.Integer, nullable=False) 
     property = db.Column(Enum('Μόνιμος Στρατιωτικός', 'Έφεδρος Στρατιωτικός', 
                                'Αστυνομικός', 'Απόστρατος', 
                                'Μέλος', 'Ιδιώτης'), nullable=True)
@@ -51,7 +51,8 @@ class Patient(db.Model):
 class Officer(db.Model):
     __tablename__ = 'officers'
     officerID = db.Column(db.Integer,db.ForeignKey('patients.ID'),primary_key=True)
-    armyRank = db.Column(db.String(50))
+    officerRank = db.Column(db.String(45),nullable=False)
+    armyRank = db.Column(db.String(45),nullable=True)
 
     # Define relationship to Patient using string reference
     
@@ -62,7 +63,7 @@ class Soldier(db.Model):
     __tablename__ = 'soldiers'
     
     soldierID = Column(Integer,ForeignKey('patients.ID'), primary_key=True, nullable=False)
-    dischargeDate = Column(Date, nullable=True)
+    dischargeDate = Column(Date, nullable=False)
 
     # Assuming you have a Patient class defined elsewhere
     # This creates a relationship to the Patient model based on the foreign key constraint

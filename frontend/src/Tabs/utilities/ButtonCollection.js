@@ -1,11 +1,11 @@
 import React,{useState,useEffect} from 'react'
-import { Breadcrumb,Space,Button,DatePicker} from 'antd';
+import { Breadcrumb,Space,Select} from 'antd';
 import RefreshButton from './RefreshButton';
 import Filehandler from './Filehandler';
 import { useSelector} from 'react-redux';
 import GlobalDateSelector from './GlobalDateSelector';
 // put buttons in separate components
-const ButtonCollection = ({columns,dataSource,ids,handleDateSurgeryChange,validateSurgeryDate}) =>{
+const ButtonCollection = ({columns,dataSource,ids,handleDateSurgeryChange,validateSurgeryDate,selectedStatisticType,changeStatisticType,statisticTypes}) =>{
     const [refreshDateTime, setRefreshDateTime] = useState(new Date());
     const current = useSelector((state) => state.tab.selectedTab);
     
@@ -42,12 +42,30 @@ const ButtonCollection = ({columns,dataSource,ids,handleDateSurgeryChange,valida
       }];
       
       if (current=="patientsList"){
-          toolboxItems.push({title:<GlobalDateSelector ids={ids} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate}/>})
-       
-
-
+        toolboxItems.splice(4, 0, {title:<GlobalDateSelector ids={ids} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate}/>});
       }
+      else
+      {
+        const options = statisticTypes.map(statisticType => ({ 
+          value: statisticType, 
+          label: statisticType 
+        }));
 
+
+
+
+        toolboxItems.splice(4,0,{title:<Select
+          defaultValue={statisticTypes[0]}
+          onChange={changeStatisticType}
+          options={options}
+          dropdownStyle={{ width: 300 }} 
+
+
+
+
+
+        />},{title:<div>{selectedStatisticType}</div>})
+      }
 
 
 

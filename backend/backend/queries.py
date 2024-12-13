@@ -1,5 +1,5 @@
 from sqlalchemy import text
-
+# surgeryDate IS  NULL AND ACTIVE=1 
 QUERY_SURGERIES_BY_ORGAN = text("""select organName  AS organ,
     SUM(CASE WHEN property = 'Μόνιμος Στρατιωτικός' THEN counter ELSE 0 END) AS 'Μόνιμοι Στρατιωτικοί',
 	SUM(CASE WHEN property = 'Έφεδρος Στρατιωτικός' THEN counter ELSE 0 END) AS 'Έφεδροι Στρατιωτικοί',
@@ -14,7 +14,7 @@ from(SELECT surgeries.organ AS organName,surgerywaitinglist.patients.property as
 surgerywaitinglist.surgeries  JOIN 
 surgerywaitinglist.patients 
 ON (surgerywaitinglist.surgeries.patientId=surgerywaitinglist.patients.ID)
-WHERE referral=0 AND surgeryDate IS  NULL AND ACTIVE=1 
+WHERE referral=0 AND ({TYPE_CONDITION})
 GROUP BY surgerywaitinglist.surgeries.organ,surgerywaitinglist.patients.property
 ORDER  BY surgerywaitinglist.surgeries.organ,surgerywaitinglist.patients.property DESC
 ) as existing_surgery_data
@@ -26,7 +26,7 @@ ORDER BY surgerywaitinglist.organ_property_combinations.name,surgerywaitinglist.
 GROUP BY organName
 ORDER by organName;""")
 
-
+#surgeryDate IS  NULL AND ACTIVE=1 
 QUERY_SURGERIES_BY_SURGERYTYPE = text("""SELECT 
     name as surgery,
 	SUM(CASE WHEN property = 'Μόνιμος Στρατιωτικός' THEN counter ELSE 0 END) AS 'Μόνιμοι Στρατιωτικοί',
@@ -42,7 +42,7 @@ SELECT surgeries.surgeryName AS surgeryName,surgerywaitinglist.patients.property
 surgerywaitinglist.surgeries  JOIN 
 surgerywaitinglist.patients 
 ON (surgerywaitinglist.surgeries.patientId=surgerywaitinglist.patients.ID)
-WHERE referral=0 AND surgeryDate IS  NULL AND ACTIVE=1 
+WHERE referral=0 AND ({TYPE_CONDITION}) 
 GROUP BY surgerywaitinglist.surgeries.surgeryName,surgerywaitinglist.patients.property
 ORDER  BY surgerywaitinglist.surgeries.surgeryName,surgerywaitinglist.patients.property DESC
 ) as existing_surgery_data
@@ -57,12 +57,7 @@ ORDER BY name;
 
 QUERY_CALC_WAITING_TIME = text("""
 SELECT 
-    CASE 
-        WHEN totalDuration < FLOOR(totalDuration) + 0.5 THEN FLOOR(totalDuration) + 0.5
-        WHEN totalDuration > FLOOR(totalDuration) + 0.5 THEN ROUND(totalDuration)
-        WHEN totalDuration is NULL then 0
-        ELSE totalDuration
-    END AS adjustedDuration
+   totalDuration
 FROM (
     SELECT SUM(st.estimatedDuration) / 1800 AS totalDuration
     FROM surgerywaitinglist.surgeries s

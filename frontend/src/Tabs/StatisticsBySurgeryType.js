@@ -7,10 +7,11 @@ import { retrieveStatistics } from '../services/serviceAPI';
 
 const StatisticsBySurgeryType  = () => {
     //style
-    const { fullProperties, surgeries } = useSelector((state) => state.constants); 
+    const { fullProperties, surgeries,statisticTypes} = useSelector((state) => state.constants); 
     const surgeryTypes =  Array.from(new Set(Object.values(surgeries).flat())).sort();
     const [statistics,setStatistics]= useState([])
     const refreshTab = useSelector((state) => state.tab.refreshTab);
+    const [selectedStatisticType,setSelectedStatisticType]=useState(statisticTypes[0])
     const dispatch = useDispatch();
     // generate table headers
     const generateColumns = (properties) => {
@@ -92,7 +93,7 @@ const StatisticsBySurgeryType  = () => {
     const dataSource = generateDataSource(surgeryTypes,fullProperties);
     const columns = generateColumns(fullProperties)
       return(<div>
-                <ButtonCollection dataSource={statistics} columns={columns}/>
+                <ButtonCollection dataSource={statistics} columns={columns} selectedStatisticType={selectedStatisticType} setSelectedStatisticType={setSelectedStatisticType} statisticTypes={statisticTypes}/>
                 <Table
                   columns={columns}
                   
