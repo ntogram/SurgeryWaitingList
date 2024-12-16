@@ -108,7 +108,7 @@ const StatisticsByOrgan  = () => {
         <Table
           columns={columns}
           pagination={false}
-          dataSource={statistics}
+          dataSource={statistics[selectedStatisticType]}
           bordered
           scroll={{ x: 'max-content' }} 
         />

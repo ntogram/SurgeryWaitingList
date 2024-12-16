@@ -380,7 +380,7 @@ def getStatistics(option:str):
             allStatistics[statType]["results"] = readStatsFromDB(db, QUERY_SURGERIES_BY_ORGAN,allStatistics[statType]["condition"],'organ')
     elif option == 'surgery':
          for statType in allStatistics:
-            allStatistics[statType]["results"] = readStatsFromDB(db, QUERY_SURGERIES_BY_ORGAN,allStatistics[statType]["condition"],'surgery')
+            allStatistics[statType]["results"] = readStatsFromDB(db, QUERY_SURGERIES_BY_SURGERYTYPE,allStatistics[statType]["condition"],'surgery')
     # Return the statistics as a JSON response
     #print(allStatistics)
     allResults = {key: value["results"] for key, value in allStatistics.items()}

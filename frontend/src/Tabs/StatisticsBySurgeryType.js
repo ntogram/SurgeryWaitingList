@@ -87,17 +87,20 @@ const StatisticsBySurgeryType  = () => {
     }, [statistics,refreshTab]);
 
 
+    const changeStatisticType = (value)=>{
+      setSelectedStatisticType(value);
+    }
 
 
 
     const dataSource = generateDataSource(surgeryTypes,fullProperties);
     const columns = generateColumns(fullProperties)
       return(<div>
-                <ButtonCollection dataSource={statistics} columns={columns} selectedStatisticType={selectedStatisticType} setSelectedStatisticType={setSelectedStatisticType} statisticTypes={statisticTypes}/>
+                <ButtonCollection dataSource={statistics} columns={columns} selectedStatisticType={selectedStatisticType} changeStatisticType={changeStatisticType} statisticTypes={statisticTypes}/>
                 <Table
                   columns={columns}
                   
-                  dataSource={statistics}
+                  dataSource={statistics[selectedStatisticType]}
                   bordered
                   pagination={{ pageSize: 12 }}
                   scroll={{ x: 'max-content' }} 
