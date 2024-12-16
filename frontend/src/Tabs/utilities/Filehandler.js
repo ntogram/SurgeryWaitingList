@@ -11,6 +11,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 const Filehandler = ({columns,dataSource,op}) =>{
     const current = useSelector((state) => state.tab.selectedTab);
+    const subtitles = useSelector((state) =>state.constants.statisticTypes)
     const today = useSelector((state) => state.constants.today); // get title of current tab
     
     
@@ -43,15 +44,35 @@ const Filehandler = ({columns,dataSource,op}) =>{
     }
     // Extract excel data
     const getRows = () =>{
-      const rows = dataSource.map(record =>columns.map(col => record[col.key]));
-      return rows
-    }
+      let rows =  null;
+    
+      if (current == "patientsList"){
+        console.log(dataSource)
+        rows = dataSource.map(record =>columns.map(col => record[col.key]));
+        console.log(rows)
+      }
+      else if (current=="statisticsByOrgan" || current=="statisticsBySurgeryType"){
+        rows = {};
+        Object.keys(dataSource).forEach(key => {
+          const selectedSource = dataSource[key]; // Get the array for the key
+          rows[key] = selectedSource.map(record => columns.map(col => record[col.key]));
+          
+      })
+      }
+
+      return rows;
+      }
+
+
+
+     
 
 
 
     const createPdf = ()=>{
       //  form doc title
       const title = formDocTitle();
+      const tableTitles= formDocSubtitles();
       // Extract table column headers and rows
       const columnNames = getHeaders();
       const tableRows = getRows();
@@ -61,18 +82,52 @@ const Filehandler = ({columns,dataSource,op}) =>{
       callAddFont.call(doc);
       // Set the custom font for your document
       doc.setFont("Times New Roman");
+      doc.setFontSize(16);
       // Add text or tables using the custom font
       doc.text(title, 10, 10);
+
+      // pdf when PatienList tab is selected
+      if (current == "patientsList"){
+            // Create a table in the PDF with the appropriate headers and rows
+            doc.autoTable({
+              head: [columnNames],
+              body: tableRows,
+              styles: {
+                font: "Times New Roman",
+                fontStyle: "normal",
+              }
+            
+            });
+    }
+    else if (current=="statisticsByOrgan" || current=="statisticsBySurgeryType"){
+
+      let ypos=20;
+      // for each table
       // Create a table in the PDF with the appropriate headers and rows
-      doc.autoTable({
-        head: [columnNames],
-        body: tableRows,
-        styles: {
-          font: "Times New Roman",
-          fontStyle: "normal",
+      for (const tableTitle of tableTitles) {
+        doc.setFontSize(14);
+        doc.text(tableTitle, 10, ypos);
+        
+        doc.autoTable({
+          head: [columnNames],
+          body: tableRows[tableTitle],
+          startY: ypos+10,
+          styles: {
+            font: "Times New Roman",
+            fontStyle: "normal",
+          }
+        
+        });
+        ypos = 20;
+        if (tableTitle!="Εκκρεμείς"){
+          doc.addPage();
         }
-      
-      });
+
+      }
+
+
+    }
+
       const docfile ={"doc":doc,"title":title}
       return docfile;
     }
@@ -108,17 +163,35 @@ const Filehandler = ({columns,dataSource,op}) =>{
    const  downloadExcel = () =>{
       //  form doc title
       const title = formDocTitle();
+      // assign sheet names
+      const sheetNames= formDocSubtitles();
+
+
       // Extract table column headers and rows
       const columnNames = getHeaders();
       const tableRows = getRows();
       // Create a workbook and a worksheet
       const workbook = XLSX.utils.book_new();
-      let worksheetData = [];
-      worksheetData = worksheetData.concat([columnNames], tableRows);
-      // create worksheet with worksheetData
-      const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-      // add the worksheet to workbook.  appended worksheet named as title
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Φύλλο1");
+      let worksheetData = null;
+      let worksheet = null;
+      if (current == "patientsList"){
+          worksheetData = []
+          worksheetData = worksheetData.concat([columnNames], tableRows);
+          // create worksheet with worksheetData
+          worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+          // add the worksheet to workbook.  appended worksheet named as title
+          XLSX.utils.book_append_sheet(workbook, worksheet, "Φύλλο1");
+      }
+      else if (current=="statisticsByOrgan" || current=="statisticsBySurgeryType"){
+          for (const sheetName of sheetNames) {
+            worksheetData = []
+            // for each table, create a worksheet
+            worksheetData = worksheetData.concat([columnNames], tableRows[sheetName]);
+            worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+            // add the worksheet for each tanle to workbook.  appended worksheet named as  the value of corresponding sheet name
+            XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+          }
+      }
       // create excel
       const excelBuffer = XLSX.write(workbook, {bookType: "xlsx",type: "array"});
       // create file for excel 
@@ -163,6 +236,16 @@ const Filehandler = ({columns,dataSource,op}) =>{
           }
           return title;
   }  
+
+  const formDocSubtitles = () =>{
+    if (current=="patientsList"){ 
+      return null;
+    }
+    return subtitles;
+  }
+
+
+
 
 
   // give string (title of file ) and the file extension (e.g. pdf,xlsx)
