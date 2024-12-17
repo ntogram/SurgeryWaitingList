@@ -57,7 +57,7 @@ ORDER BY name;
 
 QUERY_CALC_WAITING_TIME = text("""
 SELECT 
-   totalDuration
+   IFNULL(totalDuration,0)
 FROM (
     SELECT SUM(st.estimatedDuration) / 1800 AS totalDuration
     FROM surgerywaitinglist.surgeries s
