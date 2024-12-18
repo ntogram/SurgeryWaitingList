@@ -16,29 +16,22 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `soldiers`
+-- Table structure for table `officers`
 --
 
-DROP TABLE IF EXISTS `soldiers`;
+DROP TABLE IF EXISTS `officers`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `soldiers` (
-  `soldierID` int NOT NULL,
-  `dischargeDate` date DEFAULT NULL,
-  PRIMARY KEY (`soldierID`),
-  CONSTRAINT `patientsIdFK` FOREIGN KEY (`soldierID`) REFERENCES `patients` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+CREATE TABLE `officers` (
+  `officerID` int NOT NULL,
+  `officerRank` varchar(45) NOT NULL,
+  `armyRank` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`officerID`),
+  CONSTRAINT `officerIDFK` FOREIGN KEY (`officerID`) REFERENCES `patients` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `soldiers`
---
 
-LOCK TABLES `soldiers` WRITE;
-/*!40000 ALTER TABLE `soldiers` DISABLE KEYS */;
-INSERT INTO `soldiers` VALUES (483,'2025-02-26'),(487,'2025-07-06'),(494,'2024-07-06'),(495,'2024-05-08'),(553,'2024-10-10'),(554,'2025-03-13'),(574,'2025-06-27'),(585,'2025-07-18'),(594,'2024-11-13');
-/*!40000 ALTER TABLE `soldiers` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -49,4 +42,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-11-14  7:32:06
+-- Dump completed on 2024-12-18  9:37:43
