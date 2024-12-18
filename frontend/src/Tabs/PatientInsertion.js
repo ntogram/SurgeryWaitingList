@@ -347,7 +347,7 @@ const sendData = async () =>{
 
         
       }
-
+      console.log(submittedData)
 
 
 
@@ -374,7 +374,7 @@ const sendData = async () =>{
       
    
         {/* Antd Form */}
-      {submittedData===null?
+      {(submittedData===null || submittedData===undefined)?
       <Form
         name="basic"
         form={form} 

@@ -92,7 +92,7 @@ const initialState = {
     "Αστυνομικός": ["Κατώτερος", "Ανώτερος", "Ανώτατος"]
   },
   armyRankMap:{
-    "ΓΕΣ":"ges",
+   /* "ΓΕΣ":"ges",
     "1η ΣΤΡΑΤΙΑ":"1h_stratia",
     "Γ’ ΣΣ":"g_ss",
     "Δ’ ΣΣ":"d_ss",
@@ -152,7 +152,7 @@ const initialState = {
     "ΕΘΝΟΦΥΛΑΚΗ":"ethnofylakh",
     "ΣΕΟΕΔ":"seoed",
     "1 ΣΠ":"1_sp",
-    "ΤΕΘΑ":"tetha",
+    "ΤΕΘΑ":"tetha",*/
     "ΠΕΖΙΚΟ":"pz",
     "ΤΕΘΩΡΑΚΙΣΜΕΝΑ":"tethorakismena",
     "ΠΥΡΟΒΟΛΙΚΟ":"pb",
