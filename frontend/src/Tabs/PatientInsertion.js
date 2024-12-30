@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import axios from 'axios';
 import dayjs from 'dayjs';
 //import 'dayjs/locale/el'
-import { Form, Input, Button,DatePicker,Select,InputNumber } from 'antd';
+import { Form, Input, Button,DatePicker,Select,InputNumber, Space } from 'antd';
 import PatientSummary from '../PatientSummary'
 import { useNavigate } from 'react-router-dom';
 import { Faker, el } from '@faker-js/faker'; 
@@ -619,12 +619,15 @@ const sendData = async () =>{
 
         {/* Submit Button */}
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+          <Space wrap>
           <Button type="primary" htmlType="submit">
             Υποβολή
           </Button>
+          
           <Button type="primary" danger onClick={reseForm} style={{ marginLeft: '5%' }}>
           Καθάρισμος
         </Button>
+        </Space>
         </Form.Item>
       </Form>:null}
       <PatientSummary submittedData={submittedData}  /> 

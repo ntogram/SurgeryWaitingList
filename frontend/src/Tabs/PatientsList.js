@@ -518,13 +518,16 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
             type: "checkbox",
             ...rowSelection,
           }}
-          columns={columns}
+          columns={columns.map(col => ({
+            ...col,
+            responsive: ['xs', 'sm', 'md', 'lg'], 
+          }))}
           pagination={false}
           dataSource={patients}
           bordered
-          scroll={{ x: 'max-content' }} 
+          scroll={{ x: false }} 
           rowKey="id"
-          
+         
         />
       </div>
       
