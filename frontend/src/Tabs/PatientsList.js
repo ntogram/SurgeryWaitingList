@@ -1,6 +1,6 @@
 import React,{ useState,useEffect} from 'react';
-import { Table,Switch,Button,DatePicker,Tooltip} from 'antd';
-import { CheckOutlined, EditOutlined } from '@ant-design/icons';
+import { Table,Switch,Button,DatePicker,Tooltip,notification} from 'antd';
+import { CheckOutlined, EditOutlined,DeleteOutlined,QuestionCircleFilled } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import {resetRefreshTab} from '../redux/reducers/tabSlice';
 import dayjs from 'dayjs';
@@ -20,11 +20,7 @@ import ButtonCollection from './utilities/ButtonCollection'
 
 
 const PatientsList  = () => {
-   //style
- 
-
-
-  //sort
+   const [api, contextHolder] = notification.useNotification(); 
   const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
    const {today,surgeries} = useSelector((state) => state.constants); 
@@ -64,8 +60,15 @@ const PatientsList  = () => {
   // generate table headers
     const generateColumns = () => {
         const columns = [
-          
           {
+            title: 'Διαγραφή',
+            key: 'delete',
+            align: 'center',
+            render: (text, record) => (
+              <Button type="primary" htmlType="submit" danger  icon={<DeleteOutlined />}  onClick={() => deleteRecord(record.id)}>
+              </Button>
+            ),
+          },{
             title: 'Α/Α', 
             dataIndex: 'id',
             key: 'id',
@@ -472,7 +475,10 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
 
 };
 
-
+  const deleteRecord = (surgeryId) =>
+  {
+    console.log(surgeryId)
+  }
 
 
 
