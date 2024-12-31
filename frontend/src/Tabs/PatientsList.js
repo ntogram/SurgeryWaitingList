@@ -1,5 +1,5 @@
 import React,{ useState,useEffect} from 'react';
-import { Table,Switch,Button,DatePicker,Tooltip,notification} from 'antd';
+import { Table,Switch,Button,DatePicker,Tooltip,notification,Space} from 'antd';
 import { CheckOutlined, EditOutlined,DeleteOutlined,QuestionCircleFilled } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import {resetRefreshTab} from '../redux/reducers/tabSlice';
@@ -61,12 +61,21 @@ const PatientsList  = () => {
     const generateColumns = () => {
         const columns = [
           {
-            title: 'Διαγραφή',
+            title: 'Λειτουργίες',
             key: 'delete',
             align: 'center',
             render: (text, record) => (
-              <Button type="primary" htmlType="submit" danger  icon={<DeleteOutlined />}  onClick={() => deleteRecord(record.id)}>
-              </Button>
+              <Space wrap>
+               <Tooltip placement="bottom" arrow={false} title={"Διαγραφή"}>
+                      <Button type="primary" htmlType="submit" danger  icon={<DeleteOutlined />}  onClick={() => deleteRecord(record.id)}> 
+                      </Button>
+              </Tooltip> 
+             
+              <Tooltip placement="bottom" arrow={false} title={"Επεξεργασία"}>
+                      <Button type="primary" htmlType="submit"   icon={<EditOutlined/>}  onClick={() => deleteRecord(record.id)}> 
+                      </Button>
+              </Tooltip> 
+              </Space>
             ),
           },{
             title: 'Α/Α', 
@@ -513,12 +522,19 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
     }, [patients,refreshTab,selectedSurgeries]);
 
 
-    const columns = generateColumns()
+
+    //const headers = columns.filter(col => col.title!= "Λειτουργίες");
+   
+
+
+
+    const columns = generateColumns();
+    const docColumns = columns.filter(col => col.title!= "Λειτουργίες")
     
     return (
       <div>
        
-          <ButtonCollection dataSource={patients} columns={columns} ids={selectedSurgeries} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate}/>
+          <ButtonCollection dataSource={patients} columns={docColumns} ids={selectedSurgeries} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate}/>
           <Table
            rowSelection={{
             type: "checkbox",

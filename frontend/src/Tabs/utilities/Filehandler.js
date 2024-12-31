@@ -47,7 +47,6 @@ const Filehandler = ({columns,dataSource,op}) =>{
       let rows =  null;
     
       if (current == "patientsList"){
-        console.log(dataSource)
         rows = dataSource.map(record =>columns.map(col => record[col.key]));
         console.log(rows)
       }
@@ -169,6 +168,7 @@ const Filehandler = ({columns,dataSource,op}) =>{
 
       // Extract table column headers and rows
       const columnNames = getHeaders();
+      console.log(columnNames)
       const tableRows = getRows();
       // Create a workbook and a worksheet
       const workbook = XLSX.utils.book_new();

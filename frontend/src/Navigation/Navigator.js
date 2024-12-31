@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Link,Navigate,useLocation } fro
 import { useSelector, useDispatch } from 'react-redux';
 import ProtectedRoute from './ProtectedRoute';
 import { AuthManager } from '../Auth/AuthManager';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu} from 'antd';
 import 'antd/dist/reset.css'; 
 import  {setTab}  from '../redux/reducers/tabSlice';
 import PatientInsertion from '../Tabs/PatientInsertion';

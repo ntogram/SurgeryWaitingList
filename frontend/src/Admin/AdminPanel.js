@@ -53,7 +53,7 @@ const clearSurgeries = async ()=>{
     access_token = await refreshSession(refresh_token);
   }
 
-  console.log("ok")
+ 
   // Retrieve date range criteria for delete
   const formData = form.getFieldsValue(); 
   const dateRange = formData.dateRange;
