@@ -461,6 +461,19 @@ def updateSurgeryDate(surgery_id:int):
 
 
 
+@app.route('/deleteSurgery', methods=['DELETE'])
+def deleteSurgery():
+    data = request.get_json()
+    if "surgeryId" not in data:
+                return jsonify({"error": "Λείπει το πεδίο: surgeryId"}), 400
+    else:
+        surgeryId =data.get("surgeryId")
+        deleted_count = Surgery.query.filter(Surgery.surgeryId == surgery_id).delete()
+        db.session.commit()
+        if deleted_count > 0:
+            return jsonify({'message': f'H επέμβαση με id:{surgery_id} έχει  διαγραφεί επιτυχώς','count':deleted_count}),200
+        else:
+            return jsonify({'message': f'Δε βρέθηκε εγγραφή επέμβασης με {surgery_id}','count':deleted_count}), 404
 
 
 

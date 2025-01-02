@@ -51,6 +51,20 @@ export const updateSurgeryDate = async (surgeryId,surgeryDate) =>{
 
 }
 
+export const deleteSurgeryRecord = async (surgeryId) =>{
+  const response = await axios.delete(`${API_BASE_URL}/deleteSurgery`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: { surgeryId }
+  });
+  return response.data;
+}
+
+
+
+
+
 export const retrieveStatistics = async (option) =>{
   const response = await axios.get(`${API_BASE_URL}//statistics/${option}`);
   return response.data;

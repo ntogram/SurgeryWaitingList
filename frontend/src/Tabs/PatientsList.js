@@ -1,14 +1,14 @@
 import React,{ useState,useEffect} from 'react';
-import { Table,Switch,Button,DatePicker,Tooltip,notification,Space} from 'antd';
+import { Table,Switch,Button,DatePicker,Tooltip,notification,Space,Popconfirm,Typography} from 'antd';
 import { CheckOutlined, EditOutlined,DeleteOutlined,QuestionCircleFilled } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import {resetRefreshTab} from '../redux/reducers/tabSlice';
 import dayjs from 'dayjs';
 
 import getColumnSearchProps from '../Search/getColumnSearchProps '; 
-import {listPatients,updateReferral,updateSurgeryDate} from '../services/serviceAPI'
+import {listPatients,updateReferral,updateSurgeryDate,deleteSurgeryRecord} from '../services/serviceAPI'
 import ButtonCollection from './utilities/ButtonCollection'
- 
+const { Title} = Typography; 
 
 
 
@@ -21,6 +21,7 @@ import ButtonCollection from './utilities/ButtonCollection'
 
 const PatientsList  = () => {
    const [api, contextHolder] = notification.useNotification(); 
+   const [deleteBtnClicked, setDeleteBtnClicked] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
    const {today,surgeries} = useSelector((state) => state.constants); 
@@ -31,7 +32,12 @@ const PatientsList  = () => {
    const refreshTab = useSelector((state) => state.tab.refreshTab);
    const dispatch = useDispatch();
    
+  const openDeleteDialog = (status) =>{
+    setDeleteBtnClicked(status)
 
+
+
+  }
 
 
 
@@ -66,11 +72,29 @@ const PatientsList  = () => {
             align: 'center',
             render: (text, record) => (
               <Space wrap>
-               <Tooltip placement="bottom" arrow={false} title={"Διαγραφή"}>
-                      <Button type="primary" htmlType="submit" danger  icon={<DeleteOutlined />}  onClick={() => deleteRecord(record.id)}> 
-                      </Button>
-              </Tooltip> 
-             
+               
+                              <Popconfirm 
+                                title={<Title level={4} type={"warning"}>Ειδοποίηση Διαγραφής</Title>}
+                                
+
+
+                                description={<Title level={5} type={"warning"} italic={true} strong={true}>Είστε σίγουροι ότι θέλετε να διαγράψετε την εγγραφή για το χειρουργείο με {record.id};</Title>}
+                                cancelText= {<Title level={4} type={"warning"} italic={true} strong={true}>Όχι</Title>} cancelButtonProps={{danger:true,variant:"solid",type:"primary",size:"large"}} 
+                                okButtonProps={{size:"large",
+                                    style: {
+                                      backgroundColor: '#28a745'
+                                    },
+                                  }}
+                                okText={<Title level={4} type={"warning"} italic={true} strong={true}>Ναι</Title>}
+                                onConfirm={() => deleteRecord(record.id)}
+                                icon={<QuestionCircleFilled />} 
+                              >
+                                      <Tooltip placement="bottom" arrow={false} title={"Διαγραφή"}>
+                                                  <Button type="primary" htmlType="submit" danger  icon={<DeleteOutlined />}  onClick={openDeleteDialog}> 
+                                                 </Button>
+                                     </Tooltip> 
+                              </Popconfirm> 
+              
               <Tooltip placement="bottom" arrow={false} title={"Επεξεργασία"}>
                       <Button type="primary" htmlType="submit"   icon={<EditOutlined/>}  onClick={() => deleteRecord(record.id)}> 
                       </Button>
@@ -484,8 +508,29 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
 
 };
 
-  const deleteRecord = (surgeryId) =>
+  const deleteRecord =  async (surgeryId) =>
   {
+
+
+    const response = await deleteSurgeryRecord(surgeryId)
+    let msg = response["message"]
+    if (response["count"]==0){
+      api.warning({
+        message: 'Διαγραφή Χειρουργείου',
+        description:msg
+      });
+    }
+    else{
+    api.success({
+      message: 'Διαγραφή Χειρουργείου',
+      description:msg
+    });
+  }
+    const existingPatients =  patients;
+    const updatedPatients = existingPatients.filter((existingPatient) => existingPatient.id !== surgeryId); // remove from table the deleted record
+    setPatients(updatedPatients); // Update state  after deletion
+
+
     console.log(surgeryId)
   }
 
@@ -533,7 +578,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
     
     return (
       <div>
-       
+       {contextHolder}
           <ButtonCollection dataSource={patients} columns={docColumns} ids={selectedSurgeries} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate}/>
           <Table
            rowSelection={{
