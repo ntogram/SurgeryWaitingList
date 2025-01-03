@@ -1,5 +1,5 @@
 import React,{ useState,useEffect} from 'react';
-import { Table,Switch,Button,DatePicker,Tooltip,notification,Space,Popconfirm,Typography} from 'antd';
+import { Table,Switch,Button,DatePicker,Tooltip,notification,Space,Popconfirm,Typography,Modal} from 'antd';
 import { CheckOutlined, EditOutlined,DeleteOutlined,QuestionCircleFilled } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import {resetRefreshTab} from '../redux/reducers/tabSlice';
@@ -22,7 +22,8 @@ const { Title} = Typography;
 const PatientsList  = () => {
    const [api, contextHolder] = notification.useNotification(); 
    const [deleteBtnClicked, setDeleteBtnClicked] = useState(false);
-  const [searchText, setSearchText] = useState('');
+   const [editFormId,setEditFormId] =useState(null);// each record has its own edit form. Each edit form  has an id (same as the record id)
+   const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
    const {today,surgeries} = useSelector((state) => state.constants); 
    const surgeryTypes =  (Array.from(new Set(Object.values(surgeries).flat())).sort());
@@ -39,6 +40,21 @@ const PatientsList  = () => {
 
   }
 
+
+
+  // make active the edit form with the given id
+  const showEditForm = (id) => {
+    setEditFormId(id);
+    
+  };
+
+  // close edit form
+  const handleOk = () => {
+    setEditFormId(null);
+  };
+  const handleCancel = () => {
+    setEditFormId(null);
+  };
 
 
    const [selectedSurgeries, setSelectedSurgeries] = useState([]);
@@ -94,11 +110,22 @@ const PatientsList  = () => {
                                                  </Button>
                                      </Tooltip> 
                               </Popconfirm> 
-              
-              <Tooltip placement="bottom" arrow={false} title={"Επεξεργασία"}>
-                      <Button type="primary" htmlType="submit"   icon={<EditOutlined/>}  onClick={() => deleteRecord(record.id)}> 
-                      </Button>
-              </Tooltip> 
+                              <Tooltip placement="bottom" arrow={false} title={"Επεξεργασία"}>
+                                        <Button type="primary" htmlType="submit"   icon={<EditOutlined/>}  onClick={()=> setEditFormId(record.id)}> 
+                                        </Button>
+                              </Tooltip> 
+                              <Modal title="Ενημέρωση Στοιχείων Περιστατικού" mask={false}  open={editFormId==record.id} onOk={handleOk} onCancel={handleCancel}>
+                                          <p>Some contents...</p>
+                                          <p>Some contents...</p>
+                                          <p>Some contents...</p>
+                              </Modal>
+             
+
+
+
+
+
+
               </Space>
             ),
           },{
@@ -514,18 +541,33 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
 
     const response = await deleteSurgeryRecord(surgeryId)
     let msg = response["message"]
-    if (response["count"]==0){
-      api.warning({
+    if  ("error" in response){
+      api.error({message:"Σφάλμα Διαγραφής Χειρουργείου",description:msg})
+    }
+    else{
+      if (response["count"]==0){
+        api.warning({
+          message: 'Διαγραφή Χειρουργείου',
+          description:msg
+        });
+      }
+      else{
+      api.success({
         message: 'Διαγραφή Χειρουργείου',
         description:msg
       });
     }
-    else{
-    api.success({
-      message: 'Διαγραφή Χειρουργείου',
-      description:msg
-    });
-  }
+    }
+
+
+
+
+
+
+
+
+
+  
     const existingPatients =  patients;
     const updatedPatients = existingPatients.filter((existingPatient) => existingPatient.id !== surgeryId); // remove from table the deleted record
     setPatients(updatedPatients); // Update state  after deletion
@@ -580,6 +622,15 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
       <div>
        {contextHolder}
           <ButtonCollection dataSource={patients} columns={docColumns} ids={selectedSurgeries} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate}/>
+          
+          
+          
+          
+          
+          
+          
+          
+          
           <Table
            rowSelection={{
             type: "checkbox",
