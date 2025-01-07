@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import axios from 'axios';
 import dayjs from 'dayjs';
 //import 'dayjs/locale/el'
-import { Form, Input, Button,DatePicker,Select,InputNumber, Space } from 'antd';
+import { Form, Input, Button,DatePicker,Select,InputNumber, Space,Switch} from 'antd';
 import PatientSummary from '../PatientSummary'
 import { useNavigate } from 'react-router-dom';
 import { Faker, el } from '@faker-js/faker'; 
@@ -22,7 +22,7 @@ import 'antd/dist/reset.css';
 // Set Moment.js locale to Greek
 //moment.locale('el');
 //dayjs.locale('el');
-const PatientInsertion  = () => {
+const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
   const location = useLocation();
   const [message, setMessage] = useState('');  // State to store the backend message
   const dateFormat = 'YYYY-MM-DD';
@@ -38,8 +38,10 @@ const PatientInsertion  = () => {
   const organs =  Object.keys(surgeries)
   console.log(location.state)
   const faker = new Faker({locale: [el]})
-  
-
+  const baseStyle = { width: '100%'}
+  console.log(displayUpdateFields)
+  const updateStyle  = displayUpdateFields ? {} : { maxWidth: '20%' };
+  console.log("A:",initData)
   
   
   
@@ -54,7 +56,33 @@ const PatientInsertion  = () => {
 
   const [submittedData, setSubmittedData] = useState(location.state?.submittedData );
 
+  const addUpdateFields = () => {
+    return (  <div>
+                      <Form.Item
+                      label="Ημερομηνία Επέμβασης"
+                      name="surgeryDate"
+                    >
+                      <DatePicker variant="filled"  style={{maxWidth: '100%',width: '100%' }} maxDate={today} />
+                    </Form.Item>
+                    <Form.Item
+                      label="Παραπομπή σε άλλο νοσοκομείο"
+                      name="referral"
+                    >
+                     <Switch 
+                      checkedChildren="Ναι" 
+                      unCheckedChildren="Όχι" 
+                    />
 
+
+
+                    </Form.Item>
+
+
+
+
+            </div>
+    )
+  }
 
   const handleArmyRankOpen = (open) => {
     setArmyRankOpen(open);
@@ -378,8 +406,8 @@ const sendData = async () =>{
       <Form
         name="basic"
         form={form} 
-        initialValues={{ remember: true}}
-        style={{ maxWidth: '20%', width: '100%' }} 
+        initialValues={initData}
+        style={{ ...baseStyle, ...updateStyle }}
         autoComplete="off"
         onFinish={submitForm}
       >
@@ -605,7 +633,7 @@ const sendData = async () =>{
               >
                  <TextArea rows={4} style={{resize: 'both',overflow: 'auto',maxWidth:'none'}} variant='filled' placeholder="Σχόλια" maxLength={textBoxLength} />
         </Form.Item>
-
+            {(displayUpdateFields==true) && addUpdateFields()}
        
 
 

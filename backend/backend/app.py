@@ -308,9 +308,19 @@ def listWaitingPatients():
     # query for retrieving the list  of patients along with information related with the status of patient
     query  = db.session.query(
         Surgery.surgeryId.label('id'),
+        Patient.name.label("name"),
+        Patient.surname.label("surname"),
+        Patient.fatherName.label("fatherName"),
+        Patient.age.label("age"),
+        # Officer.officerRank.label("rank"),
+        # Officer.armyRank.label("armyRank"),
         func.concat(Patient.name, ' ', Patient.surname).label('patientName'), # get the conatenation of patient name and surname
         Patient.property.label("property"), #get the property
         Surgery.disease.label('disease'),  # get the name of related disease
+        Surgery.diseaseDescription.label("diseaseDescription"),
+        Surgery.organ.label("organ"),
+        Surgery.surgeryName.label("surgery"),
+        Surgery.comments.label("comments"),
        func.date_format(Surgery.examDate, '%Y-%m-%d').label('examDate'), # get exam date IN YYYY-MM-DD format
        func.date_format(Surgery.surgeryDate, '%Y-%m-%d').label('surgeryDate'), # get surgery date IN YYYY-MM-DD format
         Soldier.dischargeDate.label('discharge_date'),
@@ -320,6 +330,7 @@ def listWaitingPatients():
                     or_(Soldier.dischargeDate.is_(None),Soldier.dischargeDate >= datetime.now())
                 ),'Ναι'),else_="Όχι").label("active"), #calculate if patient remains in the surgeries list
          case((Surgery.referral == 1, 'Ναι'),else_='Όχι').label('referral'), # for true return Ναι else return Όχι
+         
          case(
             (Soldier.dischargeDate < datetime.now(),"Ναι"),
             (Soldier.dischargeDate >= datetime.now(),"Όχι"),
@@ -333,9 +344,9 @@ def listWaitingPatients():
         #Soldier.dischargeDate < datetime.now()).label('dischargeStatus'),
         Surgery.surgeryDate.is_not(None).label("surgeryDone") # check if surgeryDate exists
         # outer join with the corresponding table for getting discharge date for soldier
-        ).outerjoin(Soldier, Patient.ID == Soldier.soldierID).join(
-            Surgery,Patient.ID == Surgery.patientId
-        ) 
+        ).outerjoin(Soldier, Patient.ID == Soldier.soldierID).join(Surgery,Patient.ID == Surgery.patientId) 
+        #.outerjoin(Officer,Officer.officerID==Surgery.patientId)
+
         
         
         
@@ -343,8 +354,16 @@ def listWaitingPatients():
     patient_list = [
         {
             'id':patient.id, # actually  surgery id not patient id
+            'name':patient.name,
+            'surname':patient.surname,
+            'fatherName':patient.fatherName,
             'patientName': patient.patientName,
+            'age':patient.age,
             'property': patient.property,
+            'diseaseDescription':patient.diseaseDescription,
+            'organ':patient.organ,
+            'surgery':patient.surgery,
+            'comments':patient.comments,
             'disease': patient.disease,
             'examDate':patient.examDate,
             'surgeryDate':patient.surgeryDate,

@@ -8,6 +8,7 @@ import dayjs from 'dayjs';
 import getColumnSearchProps from '../Search/getColumnSearchProps '; 
 import {listPatients,updateReferral,updateSurgeryDate,deleteSurgeryRecord} from '../services/serviceAPI'
 import ButtonCollection from './utilities/ButtonCollection'
+import PatientInsertion from './PatientInsertion';
 const { Title} = Typography; 
 
 
@@ -114,10 +115,8 @@ const PatientsList  = () => {
                                         <Button type="primary" htmlType="submit"   icon={<EditOutlined/>}  onClick={()=> setEditFormId(record.id)}> 
                                         </Button>
                               </Tooltip> 
-                              <Modal title="Ενημέρωση Στοιχείων Περιστατικού" mask={false}  open={editFormId==record.id} onOk={handleOk} onCancel={handleCancel}>
-                                          <p>Some contents...</p>
-                                          <p>Some contents...</p>
-                                          <p>Some contents...</p>
+                              <Modal title="Ενημέρωση Στοιχείων Περιστατικού" mask={false}  open={editFormId==record.id} footer={null} onCancel={handleCancel}>
+                                         <PatientInsertion displayUpdateFields={true} initData={{"patientName":"test"}}/>
                               </Modal>
              
 
@@ -600,7 +599,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
         console.log("redux refreshTab:"+refreshTab)
         dispatch(resetRefreshTab());
       }
-
+      console.log(patients)
 
 
 
