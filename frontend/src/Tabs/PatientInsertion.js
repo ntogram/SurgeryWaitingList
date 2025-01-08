@@ -39,19 +39,20 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
   console.log(location.state)
   const faker = new Faker({locale: [el]})
   const baseStyle = { width: '100%'}
-  console.log(displayUpdateFields)
   const updateStyle  = displayUpdateFields ? {} : { maxWidth: '20%' };
-  console.log("A:",initData)
-  
+ 
+  console.log(initData);
   
   
 
-  const [selectedProperty, setSelectedProperty] = useState(null); 
-  const [selectedRank,setSelectedRank] =  useState(null); 
-  const [selectedArmyRank,setSelectedArmyRank] =  useState(null); 
-  const [selectedOrgan,setSelectedOrgan]=useState(null)            
+  const [selectedProperty, setSelectedProperty] = useState(initData?.property ?? null); 
+  const [selectedRank,setSelectedRank] =  useState(initData?.rank ?? null); 
+  const [selectedArmyRank,setSelectedArmyRank] =  useState(initData?.armyRank ?? null); 
+  const [selectedOrgan,setSelectedOrgan]=useState(initData?.organ ?? null)            
   const [form] = Form.useForm(); 
   const [armyRankOpen, setArmyRankOpen] = useState(false); 
+  const [referral, setReferral] = useState(initData?.referral ?? 'Όχι');
+
 
 
   const [submittedData, setSubmittedData] = useState(location.state?.submittedData );
@@ -62,7 +63,10 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
                       label="Ημερομηνία Επέμβασης"
                       name="surgeryDate"
                     >
-                      <DatePicker variant="filled"  style={{maxWidth: '100%',width: '100%' }} maxDate={today} />
+                      <DatePicker variant="filled"  style={{maxWidth: '100%',width: '100%' }} 
+                      defaultValue={initData?.checkUpDate ?? null}
+                      
+                      maxDate={today} />
                     </Form.Item>
                     <Form.Item
                       label="Παραπομπή σε άλλο νοσοκομείο"
@@ -71,6 +75,10 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
                      <Switch 
                       checkedChildren="Ναι" 
                       unCheckedChildren="Όχι" 
+                      valuePropName="checked"
+                      style={{backgroundColor: referral === 'Ναι' ? '#28a745' : '#ff4d4f'}}
+                      checked={referral === 'Ναι'} 
+                      onChange={() => handleReferralChange()}
                     />
 
 
@@ -83,6 +91,19 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
             </div>
     )
   }
+
+
+  const handleReferralChange = () => {
+    setReferral((prev) => (prev === 'Ναι' ? 'Όχι' : 'Ναι'));
+
+  }
+
+
+
+
+
+
+
 
   const handleArmyRankOpen = (open) => {
     setArmyRankOpen(open);
@@ -204,6 +225,10 @@ const  renderArmyRankIcon = (iconName) =>{
 
   // Handle form reset
   const reseForm = () => {
+    console.log("reset")
+
+   console.log(initData)
+
     form.resetFields();  // Resets all form fields
     setSubmittedData(null);
   };
@@ -376,7 +401,7 @@ const sendData = async () =>{
         
       }
       console.log(submittedData)
-
+    
 
 
     /*const submitRandomPatients = async () => {
@@ -454,7 +479,7 @@ const sendData = async () =>{
           name="checkupDate"
           rules={[{ required: true, message: 'Παρακαλώ επιλέξτε την ημερομηνία εξέτασης του ασθενή' }]}
         >
-          <DatePicker variant="filled"  style={{maxWidth: '100%',width: '100%' }} maxDate={today} /> 
+          <DatePicker variant="filled"  style={{maxWidth: '100%',width: '100%' }}   defaultValue={initData?.checkUpDate ?? null} maxDate={today} /> 
         </Form.Item>
 
 
@@ -562,7 +587,7 @@ const sendData = async () =>{
           name="dischargeDate"
           rules={[{ required: true, message: 'Παρακαλώ επιλέξτε την ημερομηνία απόλυσης' }]}
         >
-          <DatePicker variant="filled" style={{maxWidth: '100%',width: '100%' }} minDate={today} /> 
+          <DatePicker variant="filled" style={{maxWidth: '100%',width: '100%' }} minDate={today}  defaultValue={initData?.dischargeDate ?? null}    /> 
         </Form.Item>
           )}
 
@@ -655,6 +680,9 @@ const sendData = async () =>{
           <Button type="primary" danger onClick={reseForm} style={{ marginLeft: '5%' }}>
           Καθάρισμος
         </Button>
+
+
+        
         </Space>
         </Form.Item>
       </Form>:null}

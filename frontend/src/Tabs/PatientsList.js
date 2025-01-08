@@ -78,6 +78,59 @@ const PatientsList  = () => {
 
     })
   };
+  
+  const getInitFormData =  (record)=>{
+    let formFields = ["name","surname","fatherName",
+                      "age","examDate","property","rank","armyRank",
+                      "dischargeDate","disease","diseaseDescription",
+                      "organ","surgery","comments","surgeryDate","referral"];
+    let initFormData =formFields.reduce((result, field) => {
+      if (record.hasOwnProperty(field)) {
+        if (field =="name"){
+          result["patientName"] = record["name"];
+        }
+        else if(field =="surname"){
+          result["patientSurname"] = record["surname"]
+        }
+        else if (field=="disease"){
+          result["diseaseName"] = record["disease"]
+        }
+        else if (field == "property"){
+          if (record[field].includes("Στρατιωτικός")){
+            result[field] ="Στρατιωτικός"
+          }
+          else{
+             result[field] = record[field]
+          }
+        }
+        else if (field=="examDate"){
+          //console.log(record["examDate"])
+          result["checkupDate"] = dayjs(record["examDate"]);
+        }
+        else if (field=="dischargeDate"){
+          result["dischargeDate"] = record["dischargeDate"] ? dayjs(record["dischargeDate"]) : null;
+          //record["dischargeDate"] = dayjs(record["dischargeDate"]);
+        }
+        else if (field=="surgeryDate"){
+          result["surgeryDate"] = record["surgeryDate"] ? dayjs(record["surgeryDate"]) : null;
+          //record["surgeryDate"] = dayjs(record["surgeryDate"]);
+        }
+       
+
+
+        else {
+          result[field] = record[field];
+        }
+      }
+      //result["checkUpDate"] =dayjs("2024-05-02")
+      return result;
+    }, {});
+   // console.log(initFormData);
+    return initFormData;
+
+  }
+
+
 
    
   // generate table headers
@@ -116,7 +169,7 @@ const PatientsList  = () => {
                                         </Button>
                               </Tooltip> 
                               <Modal title="Ενημέρωση Στοιχείων Περιστατικού" mask={false}  open={editFormId==record.id} footer={null} onCancel={handleCancel}>
-                                         <PatientInsertion displayUpdateFields={true} initData={{"patientName":"test"}}/>
+                                         <PatientInsertion displayUpdateFields={true} initData={getInitFormData(record)}/>
                               </Modal>
              
 

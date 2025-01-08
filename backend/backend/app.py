@@ -312,8 +312,8 @@ def listWaitingPatients():
         Patient.surname.label("surname"),
         Patient.fatherName.label("fatherName"),
         Patient.age.label("age"),
-        # Officer.officerRank.label("rank"),
-        # Officer.armyRank.label("armyRank"),
+        Officer.officerRank.label("rank"),
+        Officer.armyRank.label("armyRank"),
         func.concat(Patient.name, ' ', Patient.surname).label('patientName'), # get the conatenation of patient name and surname
         Patient.property.label("property"), #get the property
         Surgery.disease.label('disease'),  # get the name of related disease
@@ -344,8 +344,8 @@ def listWaitingPatients():
         #Soldier.dischargeDate < datetime.now()).label('dischargeStatus'),
         Surgery.surgeryDate.is_not(None).label("surgeryDone") # check if surgeryDate exists
         # outer join with the corresponding table for getting discharge date for soldier
-        ).outerjoin(Soldier, Patient.ID == Soldier.soldierID).join(Surgery,Patient.ID == Surgery.patientId) 
-        #.outerjoin(Officer,Officer.officerID==Surgery.patientId)
+        ).outerjoin(Soldier, Patient.ID == Soldier.soldierID).join(Surgery,Patient.ID == Surgery.patientId
+        ).outerjoin(Officer,Officer.officerID==Patient.ID)
 
         
         
@@ -360,6 +360,9 @@ def listWaitingPatients():
             'patientName': patient.patientName,
             'age':patient.age,
             'property': patient.property,
+            'rank':patient.rank,
+            'armyRank':patient.armyRank,
+            'dischargeDate':patient.discharge_date,
             'diseaseDescription':patient.diseaseDescription,
             'organ':patient.organ,
             'surgery':patient.surgery,
