@@ -52,8 +52,9 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
   const [form] = Form.useForm(); 
   const [armyRankOpen, setArmyRankOpen] = useState(false); 
   const [referral, setReferral] = useState(initData?.referral ?? 'Όχι');
-
-
+  const [surgeryDateDisabled,setSurgeryDateDisabled] = useState(initData?.surgeryDateDisabled ?? null);
+  const [referralDisabled,setreferralDisabled] = useState(initData?.referralDisabled ?? null);
+  
 
   const [submittedData, setSubmittedData] = useState(location.state?.submittedData );
 
@@ -65,7 +66,8 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
                     >
                       <DatePicker variant="filled"  style={{maxWidth: '100%',width: '100%' }} 
                       defaultValue={initData?.checkUpDate ?? null}
-                      
+                      onChange={handleSurgeryDateChange}
+                      disabled={surgeryDateDisabled}
                       maxDate={today} />
                     </Form.Item>
                     <Form.Item
@@ -73,6 +75,7 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
                       name="referral"
                     >
                      <Switch 
+                      disabled={referralDisabled}
                       checkedChildren="Ναι" 
                       unCheckedChildren="Όχι" 
                       valuePropName="checked"
@@ -95,7 +98,7 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
 
   const handleReferralChange = () => {
     setReferral((prev) => (prev === 'Ναι' ? 'Όχι' : 'Ναι'));
-
+    setSurgeryDateDisabled((prev) => !prev)
   }
 
 
@@ -109,8 +112,13 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
     setArmyRankOpen(open);
   };
 
-
-
+  // modify referral value when surgery date picker is modified
+  const handleSurgeryDateChange =() =>{
+    console.log("test");
+    const surgeryDate = form.getFieldValue("surgeryDate");
+    const  status =  surgeryDate===null ? false : true;
+    setreferralDisabled(status);
+  }
 
 
 
@@ -182,12 +190,15 @@ const  renderArmyRankIcon = (iconName) =>{
   const submitForm = async  () => {
     console.log("dsa")
     let data= form.getFieldsValue();
+    console.log(data)
     data={
             ...data,
             "checkupDate":dayjs(data.checkupDate).format(dateFormat),
-            "dischargeDate":data.dischargeDate?dayjs(data.dischargeDate).format(dateFormat):null
+            "dischargeDate":data.dischargeDate?dayjs(data.dischargeDate).format(dateFormat):null,
+            "surgeryDate":data.surgeryDate ? dayjs(data.surgeryDate).format(dateFormat):null,
+            "referral":data.referral ? (data.referral==true  ? 1 : 0) : 0
         }
-
+     
 
 
 
@@ -209,13 +220,13 @@ const  renderArmyRankIcon = (iconName) =>{
         }
       } 
      // make request for storing surgery data
-     let surgeryData ={"ID":patientId,"examDate":data["checkupDate"],"disease":data["diseaseName"],"diseaseDescription":data["diseaseDescription"],"organ":data["organ"],"surgeryName":data["surgery"],"comments":data["comments"]}
+     let surgeryData ={"ID":patientId,"examDate":data["checkupDate"],"disease":data["diseaseName"],"diseaseDescription":data["diseaseDescription"],"organ":data["organ"],"surgeryName":data["surgery"],"comments":data["comments"],"surgeryDate":data["surgeryDate"],"referral":data["referral"]}
      let surgeryId = await createNewSurgery(surgeryData)
      data["surgeryId"] = surgeryId;
 
 
 
-
+      
     
 
 
@@ -229,7 +240,15 @@ const  renderArmyRankIcon = (iconName) =>{
 
    console.log(initData)
 
-    form.resetFields();  // Resets all form fields
+    form.resetFields();  // Resets all form fields in initial values
+    form.setFieldsValue({patientName:null,patientSurname:null,fatherName:null,age:null,property:null,rank:null,armyRank:null,checkupDate:null,dischargeDate:null,diseaseName:null,diseaseDescription:null,organ:null,surgery:null,comments:null,surgeryDate:null,referral:'Όχι'}); //
+    setSelectedProperty(null);
+    setSelectedOrgan(null);
+    setReferral(null);
+    setSurgeryDateDisabled(false);
+    setreferralDisabled(false);
+    setSelectedRank(null);
+    setSelectedArmyRank(null)
     setSubmittedData(null);
   };
 
@@ -420,7 +439,7 @@ const sendData = async () =>{
     
     //submitRandomPatients();
       
-  }, [submittedData,submissionCount]);  // Empty dependency array to run the effect once when the component loads
+  }, [submittedData,submissionCount,initData]);  // Empty dependency array to run the effect once when the component loads
 
   return (
     <div>

@@ -123,6 +123,8 @@ const PatientsList  = () => {
         }
       }
       //result["checkUpDate"] =dayjs("2024-05-02")
+      result["surgeryDateDisabled"] = disableSurgeryDatePicker(record)  
+      result["referralDisabled"] =  disableReferral(record)
       return result;
     }, {});
    // console.log(initFormData);
