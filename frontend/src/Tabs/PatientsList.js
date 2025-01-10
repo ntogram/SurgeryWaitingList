@@ -80,7 +80,7 @@ const PatientsList  = () => {
   };
   
   const getInitFormData =  (record)=>{
-    let formFields = ["name","surname","fatherName",
+    let formFields = ["id","name","surname","fatherName","patientId",
                       "age","examDate","property","rank","armyRank",
                       "dischargeDate","disease","diseaseDescription",
                       "organ","surgery","comments","surgeryDate","referral"];
@@ -127,7 +127,6 @@ const PatientsList  = () => {
       result["referralDisabled"] =  disableReferral(record)
       return result;
     }, {});
-   // console.log(initFormData);
     return initFormData;
 
   }

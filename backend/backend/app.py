@@ -12,6 +12,7 @@ from config import Config
 from helpers import is_valid_date,isAfter,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
 from models import *
 from sqlalchemy import case, func,and_,or_
+from sqlalchemy import update
 from waitress import serve
 from datetime import datetime
 from queries import *
@@ -57,7 +58,7 @@ def test_patient_insertion():
 # insert patient personal  data
 @app.route('/patients/personalData', methods=['POST'])
 def add_patient():
-    required_attributes = ["patientName","patientSurname","fatherName","age","property"]
+    required_attributes = ["patientName","patientSurname","fatherName","age","property","patientId"]
     data = request.get_json()  # Get JSON data from the request
     print(data.keys())
     for required_attribute in required_attributes:
@@ -92,7 +93,12 @@ def add_patient():
     fatherName = data.get('fatherName')
    
     # check if patient already exists
-    existing_patient = Patient.query.filter_by(name=name, surname=surname,fatherName=fatherName,age=age).first()
+    patientId = data.get("patientId")
+    if patientId is None:
+        existing_patient = Patient.query.filter_by(name=name, surname=surname,fatherName=fatherName,age=age).first()
+    else:
+        existing_patient = Patient.query.filter_by(ID=patientId).first()
+    
     if existing_patient is None:
         # Create a new Patient object
         try:
@@ -105,14 +111,25 @@ def add_patient():
         except Exception as e:
             db.session.rollback()  # Rollback in case of an error
             return jsonify({"error": str(e)}), 500
-        return jsonify({"message": f"Patient {name} added successfully!","id":new_patient.ID}), 201
+        return jsonify({"message": f"Patient with {new_patient.ID} added successfully!","id":new_patient.ID}), 201
     else:
-        if propertyVal ==  existing_patient.property:
-            return jsonify({"message": f"Patient {name} has already stored","id":existing_patient.ID}), 200
-        else:
-            existing_patient.property =  propertyVal
-            db.session.commit()
-            return jsonify({"message": f"Patient {name} has already stored  with different property","id":existing_patient.ID}), 200
+        patientTable = Patient.__table__
+        with db.engine.connect() as connection:
+            print(data)
+            stmt = update(patientTable).where(patientTable.c.ID==patientId).values(name= name , surname = surname, fatherName = fatherName, age =age, property =  propertyVal)
+            result = connection.execute(stmt)
+            # if  patient has property "Στρατιωτικός (Μόνιμος ή Έφεδρος)  and the value of updated property is different
+            # remove the related records from officers and soldiers tables
+            
+
+
+
+            connection.commit()
+        return jsonify({"message": f"Patient with {patientId} updated successfully!","id":patientId}), 200
+       
+       
+       
+       
     
         
       
@@ -198,11 +215,12 @@ def addSurgery():
      print(data)
      print(data.keys())
      # error handling for missing required fields for surgery
-     required_attributes = ["ID","examDate","disease","organ","surgeryName"]
+     required_attributes = ["ID","examDate","disease","organ","surgeryName","surgeryId"]
      for required_attribute in required_attributes:
             if required_attribute not in data:
                 return jsonify({"error": "Missing attribute:{0}".format(required_attribute)}), 400
      patientId = data.get("ID")
+     surgeryId = data.get("surgeryId")
      examDate = data.get("examDate")
      valid = is_valid_date(examDate)
      if valid== False:
@@ -210,19 +228,35 @@ def addSurgery():
      disease =  data.get("disease")
      organ = data.get("organ")
      surgeryName = data.get("surgeryName")
-     if "diseaseDescription" in data:
-        diseaseDescription =  data.get("diseaseDescription")
+     optional_attributes = ["diseaseDescription","comments","surgeryDate","referral"]
+     optional_attr_values = {}
+     for optional_attribute in optional_attributes:
+        if optional_attribute in data:
+            optional_attr_values[optional_attribute] = data.get(optional_attribute)
+            if optional_attr_values[optional_attribute] is not None:
+                if optional_attribute =="surgeryDate":
+                    valid = is_valid_date( optional_attr_values[optional_attribute])
+                    if valid==False:
+                        return jsonify({"error": "Error date format for surgeryDate"}), 400 
+                if optional_attribute=="referral":
+                    if optional_attr_values[optional_attribute] not in [0,1]:
+                        return jsonify({"error": "Error value for referral"}), 400 
+        else:
+            optional_attr_values[optional_attribute] = None
+     surgery =Surgery.query.filter_by(surgeryId=surgeryId).first()
+     if surgery is None:
+        surgery = Surgery(examDate= examDate,disease=disease,diseaseDescription=optional_attr_values["diseaseDescription"],organ=organ,surgeryName=surgeryName,patientId=patientId,comments=optional_attr_values["comments"])
+        db.session.add(surgery)
+        db.session.commit()
+        return jsonify({"message": f"Surgery with {surgery.surgeryId} added successfully!","id":surgery.surgeryId}), 201
      else:
-        diseaseDescription =None
-     if "comments" in data:
-        comments = data.get("comments")
-     else:
-        comments = None
-     surgery = Surgery(examDate= examDate,disease=disease,diseaseDescription=diseaseDescription,organ=organ,surgeryName=surgeryName,patientId=patientId)
-     db.session.add(surgery)
-     db.session.commit()
-     return jsonify({"message": f"Surgery with {surgery.surgeryId} added successfully!","id":surgery.surgeryId}), 201
-
+        surgeryTable = Surgery.__table__
+        with db.engine.connect() as connection:
+            stmt = update(surgeryTable).where(surgeryTable.c.surgeryId==surgeryId).values(examDate=examDate,disease=disease,diseaseDescription=optional_attr_values["diseaseDescription"],organ=organ,surgeryName=surgeryName,patientId=patientId,comments=optional_attr_values["comments"],surgeryDate=optional_attr_values["surgeryDate"],referral=optional_attr_values["referral"])
+            result = connection.execute(stmt)
+            connection.commit()
+        return jsonify({"message": f"Surgery with {surgeryId} updated successfully!","id":surgeryId}), 200
+    
 
 
 
@@ -311,6 +345,7 @@ def listWaitingPatients():
         Patient.name.label("name"),
         Patient.surname.label("surname"),
         Patient.fatherName.label("fatherName"),
+        Patient.ID.label("patientId"),
         Patient.age.label("age"),
         Officer.officerRank.label("rank"),
         Officer.armyRank.label("armyRank"),
@@ -354,6 +389,7 @@ def listWaitingPatients():
     patient_list = [
         {
             'id':patient.id, # actually  surgery id not patient id
+            'patientId':patient.patientId,
             'name':patient.name,
             'surname':patient.surname,
             'fatherName':patient.fatherName,

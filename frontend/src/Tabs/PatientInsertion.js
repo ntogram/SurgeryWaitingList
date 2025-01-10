@@ -190,15 +190,17 @@ const  renderArmyRankIcon = (iconName) =>{
   const submitForm = async  () => {
     console.log("dsa")
     let data= form.getFieldsValue();
-    console.log(data)
+    console.log(initData)
     data={
             ...data,
             "checkupDate":dayjs(data.checkupDate).format(dateFormat),
             "dischargeDate":data.dischargeDate?dayjs(data.dischargeDate).format(dateFormat):null,
             "surgeryDate":data.surgeryDate ? dayjs(data.surgeryDate).format(dateFormat):null,
-            "referral":data.referral ? (data.referral==true  ? 1 : 0) : 0
+            "referral":data.referral ? (data.referral==true  ? 1 : 0) : 0,
+            "patientId":initData?.patientId ??null
         }
-     
+    const existingsurgeryId = initData?.id??null
+    
 
 
 
@@ -220,7 +222,8 @@ const  renderArmyRankIcon = (iconName) =>{
         }
       } 
      // make request for storing surgery data
-     let surgeryData ={"ID":patientId,"examDate":data["checkupDate"],"disease":data["diseaseName"],"diseaseDescription":data["diseaseDescription"],"organ":data["organ"],"surgeryName":data["surgery"],"comments":data["comments"],"surgeryDate":data["surgeryDate"],"referral":data["referral"]}
+     
+     let surgeryData ={"surgeryId":existingsurgeryId,"ID":patientId,"examDate":data["checkupDate"],"disease":data["diseaseName"],"diseaseDescription":data["diseaseDescription"],"organ":data["organ"],"surgeryName":data["surgery"],"comments":data["comments"],"surgeryDate":data["surgeryDate"],"referral":data["referral"]}
      let surgeryId = await createNewSurgery(surgeryData)
      data["surgeryId"] = surgeryId;
 
