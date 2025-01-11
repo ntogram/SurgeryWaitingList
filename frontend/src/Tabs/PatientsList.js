@@ -26,12 +26,13 @@ const PatientsList  = () => {
    const [editFormId,setEditFormId] =useState(null);// each record has its own edit form. Each edit form  has an id (same as the record id)
    const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
-   const {today,surgeries} = useSelector((state) => state.constants); 
+   const {today,surgeries,dataTypes} = useSelector((state) => state.constants); 
    const surgeryTypes =  (Array.from(new Set(Object.values(surgeries).flat())).sort());
    const booleanAnswers=["Ναι","Όχι","Όλες"]
    const fullProperties = ["Μόνιμος Στρατιωτικός", "Έφεδρος Στρατιωτικός", "Αστυνομικός", "Απόστρατος", "Μέλος", "Ιδιώτης"]
    // get name of refresh tab
    const refreshTab = useSelector((state) => state.tab.refreshTab);
+    const [selectedListType,setSelectedListType]=useState(dataTypes[0])
    const dispatch = useDispatch();
    
   const openDeleteDialog = (status) =>{
@@ -40,7 +41,9 @@ const PatientsList  = () => {
 
 
   }
-
+  const changeListType = (value)=>{
+    setSelectedListType(value);
+  }
 
 
   // make active the edit form with the given id
@@ -50,9 +53,6 @@ const PatientsList  = () => {
   };
 
   // close edit form
-  const handleOk = () => {
-    setEditFormId(null);
-  };
   const handleCancel = () => {
     setEditFormId(null);
   };
@@ -652,6 +652,13 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
         fetchPatients();
         console.log("redux refreshTab:"+refreshTab)
         dispatch(resetRefreshTab());
+        // close edit form if it is opened
+        if (editFormId!==null){
+          handleCancel();
+        }
+
+
+
       }
       console.log(patients)
 
@@ -674,7 +681,10 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
     return (
       <div>
        {contextHolder}
-          <ButtonCollection dataSource={patients} columns={docColumns} ids={selectedSurgeries} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate}/>
+          <ButtonCollection dataSource={patients} columns={docColumns} ids={selectedSurgeries} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate} 
+          selectedDataType={selectedListType} changeDataType={changeListType} dataTypes={dataTypes} 
+          
+          />
           
           
           

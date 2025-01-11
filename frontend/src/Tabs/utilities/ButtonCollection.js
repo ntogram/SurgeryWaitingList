@@ -5,7 +5,7 @@ import Filehandler from './Filehandler';
 import { useSelector} from 'react-redux';
 import GlobalDateSelector from './GlobalDateSelector';
 // put buttons in separate components
-const ButtonCollection = ({columns,dataSource,ids,handleDateSurgeryChange,validateSurgeryDate,selectedStatisticType,changeStatisticType,statisticTypes}) =>{
+const ButtonCollection = ({columns,dataSource,ids,handleDateSurgeryChange,validateSurgeryDate,selectedDataType,changeDataType,dataTypes}) =>{
     const [refreshDateTime, setRefreshDateTime] = useState(new Date());
     const current = useSelector((state) => state.tab.selectedTab);
     
@@ -44,28 +44,26 @@ const ButtonCollection = ({columns,dataSource,ids,handleDateSurgeryChange,valida
       if (current=="patientsList"){
         toolboxItems.splice(4, 0, {title:<GlobalDateSelector ids={ids} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate}/>});
       }
-      else
-      {
-        const options = statisticTypes.map(statisticType => ({ 
-          value: statisticType, 
-          label: statisticType 
+      const dataOptions = dataTypes.map(dataType => ({ 
+          value: dataType, 
+          label: dataType 
         }));
 
 
 
 
         toolboxItems.splice(4,0,{title:<Select
-          defaultValue={statisticTypes[0]}
-          onChange={changeStatisticType}
-          options={options}
+          defaultValue={dataTypes[0]}
+          onChange={changeDataType}
+          options={dataOptions}
           dropdownStyle={{ width: 300 }} 
 
 
 
 
 
-        />},{title:<div>{selectedStatisticType}</div>})
-      }
+        />},{title:<div>{selectedDataType}</div>})
+      
 
 
 

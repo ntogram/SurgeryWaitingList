@@ -9,7 +9,7 @@ from flask_limiter.util import get_remote_address
 from flask_jwt_extended import create_access_token,create_refresh_token, jwt_required, get_jwt_identity,get_jwt,decode_token
 from db import db
 from config import Config
-from helpers import is_valid_date,isAfter,hasRank,isBoolean,readStatsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
+from helpers import is_valid_date,isAfter,hasRank,isBoolean,readStatsFromDB,readPatientListsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
 from models import *
 from sqlalchemy import case, func,and_,or_
 from sqlalchemy import update
@@ -118,13 +118,17 @@ def add_patient():
             print(data)
             stmt = update(patientTable).where(patientTable.c.ID==patientId).values(name= name , surname = surname, fatherName = fatherName, age =age, property =  propertyVal)
             result = connection.execute(stmt)
-            # if  patient has property "Στρατιωτικός (Μόνιμος ή Έφεδρος)  and the value of updated property is different
-            # remove the related records from officers and soldiers tables
-            
-
-
-
             connection.commit()
+       
+        if rank is None:
+             # if  patient has property "Στρατιωτικός (Μόνιμος ή Έφεδρος)  and the value of updated property is different
+             # remove the related records from officers and soldiers tables
+             deleted_count =  Officer.query.filter_by(officerID=patientId).delete()
+             deleted_count = Soldier.query.filter_by(soldierID =patientId).delete()
+             db.session.commit()
+
+
+           
         return jsonify({"message": f"Patient with {patientId} updated successfully!","id":patientId}), 200
        
        
@@ -340,52 +344,28 @@ def calculateWaitingTime():
 @app.route('/patients/list',methods=['GET'])
 def listWaitingPatients():
     # query for retrieving the list  of patients along with information related with the status of patient
-    query  = db.session.query(
-        Surgery.surgeryId.label('id'),
-        Patient.name.label("name"),
-        Patient.surname.label("surname"),
-        Patient.fatherName.label("fatherName"),
-        Patient.ID.label("patientId"),
-        Patient.age.label("age"),
-        Officer.officerRank.label("rank"),
-        Officer.armyRank.label("armyRank"),
-        func.concat(Patient.name, ' ', Patient.surname).label('patientName'), # get the conatenation of patient name and surname
-        Patient.property.label("property"), #get the property
-        Surgery.disease.label('disease'),  # get the name of related disease
-        Surgery.diseaseDescription.label("diseaseDescription"),
-        Surgery.organ.label("organ"),
-        Surgery.surgeryName.label("surgery"),
-        Surgery.comments.label("comments"),
-       func.date_format(Surgery.examDate, '%Y-%m-%d').label('examDate'), # get exam date IN YYYY-MM-DD format
-       func.date_format(Surgery.surgeryDate, '%Y-%m-%d').label('surgeryDate'), # get surgery date IN YYYY-MM-DD format
-        Soldier.dischargeDate.label('discharge_date'),
-        case((and_(
-                    Surgery.surgeryDate.is_(None),
-                    Surgery.referral == 0,
-                    or_(Soldier.dischargeDate.is_(None),Soldier.dischargeDate >= datetime.now())
-                ),'Ναι'),else_="Όχι").label("active"), #calculate if patient remains in the surgeries list
-         case((Surgery.referral == 1, 'Ναι'),else_='Όχι').label('referral'), # for true return Ναι else return Όχι
-         
-         case(
-            (Soldier.dischargeDate < datetime.now(),"Ναι"),
-            (Soldier.dischargeDate >= datetime.now(),"Όχι"),
-            else_='-').label('dischargeStatus'),
-        
-        
-        
-        
-        
-        
-        #Soldier.dischargeDate < datetime.now()).label('dischargeStatus'),
-        Surgery.surgeryDate.is_not(None).label("surgeryDone") # check if surgeryDate exists
-        # outer join with the corresponding table for getting discharge date for soldier
-        ).outerjoin(Soldier, Patient.ID == Soldier.soldierID).join(Surgery,Patient.ID == Surgery.patientId
-        ).outerjoin(Officer,Officer.officerID==Patient.ID)
+    query =  formPatientsListQuery(db)    
+    patients =query.all() # all surgeries
+    #Εκκρεμείς -> surgery date is null and  active =1
+    active_condition = and_(
+    Surgery.surgeryDate.is_(None),
+    Surgery.referral == 0,
+    or_(Soldier.dischargeDate.is_(None), Soldier.dischargeDate >= datetime.now())
+)
+    not_active_condition = ~active_condition
+    patientLists={"Όλες":{"condition":None,"results":None},"Εκκρεμείς":{"condition":active_condition,"results":None},"Ολοκληρωμένες":{"condition":not_active_condition,"results":None}}
+    for patientListType in patientLists:
+        patientLists[patientListType]["results"] =  readPatientListsFromDB(query,patientLists[patientListType]["condition"])
+    allResults = {key: value["results"] for key, value in patientLists.items()}
+    return jsonify(allResults)
 
-        
-        
-        
-    patients =query.all()
+
+
+   
+
+
+
+
     patient_list = [
         {
             'id':patient.id, # actually  surgery id not patient id

@@ -1,7 +1,8 @@
 import React, { useEffect, useState,useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { insertPatiendData,addRank,addDischargeDate,addSurgeryData} from '../services/serviceAPI'; 
-import { useSelector } from 'react-redux'; 
+import { useSelector, useDispatch } from 'react-redux';
+import {setRefreshTab,setTab} from '../redux/reducers/tabSlice';
 import axios from 'axios';
 import dayjs from 'dayjs';
 //import 'dayjs/locale/el'
@@ -40,7 +41,7 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
   const faker = new Faker({locale: [el]})
   const baseStyle = { width: '100%'}
   const updateStyle  = displayUpdateFields ? {} : { maxWidth: '20%' };
- 
+  const dispatch = useDispatch();
   console.log(initData);
   
   
@@ -235,6 +236,7 @@ const  renderArmyRankIcon = (iconName) =>{
 
     setSubmissionCount((prevCount) => prevCount + 1)  
     setSubmittedData(data);
+    dispatch(setRefreshTab("patientsList"));
   };
 
   // Handle form reset
@@ -449,7 +451,7 @@ const sendData = async () =>{
       
    
         {/* Antd Form */}
-      {(submittedData===null || submittedData===undefined)?
+      {(submittedData===null || submittedData===undefined || displayUpdateFields==true)?
       <Form
         name="basic"
         form={form} 
@@ -708,8 +710,8 @@ const sendData = async () =>{
         </Space>
         </Form.Item>
       </Form>:null}
-      <PatientSummary submittedData={submittedData}  /> 
-  
+      {!displayUpdateFields && <PatientSummary submittedData={submittedData} />}
+      
 
      
 

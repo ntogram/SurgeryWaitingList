@@ -8,12 +8,12 @@ import { retrieveStatistics } from '../services/serviceAPI';
 
 const StatisticsByOrgan  = () => {
    //style
-    const { fullProperties, surgeries,statisticTypes} = useSelector((state) => state.constants); 
+    const { fullProperties, surgeries,dataTypes} = useSelector((state) => state.constants); 
     const organs =  Object.keys(surgeries)
   // state variable for storing table data
   const [statistics,setStatistics]= useState([])
   const refreshTab = useSelector((state) => state.tab.refreshTab);
-  const [selectedStatisticType,setSelectedStatisticType]=useState(statisticTypes[0])
+  const [selectedStatisticType,setSelectedStatisticType]=useState(dataTypes[0])
   const dispatch = useDispatch();
   
 
@@ -104,7 +104,7 @@ const StatisticsByOrgan  = () => {
     return (
        <div>
        
-      <ButtonCollection dataSource={statistics} columns={columns}  selectedStatisticType={selectedStatisticType} changeStatisticType={changeStatisticType} statisticTypes={statisticTypes}  />
+      <ButtonCollection dataSource={statistics} columns={columns}  selectedDataType={selectedStatisticType} changeDataType={changeStatisticType} dataTypes={dataTypes}  />
         <Table
           columns={columns}
           pagination={false}

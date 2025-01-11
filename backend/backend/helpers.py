@@ -51,6 +51,49 @@ def isBoolean(v):
     else:
         return False
 
+
+
+
+def readPatientListsFromDB(query,condition):
+    filteredQuery = query
+    if condition is not None:
+        filteredQuery =  query.filter(condition)
+    patients =filteredQuery.all()
+    patient_list = [
+        {
+            'id':patient.id, # actually  surgery id not patient id
+            'patientId':patient.patientId,
+            'name':patient.name,
+            'surname':patient.surname,
+            'fatherName':patient.fatherName,
+            'patientName': patient.patientName,
+            'age':patient.age,
+            'property': patient.property,
+            'rank':patient.rank,
+            'armyRank':patient.armyRank,
+            'dischargeDate':patient.discharge_date,
+            'diseaseDescription':patient.diseaseDescription,
+            'organ':patient.organ,
+            'surgery':patient.surgery,
+            'comments':patient.comments,
+            'disease': patient.disease,
+            'examDate':patient.examDate,
+            'surgeryDate':patient.surgeryDate,
+            'discharge_date':patient.discharge_date,
+            "active":patient.active,
+            'dischargeStatus':patient.dischargeStatus,
+            'referral':patient.referral,
+            "surgeryDone":patient.surgeryDone,
+            'referralSubmitted':True
+        }
+        for patient in patients
+    ]
+    return patient_list
+
+
+
+
+
 def readStatsFromDB(db,query,conditionType,keyname):
     # Insert the full condition SQL expression into the query string
     dquery = str(query).format(TYPE_CONDITION=conditionType)
