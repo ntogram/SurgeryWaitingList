@@ -2,7 +2,7 @@ import React,{ useState,useEffect} from 'react';
 import { Table,Switch,Button,DatePicker,Tooltip,notification,Space,Popconfirm,Typography,Modal} from 'antd';
 import { CheckOutlined, EditOutlined,DeleteOutlined,QuestionCircleFilled } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
-import {resetRefreshTab} from '../redux/reducers/tabSlice';
+import {setRefreshTab,resetRefreshTab} from '../redux/reducers/tabSlice';
 import dayjs from 'dayjs';
 
 import getColumnSearchProps from '../Search/getColumnSearchProps '; 
@@ -13,7 +13,7 @@ const { Title} = Typography;
 
 
 
-
+// after refresh display loading for ameliorating the experience
 
 
 
@@ -27,6 +27,7 @@ const PatientsList  = () => {
    const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
    const {today,surgeries,dataTypes} = useSelector((state) => state.constants); 
+   const current = useSelector((state) => state.tab.selectedTab);
    const surgeryTypes =  (Array.from(new Set(Object.values(surgeries).flat())).sort());
    const booleanAnswers=["Ναι","Όχι","Όλες"]
    const fullProperties = ["Μόνιμος Στρατιωτικός", "Έφεδρος Στρατιωτικός", "Αστυνομικός", "Απόστρατος", "Μέλος", "Ιδιώτης"]
@@ -41,8 +42,18 @@ const PatientsList  = () => {
 
 
   }
+
+  const refresh = () => {
+         
+    dispatch(setRefreshTab(current));
+    
+  };
+
+
+
   const changeListType = (value)=>{
     setSelectedListType(value);
+    refresh();
   }
 
 
@@ -56,6 +67,15 @@ const PatientsList  = () => {
   const handleCancel = () => {
     setEditFormId(null);
   };
+
+
+
+
+
+
+
+
+
 
 
    const [selectedSurgeries, setSelectedSurgeries] = useState([]);
@@ -502,7 +522,7 @@ const generateRandomProperty = () => {
 
   // set  the approrpiate answer according to the referral toggle button option
   const handleReferralChange = (id) => {
-    const updatedPatients = patients.map(patient => {
+    const updatedPatients = patients[selectedListType].map(patient => {
       if (patient.id === id) {
         return {
           ...patient,
@@ -511,13 +531,17 @@ const generateRandomProperty = () => {
       }
       return patient;
     });
-    setPatients(updatedPatients); 
+    setPatients({
+
+      ...patients,
+      [selectedListType]:updatedPatients
+    }); 
   };
 
 // submit the selected referral answer
 const validateReferral = async (surgeryId,status=true) => {
 
-  const updatedPatients = patients.map(patient => {
+  const updatedPatients = patients[selectedListType].map(patient => {
     if (patient.id === surgeryId) {
       return {
         ...patient,
@@ -527,13 +551,18 @@ const validateReferral = async (surgeryId,status=true) => {
     }
     return patient;
   });
-  setPatients(updatedPatients); // Update state with submission
+  setPatients({
+
+    ...patients,
+    [selectedListType]:updatedPatients
+  });  // Update state with submission
   if (status==true){
-    let selectedPatient = patients.find(({ id }) => id == surgeryId);
+    let selectedPatient = patients[selectedListType].find(({ id }) => id == surgeryId);
     const referral = selectedPatient.referral=='Ναι'?1:0;
-    const response = await updateReferral(selectedPatient.id,referral)
+    const response = await updateReferral(selectedPatient.id,referral);
+    refresh();
   }
-  
+ 
 };
 
 
@@ -544,7 +573,7 @@ const handleDateSurgeryChange = (date,dateString,id) =>{
       dateString = today.format('YYYY-MM-DD');
     }
     setPatients((prevPatients) => {
-      const updatedPatients = prevPatients.map((patient) => {
+      const updatedPatients = prevPatients[selectedListType].map((patient) => {
           if (patient.id === id) {
               return {
                   ...patient,
@@ -553,14 +582,17 @@ const handleDateSurgeryChange = (date,dateString,id) =>{
           }
           return patient;
       });
-      return updatedPatients;
+      return {
+                ...prevPatients,
+                [selectedListType]:updatedPatients
+      }
   });
   }
 
 
 
 const validateSurgeryDate = async (surgeryId,status=true) => {
-    const updatedPatients = patients.map(patient => {
+    const updatedPatients = patients[selectedListType].map(patient => {
     if (patient.id === surgeryId) {
       return {
         ...patient,
@@ -572,12 +604,17 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
     }
     return patient;
   });
-  setPatients(updatedPatients); // Update state with submission
+  setPatients({
+
+    ...patients,
+    [selectedListType]:updatedPatients
+  }); // Update state with submission
   if (status==true){
-    let selectedPatient = patients.find(({ id }) => id == surgeryId);
+    let selectedPatient = patients[selectedListType].find(({ id }) => id == surgeryId);
     let surgeryDate =selectedPatient.surgeryDate;
    // const referral = selectedPatient.referral=='Ναι'?1:0;
-    const response = await updateSurgeryDate(selectedPatient.id,surgeryDate)
+    const response = await updateSurgeryDate(selectedPatient.id,surgeryDate);
+    refresh();
   }
  /* else{
     const response = await updateSurgeryDate(surgeryId,null)
@@ -621,11 +658,15 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
 
 
   
-    const existingPatients =  patients;
+    const existingPatients =  patients[selectedListType];
     const updatedPatients = existingPatients.filter((existingPatient) => existingPatient.id !== surgeryId); // remove from table the deleted record
-    setPatients(updatedPatients); // Update state  after deletion
-
-
+    setPatients({
+        ...patients,
+        [selectedListType]:updatedPatients
+    }
+    ); // Update state  after deletion
+    refresh(); 
+  
     console.log(surgeryId)
   }
 
@@ -636,6 +677,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
       const fetchPatients = async () => {
         try {
           const data = await listPatients();  // Call the listPatients method
+          console.log(data)
           setPatients(data);  // Update state with the fetched data
           
         } catch (error) {
@@ -704,7 +746,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
             responsive: ['xs', 'sm', 'md', 'lg'], 
           }))}
           pagination={false}
-          dataSource={patients}
+          dataSource={patients[selectedListType]}
           bordered
           scroll={{ x: false }} 
           rowKey="id"

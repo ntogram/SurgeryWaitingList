@@ -352,7 +352,11 @@ def listWaitingPatients():
     Surgery.referral == 0,
     or_(Soldier.dischargeDate.is_(None), Soldier.dischargeDate >= datetime.now())
 )
-    not_active_condition = ~active_condition
+    not_active_condition = and_(
+    Surgery.surgeryDate.isnot(None),
+    Surgery.referral == 0,
+    or_(Soldier.dischargeDate.is_(None), Soldier.dischargeDate >= datetime.now())
+)
     patientLists={"Όλες":{"condition":None,"results":None},"Εκκρεμείς":{"condition":active_condition,"results":None},"Ολοκληρωμένες":{"condition":not_active_condition,"results":None}}
     for patientListType in patientLists:
         patientLists[patientListType]["results"] =  readPatientListsFromDB(query,patientLists[patientListType]["condition"])
@@ -366,38 +370,7 @@ def listWaitingPatients():
 
 
 
-    patient_list = [
-        {
-            'id':patient.id, # actually  surgery id not patient id
-            'patientId':patient.patientId,
-            'name':patient.name,
-            'surname':patient.surname,
-            'fatherName':patient.fatherName,
-            'patientName': patient.patientName,
-            'age':patient.age,
-            'property': patient.property,
-            'rank':patient.rank,
-            'armyRank':patient.armyRank,
-            'dischargeDate':patient.discharge_date,
-            'diseaseDescription':patient.diseaseDescription,
-            'organ':patient.organ,
-            'surgery':patient.surgery,
-            'comments':patient.comments,
-            'disease': patient.disease,
-            'examDate':patient.examDate,
-            'surgeryDate':patient.surgeryDate,
-            'discharge_date':patient.discharge_date,
-            "active":patient.active,
-            'dischargeStatus':patient.dischargeStatus,
-            'referral':patient.referral,
-            "surgeryDone":patient.surgeryDone,
-            'referralSubmitted':True
-        }
-        for patient in patients
-    ]
 
-    # Return the list as JSON
-    return jsonify(patient_list)
 
 
 
