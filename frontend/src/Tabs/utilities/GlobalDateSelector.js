@@ -30,7 +30,7 @@ const GlobalDateSelector= ({ids,handleDateSurgeryChange,validateSurgeryDate})=>{
     return <div>
     <span><DatePicker variant="filled" style={{maxWidth: '70%',width: '100%' }}  onChange={(date,dateString)=>handleMultiDateSurgeryChange(date,dateString)} 
     defaultValue={today} 
-    maxDate={today.add(1, 'day')} /></span><Button 
+     /></span><Button 
      type="primary" 
      shape="circle"
      style={{ marginLeft: '5%',backgroundColor: '#28a745', borderColor: '#28a745', color: '#fff' }} 

@@ -1,5 +1,5 @@
 import React,{ useState,useEffect} from 'react';
-import { Table,Switch,Button,DatePicker,Tooltip,notification,Space,Popconfirm,Typography,Modal} from 'antd';
+import { Table,Switch,Button,DatePicker,Tooltip,notification,Space,Popconfirm,Typography,Modal,Spin} from 'antd';
 import { CheckOutlined, EditOutlined,DeleteOutlined,QuestionCircleFilled } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import {setRefreshTab,resetRefreshTab} from '../redux/reducers/tabSlice';
@@ -23,6 +23,7 @@ const { Title} = Typography;
 const PatientsList  = () => {
    const [api, contextHolder] = notification.useNotification(); 
    const [deleteBtnClicked, setDeleteBtnClicked] = useState(false);
+   const [loading, setLoading] = useState(true);
    const [editFormId,setEditFormId] =useState(null);// each record has its own edit form. Each edit form  has an id (same as the record id)
    const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
@@ -242,7 +243,7 @@ const PatientsList  = () => {
            
           },
           {
-            title: 'Χειρουργήθηκε στις', 
+            title: 'Ημερομηνία Επέμβασης', 
             dataIndex: 'surgeryDate',
             key: 'surgeryDate',
             fixed: 'left', 
@@ -257,7 +258,7 @@ const PatientsList  = () => {
              <div>
              <span><DatePicker variant="filled" style={{maxWidth: '60%',width: '100%' }}  onChange={(date,dateString,id)=>handleDateSurgeryChange(date,dateString,record.id)} 
              defaultValue={record.surgeryDate!=null?dayjs(record.surgeryDate):null} minDate={dayjs(record.examDate)}
-             maxDate={today} /></span>
+            /></span>
              
              <Tooltip placement="bottom" arrow={false} title={"Επικύρωση"}>
              <Button 
@@ -675,6 +676,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
     useEffect(() => {
 
       const fetchPatients = async () => {
+        setLoading(true)
         try {
           const data = await listPatients();  // Call the listPatients method
           console.log(data)
@@ -683,6 +685,9 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
         } catch (error) {
           console.error("Error fetching patients data:", error);
         }
+        finally {
+          setLoading(false); // Hide spinner
+      }
       };
       
       if (patients.length==0){
@@ -735,7 +740,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
           
           
           
-          
+          <Spin size="large" spinning={loading}>
           <Table
            rowSelection={{
             type: "checkbox",
@@ -752,6 +757,7 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
           rowKey="id"
          
         />
+        </Spin>
       </div>
       
       );

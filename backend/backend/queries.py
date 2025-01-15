@@ -75,6 +75,7 @@ from(SELECT surgeries.organ AS organName,surgerywaitinglist.patients.property as
 surgerywaitinglist.surgeries  JOIN 
 surgerywaitinglist.patients 
 ON (surgerywaitinglist.surgeries.patientId=surgerywaitinglist.patients.ID)
+LEFT JOIN  surgerywaitinglist.soldiers  ON (surgerywaitinglist.patients.ID = surgerywaitinglist.soldiers.soldierID)
 WHERE referral=0 AND ({TYPE_CONDITION})
 GROUP BY surgerywaitinglist.surgeries.organ,surgerywaitinglist.patients.property
 ORDER  BY surgerywaitinglist.surgeries.organ,surgerywaitinglist.patients.property DESC
@@ -103,6 +104,7 @@ SELECT surgeries.surgeryName AS surgeryName,surgerywaitinglist.patients.property
 surgerywaitinglist.surgeries  JOIN 
 surgerywaitinglist.patients 
 ON (surgerywaitinglist.surgeries.patientId=surgerywaitinglist.patients.ID)
+LEFT JOIN  surgerywaitinglist.soldiers  ON (surgerywaitinglist.patients.ID = surgerywaitinglist.soldiers.soldierID)
 WHERE referral=0 AND ({TYPE_CONDITION}) 
 GROUP BY surgerywaitinglist.surgeries.surgeryName,surgerywaitinglist.patients.property
 ORDER  BY surgerywaitinglist.surgeries.surgeryName,surgerywaitinglist.patients.property DESC

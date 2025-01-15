@@ -99,7 +99,7 @@ def readStatsFromDB(db,query,conditionType,keyname):
     dquery = str(query).format(TYPE_CONDITION=conditionType)
 
     # Log the final query for debugging
-    #print("Executing Query:\n", dquery)
+    print("Executing Query:\n", dquery)
     query = text(dquery)
 
  
@@ -222,3 +222,46 @@ def adaptSurgeryDate(surgeryDate):
      if easterFeatures[0]:
          surgeryDate = easterFeatures[1]
      return surgeryDate
+
+
+
+
+
+
+
+def getTrimesterId(month):
+    # Determine trimester based on the month
+    if 1 <= month <= 3:
+        trimester = 1
+    elif 4 <= month <= 6:
+        trimester = 2
+    elif 7 <= month <= 9:
+        trimester = 3
+    else:
+        trimester = 4
+    return trimester
+
+
+
+def getTrimesterDates(year):
+     trimesters = {1:{"start":date(year, 1, 1), "end":date(year, 3, 31)},
+                   2:{"start":date(year, 4, 1),"end":date(year, 6, 30)},
+                   3:{"start":date(year, 7, 1), "end":date(year, 9, 30)},
+                   4:{"start":date(year, 10, 1), "end":date(year, 12, 31)}}
+     return trimesters
+
+
+def getPrevTrimester(year,trimesterId):
+    if trimesterId==1:
+        prevTrimester = getTrimesterDates(year-1)[4] 
+    else:
+        prevTrimester = getTrimesterDates(year)[trimesterId-1]
+    return prevTrimester
+
+def getCurrentTrimester(year,trimesterId):
+    currentTrimester = getTrimesterDates(year)[trimesterId]
+    return currentTrimester
+
+
+
+

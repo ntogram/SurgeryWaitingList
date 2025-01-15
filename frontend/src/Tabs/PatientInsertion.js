@@ -69,7 +69,7 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
                       defaultValue={initData?.checkUpDate ?? null}
                       onChange={handleSurgeryDateChange}
                       disabled={surgeryDateDisabled}
-                      maxDate={today} />
+                      />
                     </Form.Item>
                     <Form.Item
                       label="Παραπομπή σε άλλο νοσοκομείο"

@@ -10,6 +10,7 @@ from flask_jwt_extended import create_access_token,create_refresh_token, jwt_req
 from db import db
 from config import Config
 from helpers import is_valid_date,isAfter,hasRank,isBoolean,readStatsFromDB,readPatientListsFromDB,isSummer,isChristmas,getPostSummerDate,getPostChristmasDate,isEaster,calculateDateDiff,getExpectedSurgeryDate,adaptSurgeryDate
+from helpers import getPrevTrimester,getCurrentTrimester,getTrimesterId
 from models import *
 from sqlalchemy import case, func,and_,or_
 from sqlalchemy import update
@@ -343,21 +344,67 @@ def calculateWaitingTime():
 
 @app.route('/patients/list',methods=['GET'])
 def listWaitingPatients():
+    # get current date
+    currentDate =  datetime.now()
+    year =  currentDate.year
+    month = currentDate.month
+    # get trimester
+    trimesterId = getTrimesterId(month)
+
+
     # query for retrieving the list  of patients along with information related with the status of patient
     query =  formPatientsListQuery(db)    
     patients =query.all() # all surgeries
-    #Εκκρεμείς -> surgery date is null and  active =1
-    active_condition = and_(
+    #Εκκρεμείς χωρίς ημερομηνία -> surgery date is null and  active =1
+    pending_condition = and_(
     Surgery.surgeryDate.is_(None),
     Surgery.referral == 0,
-    or_(Soldier.dischargeDate.is_(None), Soldier.dischargeDate >= datetime.now())
+    or_(Soldier.dischargeDate.is_(None), Soldier.dischargeDate >= currentDate)
 )
+
+    # Προγραμματισμένες (εκκρεμείς με ημερομηνία)
+    scheduled_condition = and_(
+    Surgery.surgeryDate.isnot(None),
+    Surgery.surgeryDate > currentDate,
+    Surgery.referral == 0,
+    or_(Soldier.dischargeDate.is_(None), Soldier.dischargeDate >= Surgery.surgeryDate)
+)
+    # Όλες οι εκκρεμείς
+    active_condition = or_(pending_condition,scheduled_condition)
+
+
+
+    #Ολοκληρωμένες
     not_active_condition = and_(
     Surgery.surgeryDate.isnot(None),
+    Surgery.surgeryDate <= currentDate,
     Surgery.referral == 0,
-    or_(Soldier.dischargeDate.is_(None), Soldier.dischargeDate >= datetime.now())
+    or_(Soldier.dischargeDate.is_(None), Soldier.dischargeDate >= currentDate)
 )
-    patientLists={"Όλες":{"condition":None,"results":None},"Εκκρεμείς":{"condition":active_condition,"results":None},"Ολοκληρωμένες":{"condition":not_active_condition,"results":None}}
+    
+    # Προηγούμενο Τρίμηνο
+    prevTremester = getPrevTrimester(year,trimesterId)
+    prev_tremester_condition = and_(
+    Surgery.surgeryDate.isnot(None),  # Surgery date is not NULL (surgery has been done)
+    Surgery.surgeryDate >= prevTremester["start"],  # Surgery date is within the last 3 months
+    Surgery.surgeryDate <= prevTremester["end"],  # Surgery date is up to today
+    Surgery.referral == 0,  # Not a referral
+    or_(Soldier.dischargeDate.is_(None), Soldier.dischargeDate >= Surgery.surgeryDate)  # Soldier is active or not discharged
+)
+    # Τρέχον Τρίμηνο
+    nextTremester =  getCurrentTrimester(year,trimesterId)
+    next_tremester_condition = and_(
+    Surgery.surgeryDate.isnot(None),
+    Surgery.surgeryDate >= nextTremester["start"],
+    Surgery.surgeryDate <= nextTremester["end"],
+    Surgery.referral == 0,
+    or_(Soldier.dischargeDate.is_(None), Soldier.dischargeDate >= func.greatest(currentDate, Surgery.surgeryDate))
+)
+
+
+
+
+    patientLists={"Όλες":{"condition":None,"results":None},"Εκκρεμείς":{"condition":active_condition,"results":None},"Ολοκληρωμένες":{"condition":not_active_condition,"results":None},"Προηγούμενο Τρίμηνο":{"condition":prev_tremester_condition,"results":None},"Επόμενο Τρίμηνο":{"condition":next_tremester_condition,"results":None}}
     for patientListType in patientLists:
         patientLists[patientListType]["results"] =  readPatientListsFromDB(query,patientLists[patientListType]["condition"])
     allResults = {key: value["results"] for key, value in patientLists.items()}
@@ -380,11 +427,47 @@ def getStatistics(option:str):
      # Check if the 'option' is valid (either 'organ' or 'surgery')
     if option not in ['organ', 'surgery']:
         return jsonify({'error': 'Invalid option parameter. Accepted values are: surgery, organ.'}), 400
-    
+    # get current date
+    currentDate =  datetime.now()
+    year =  currentDate.year
+    month = currentDate.month
+    # get trimester
+    trimesterId = getTrimesterId(month)
+    # Προηγούμενο Τρίμηνο
+    prevTremester = getPrevTrimester(year,trimesterId)
+    nextTremester =  getCurrentTrimester(year,trimesterId)
+    prev_tremester_condition = (
+    f"(surgeryDate IS NOT NULL AND "
+    f"(surgeryDate >= '{prevTremester['start']}' AND surgeryDate <= '{prevTremester['end']}') AND "
+    f"(dischargeDate IS NULL OR dischargeDate >= surgeryDate) AND "
+    "ACTIVE = 0)"
+)
+    # Τρέχον Τρίμηνο
+    currentTremester =  getCurrentTrimester(year,trimesterId)
+    next_tremester_condition = (
+    f"(surgeryDate IS NOT NULL AND "
+    f"(surgeryDate >= '{nextTremester['start']}' AND surgeryDate <= '{nextTremester['end']}') AND "
+    f"(dischargeDate IS NULL OR dischargeDate >= GREATEST(surgeryDate, CURRENT_DATE)) AND "
+    "ACTIVE = 0)"
+)
+
     # for retrieving statistics for all surgeries condition TRUE
     # for retrieving statistics for pending surgeries  surgeryDate IS NULL AND ACTIVE=1
     # for retrieving statistics for completed surgeries surgeryDate IS NOT NULL AND ACTIVE=0
-    allStatistics={"Όλες":{"condition":"TRUE","results":None},"Εκκρεμείς":{"condition":"surgeryDate IS NULL AND ACTIVE=1","results":None},"Ολοκληρωμένες":{"condition":"surgeryDate IS NOT NULL AND ACTIVE=0","results":None}}
+    allStatistics={
+                    "Όλες":{"condition":"TRUE","results":None},
+                    "Εκκρεμείς":{
+                        "condition":"((surgeryDate IS NULL AND (dischargeDate IS NULL OR dischargeDate >= CURRENT_DATE)   AND ACTIVE=1) OR"+
+                        "(surgeryDate IS NULL AND surgeryDate>CURRENT_DATE AND ( dischargeDate IS NULL OR  dischargeDate>= surgeryDate) AND"+
+                        " ACTIVE=0))" ,"results":None},
+                    "Ολοκληρωμένες":{
+                        "condition":"((surgeryDate IS NOT NULL AND surgeryDate<=CURRENT_DATE) AND"+
+                        "(dischargeDate IS NULL OR dischargeDate>= CURRENT_DATE)"+
+                        " AND ACTIVE=0)","results":None},
+                    "Προηγούμενο Τρίμηνο":{"condition":prev_tremester_condition,"results":None},
+                    "Επόμενο Τρίμηνο":{"condition":next_tremester_condition,"results":None}
+                    
+                    }
     # Based on the option, choose the appropriate query and parameter for the function
     if option == 'organ':
         for statType in allStatistics:
