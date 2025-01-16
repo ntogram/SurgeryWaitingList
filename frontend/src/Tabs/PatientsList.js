@@ -27,11 +27,11 @@ const PatientsList  = () => {
    const [editFormId,setEditFormId] =useState(null);// each record has its own edit form. Each edit form  has an id (same as the record id)
    const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
-   const {today,surgeries,dataTypes} = useSelector((state) => state.constants); 
+   const {today,surgeries,dataTypes,fullProperties} = useSelector((state) => state.constants); 
    const current = useSelector((state) => state.tab.selectedTab);
    const surgeryTypes =  (Array.from(new Set(Object.values(surgeries).flat())).sort());
    const booleanAnswers=["Ναι","Όχι","Όλες"]
-   const fullProperties = ["Μόνιμος Στρατιωτικός", "Έφεδρος Στρατιωτικός", "Αστυνομικός", "Απόστρατος", "Μέλος", "Ιδιώτης"]
+   const locfullProperties = ["Μόνιμος Στρατιωτικός", "Έφεδρος Στρατιωτικός", "Αστυνομικός", "Απόστρατος", "Μέλος", "Ιδιώτης"]
    // get name of refresh tab
    const refreshTab = useSelector((state) => state.tab.refreshTab);
     const [selectedListType,setSelectedListType]=useState(dataTypes[0])
@@ -152,11 +152,39 @@ const PatientsList  = () => {
 
   }
 
+  const generateMainColumns = () =>{
+    const columns =[{
+      title: 'Ιδιότητα', 
+      dataIndex: 'property',
+      key: 'property',
+      fixed: 'left', 
+      sorter: (value1, value2) => value1['property'].localeCompare(value2['property']),
+      filters: (fullProperties.concat("Όλοι")).map( fullProperty =>({text:fullProperty,value:fullProperty})),
+      onFilter: (value, record) => value=="Όλοι"?true:record.property.includes(value)
+    }]
+    return columns
 
-
+  }
+  const generateMainData = () => {
+    const propertyData = fullProperties.map(fullProperty => ({ key:fullProperty,property: fullProperty }));
+    return propertyData;
+  };
+  
+ 
    
-  // generate table headers
+  // generate  property table headers
     const generateColumns = () => {
+
+
+
+
+
+
+
+
+
+
+
         const columns = [
           {
             title: 'Λειτουργίες',
@@ -224,7 +252,7 @@ const PatientsList  = () => {
             key: 'property',
             fixed: 'left', 
             sorter: (value1, value2) => value1['property'].localeCompare(value2['property']),
-            filters: (fullProperties.concat("Όλοι")).map( fullProperty =>({text:fullProperty,value:fullProperty})),
+            filters: (locfullProperties.concat("Όλοι")).map( fullProperty =>({text:fullProperty,value:fullProperty})),
             onFilter: (value, record) => value=="Όλοι"?true:record.property.includes(value)
           },
           {
@@ -718,12 +746,60 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
 
 
     //const headers = columns.filter(col => col.title!= "Λειτουργίες");
-   
-
-
-
+    
     const columns = generateColumns();
-    const docColumns = columns.filter(col => col.title!= "Λειτουργίες")
+    const docColumns = columns.filter(col => col.title!= "Λειτουργίες");
+    const mainColumns = generateMainColumns();
+    const allPropertiesRows = generateMainData();
+    const selectedallPropertiesIds = allPropertiesRows.map((item) => item.key);
+
+    const displayPatientsByProperty = (record) => {
+      console.log('Rendering nested row for:', record);
+      return (<Table
+      rowSelection={{
+       type: "checkbox",
+       ...rowSelection,
+     }}
+     columns={columns.map(col => ({
+       ...col,
+       responsive: ['xs', 'sm', 'md', 'lg'], 
+     }))}
+     pagination={false}
+     dataSource={patients[selectedListType][record.property]}
+     bordered
+     scroll={{ x: false }} 
+     rowKey="id"
+    
+   />)
+    };
+
+     /* ( <Table
+       rowSelection={{
+        type: "checkbox",
+        ...rowSelection,
+      }}
+      columns={columns.map(col => ({
+        ...col,
+        responsive: ['xs', 'sm', 'md', 'lg'], 
+      }))}
+      pagination={false}
+      dataSource={patients[selectedListType][record.property]}
+      bordered
+      scroll={{ x: false }} 
+      rowKey="id"
+     
+    />)*/
+  
+
+
+
+    
+    
+
+
+
+    
+    
     
     return (
       <div>
@@ -742,19 +818,20 @@ const validateSurgeryDate = async (surgeryId,status=true) => {
           
           <Spin size="large" spinning={loading}>
           <Table
-           rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-          }}
-          columns={columns.map(col => ({
+          columns={mainColumns.map(col => ({
             ...col,
             responsive: ['xs', 'sm', 'md', 'lg'], 
           }))}
           pagination={false}
-          dataSource={patients[selectedListType]}
+          dataSource={allPropertiesRows}
+          expandable={{
+            expandedRowRender: (record) => displayPatientsByProperty(record), // Correctly render nested content
+            defaultExpandedRowKeys: selectedallPropertiesIds, // Expand all rows by default
+          }}
+          //dataSource={patients[selectedListType]}
           bordered
           scroll={{ x: false }} 
-          rowKey="id"
+         
          
         />
         </Spin>

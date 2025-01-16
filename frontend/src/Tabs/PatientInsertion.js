@@ -445,7 +445,7 @@ const sendData = async () =>{
     //submitRandomPatients();
       
   }, [submittedData,submissionCount,initData]);  // Empty dependency array to run the effect once when the component loads
-
+  
   return (
     <div>
       

@@ -59,8 +59,13 @@ def readPatientListsFromDB(query,condition):
     if condition is not None:
         filteredQuery =  query.filter(condition)
     patients =filteredQuery.all()
-    patient_list = [
-        {
+    print(patients)
+     # Organize patients into groups by their property
+    grouped_patients = {}
+    propertiesDict = {"Μόνιμος Στρατιωτικός":"Μόνιμοι Στρατιωτικοί","Έφεδρος Στρατιωτικός":"Έφεδροι Στρατιωτικοί","Αστυνομικός":"Αστυνομικοί","Απόστρατος":"Απόστρατοι","Μέλος":"Μέλη","Ιδιώτης":"Ιδιώτες"}
+    for patient in patients:
+        groupKey =  propertiesDict[patient.property]
+        patient_data =  {
             'id':patient.id, # actually  surgery id not patient id
             'patientId':patient.patientId,
             'name':patient.name,
@@ -86,11 +91,10 @@ def readPatientListsFromDB(query,condition):
             "surgeryDone":patient.surgeryDone,
             'referralSubmitted':True
         }
-        for patient in patients
-    ]
-    return patient_list
-
-
+        if groupKey not in grouped_patients:
+            grouped_patients[groupKey] = []
+        grouped_patients[groupKey].append(patient_data)
+    return grouped_patients
 
 
 
