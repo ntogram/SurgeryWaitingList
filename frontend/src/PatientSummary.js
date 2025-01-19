@@ -2,14 +2,16 @@
 
 
 import React from 'react';
-import { Descriptions } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { Descriptions,Button} from 'antd';
 
 import dayjs from 'dayjs';
 import WaitingTimeDisplayer from './WaitingTimeDisplayer';
 
+
 const PatientSummary  = ({submittedData}) => {
     const dateFormat ='DD-MM-YYYY'
-   
+    const navigate = useNavigate();
 
 
     if (!submittedData) {
@@ -35,11 +37,19 @@ const PatientSummary  = ({submittedData}) => {
                 <Descriptions.Item label="Περιγραφή Πάθησης">{submittedData.diseaseDescription}</Descriptions.Item>
                 <Descriptions.Item label="Ανατομική Περιοχή">{submittedData.organ}</Descriptions.Item>
                 <Descriptions.Item label="Επέμβαση">{submittedData.surgery}</Descriptions.Item>
+                <Descriptions.Item label="Είδος">{submittedData.duty===1?"Έκτακτο":"Προγραμματισμένο"}</Descriptions.Item>
+                {submittedData.duty == 1 && (<Descriptions.Item label="Ημερομηνία Eπέμβασης">{dayjs(submittedData.checkupDate).format(dateFormat)}</Descriptions.Item>)}
+                
                 <Descriptions.Item label="Παρατηρήσεις">{submittedData.comments || 'Καμία'}</Descriptions.Item>
                
     </Descriptions>
-    <WaitingTimeDisplayer surgeryId={submittedData.surgeryId} examDate={submittedData.checkupDate}/>
-    </div>
+    {submittedData.duty === 0 ? (
+  <WaitingTimeDisplayer
+    surgeryId={submittedData.surgeryId}
+    examDate={submittedData.checkupDate}
+  />
+) : (<Button type="primary" onClick={() => navigate('/', { state: { submittedData: null } })}>Επιστροφή</Button> )}
+          </div>
     );
 
 }

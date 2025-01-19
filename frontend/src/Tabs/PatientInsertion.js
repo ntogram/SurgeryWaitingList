@@ -6,7 +6,7 @@ import {setRefreshTab,setTab} from '../redux/reducers/tabSlice';
 import axios from 'axios';
 import dayjs from 'dayjs';
 //import 'dayjs/locale/el'
-import { Form, Input, Button,DatePicker,Select,InputNumber, Space,Switch} from 'antd';
+import { Form, Input, Button,DatePicker,Select,InputNumber, Space,Switch,Checkbox } from 'antd';
 import PatientSummary from '../PatientSummary'
 import { useNavigate } from 'react-router-dom';
 import { Faker, el } from '@faker-js/faker'; 
@@ -191,13 +191,14 @@ const  renderArmyRankIcon = (iconName) =>{
   const submitForm = async  () => {
     console.log("dsa")
     let data= form.getFieldsValue();
-    console.log(initData)
+    console.log(data)
     data={
             ...data,
             "checkupDate":dayjs(data.checkupDate).format(dateFormat),
             "dischargeDate":data.dischargeDate?dayjs(data.dischargeDate).format(dateFormat):null,
             "surgeryDate":data.surgeryDate ? dayjs(data.surgeryDate).format(dateFormat):null,
             "referral":data.referral ? (data.referral==true  ? 1 : 0) : 0,
+            "duty":data.duty ? (data.duty==true  ? 1 : 0) : 0,
             "patientId":initData?.patientId ??null
         }
     const existingsurgeryId = initData?.id??null
@@ -224,7 +225,7 @@ const  renderArmyRankIcon = (iconName) =>{
       } 
      // make request for storing surgery data
      
-     let surgeryData ={"surgeryId":existingsurgeryId,"ID":patientId,"examDate":data["checkupDate"],"disease":data["diseaseName"],"diseaseDescription":data["diseaseDescription"],"organ":data["organ"],"surgeryName":data["surgery"],"comments":data["comments"],"surgeryDate":data["surgeryDate"],"referral":data["referral"]}
+     let surgeryData ={"surgeryId":existingsurgeryId,"ID":patientId,"examDate":data["checkupDate"],"disease":data["diseaseName"],"diseaseDescription":data["diseaseDescription"],"organ":data["organ"],"surgeryName":data["surgery"],"comments":data["comments"],"surgeryDate":data["surgeryDate"],"referral":data["referral"],"duty":data["duty"],"surgeonist":data["surgeonist"]}
      let surgeryId = await createNewSurgery(surgeryData)
      data["surgeryId"] = surgeryId;
 
@@ -455,7 +456,7 @@ const sendData = async () =>{
       <Form
         name="basic"
         form={form} 
-        initialValues={initData}
+        initialValues={initData || {"duty":false}}
         style={{ ...baseStyle, ...updateStyle }}
         autoComplete="off"
         onFinish={submitForm}
@@ -671,10 +672,21 @@ const sendData = async () =>{
             ))}
           </Select>
         </Form.Item> )}   
-
-
-
-
+        <Form.Item
+                label="Εφημερία"
+                name="duty"
+                valuePropName="checked"
+              >
+              <Checkbox>Σε εφημερία</Checkbox>
+        </Form.Item>
+        <Form.Item
+          label="Χειρουργός"
+          name="surgeonist"
+          rules={[{ required: true, message: 'Παρακαλώ δώστε το ονοματεπώνυμο του χειρουργού' }]}
+        >
+          <Input placeholder="Χειρουργός" variant="filled" />
+        </Form.Item> 
+        {(displayUpdateFields==true) && addUpdateFields()}   
          {/* comments Field */}
         <Form.Item
                 label="Παρατηρήσεις"
@@ -682,7 +694,12 @@ const sendData = async () =>{
               >
                  <TextArea rows={4} style={{resize: 'both',overflow: 'auto',maxWidth:'none'}} variant='filled' placeholder="Σχόλια" maxLength={textBoxLength} />
         </Form.Item>
-            {(displayUpdateFields==true) && addUpdateFields()}
+
+     
+   
+
+
+     
        
 
 

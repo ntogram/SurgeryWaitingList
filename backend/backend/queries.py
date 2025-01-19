@@ -20,6 +20,7 @@ def formPatientsListQuery(db):
         Patient.property.label("property"), #get the property
         Surgery.disease.label('disease'),  # get the name of related disease
         Surgery.diseaseDescription.label("diseaseDescription"),
+        Surgery.surgeonist.label("surgeonist"),
         Surgery.organ.label("organ"),
         Surgery.surgeryName.label("surgery"),
         Surgery.comments.label("comments"),
@@ -32,7 +33,7 @@ def formPatientsListQuery(db):
                     or_(Soldier.dischargeDate.is_(None),Soldier.dischargeDate >= datetime.now())
                 ),'Ναι'),else_="Όχι").label("active"), #calculate if patient remains in the surgeries list
          case((Surgery.referral == 1, 'Ναι'),else_='Όχι').label('referral'), # for true return Ναι else return Όχι
-         
+         case((Surgery.duty == 1, 'Ναι'),else_='Όχι').label('duty'),
          case(
             (Soldier.dischargeDate < datetime.now(),"Ναι"),
             (Soldier.dischargeDate >= datetime.now(),"Όχι"),

@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `surgerywaitinglist` /*!40100 DEFAULT CHARACTER SET utf8mb3 */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `surgerywaitinglist`;
 -- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
 --
 -- Host: localhost    Database: surgerywaitinglist
@@ -30,6 +32,16 @@ CREATE TABLE `soldiers` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Dumping data for table `soldiers`
+--
+
+LOCK TABLES `soldiers` WRITE;
+/*!40000 ALTER TABLE `soldiers` DISABLE KEYS */;
+INSERT INTO `soldiers` VALUES (483,'2025-02-26'),(494,'2024-07-06'),(495,'2024-05-08'),(553,'2024-10-10'),(554,'2025-03-13'),(574,'2025-06-27'),(585,'2025-07-18'),(594,'2024-11-13'),(596,'2025-03-09'),(597,'2025-04-26'),(607,'2025-12-28'),(626,'2025-10-11'),(629,'2024-01-12'),(630,'2025-06-14'),(632,'2025-08-16'),(637,'2025-07-27');
+/*!40000 ALTER TABLE `soldiers` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
@@ -39,4 +51,4 @@ CREATE TABLE `soldiers` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-12-18  9:37:43
+-- Dump completed on 2025-01-19 16:34:54

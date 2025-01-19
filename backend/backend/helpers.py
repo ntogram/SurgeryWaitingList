@@ -74,12 +74,14 @@ def readPatientListsFromDB(query,condition):
             'patientName': patient.patientName,
             'age':patient.age,
             'property': patient.property,
+            'propertyKey':groupKey,
             'rank':patient.rank,
             'armyRank':patient.armyRank,
             'dischargeDate':patient.discharge_date,
             'diseaseDescription':patient.diseaseDescription,
             'organ':patient.organ,
             'surgery':patient.surgery,
+            'surgeonist':patient.surgeonist,
             'comments':patient.comments,
             'disease': patient.disease,
             'examDate':patient.examDate,
@@ -88,6 +90,7 @@ def readPatientListsFromDB(query,condition):
             "active":patient.active,
             'dischargeStatus':patient.dischargeStatus,
             'referral':patient.referral,
+            "duty":patient.duty,
             "surgeryDone":patient.surgeryDone,
             'referralSubmitted':True
         }
