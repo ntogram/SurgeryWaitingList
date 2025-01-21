@@ -4,23 +4,31 @@ import {CheckOutlined} from '@ant-design/icons'
 import {Button,DatePicker} from 'antd';
 
 
-const GlobalDateSelector= ({ids,handleDateSurgeryChange,validateSurgeryDate})=>{
+const GlobalDateSelector= ({selectedRecords,handleDateSurgeryChange,validateSurgeryDate,setLoading})=>{
     const today = useSelector((state)=> state.constants.today)
-
+  
     const handleMultiDateSurgeryChange = (date,dateString)=>{
-        console.log("dt",ids)
-        if (ids.length>0){
-            ids.forEach((id) => handleDateSurgeryChange(date,dateString,id));
-        }
+        Object.entries(selectedRecords).forEach(([propertyVal, recordIds]) => {
+            if (recordIds.length > 0) {
+              // Process each ID within the current property
+              recordIds.forEach( (recordId) => handleDateSurgeryChange(date,dateString,recordId,propertyVal));
+            }
+        });
     }
 
     const validateMultiSurgeryDate = async () => {
-        if (ids.length > 0) {
-            // Use for...of with async/await to ensure each call is properly awaited
-            for (const id of ids) {
-                await validateSurgeryDate(id); // Await the async function call
-            }
+        console.log("test:",selectedRecords)
+        setLoading(true);
+        // Iterate over each property and its associated IDs
+        for (const [propertyVal, recordIds] of Object.entries(selectedRecords)) {
+                    if (recordIds.length > 0) {
+                    // Process each ID within the current property
+                    for (const recordId of recordIds) {
+                            await validateSurgeryDate(recordId, propertyVal); // Await the async function call
+                                                }
+                                                    }
         }
+        setLoading(false);
     };
 
 

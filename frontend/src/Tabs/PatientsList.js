@@ -79,27 +79,29 @@ const PatientsList  = () => {
 
 
 
-   const [selectedSurgeries, setSelectedSurgeries] = useState([]);
+   const [selectedSurgeries, setSelectedSurgeries] = useState({});
+   const getRowSelection = (propertyKey) => ({
+    selectedRowKeys: selectedSurgeries[propertyKey] || [],
+    onChange: (newSelectedRowKeys) => {
+      setSelectedSurgeries((prevSelected) => ({
+        ...prevSelected,
+        [propertyKey]: newSelectedRowKeys, // Update selection for the specific property
+      }));
+    },
+    getCheckboxProps: (record) => ({
+      disabled: record.referral === 'Ναι' || record.dischargeStatus === 'Ναι',
+    }),
+  });
+
+
+
+
 
   const getRowClassName = (record) => {
     return selectedSurgeries.includes(record.id) ? '.ant-table-row.selected-row' : '';
   };
 
-  const rowSelection = {
-    selectedRowKeys: selectedSurgeries,
-    onChange: (newSelectedRowKeys) => {
-      console.log('Selected row keys:', newSelectedRowKeys);
-      setSelectedSurgeries(newSelectedRowKeys);
 
-
-
-    },
-    getCheckboxProps: (record) => ({
-      disabled: (record.referral === 'Ναι' || record.dischargeStatus=='Ναι')
-
-    })
-  };
-  
   const getInitFormData =  (record)=>{
     let formFields = ["id","name","surname","fatherName","patientId",
                       "age","examDate","property","rank","armyRank",
@@ -601,7 +603,8 @@ const validateReferral = async (surgeryId,propertyKey,status=true) => {
 
 // set the selected  surgery date
 const handleDateSurgeryChange = (date,dateString,id,propertyKey) =>{
-      
+    console.log(id);
+    console.log(propertyKey);  
     if(dateString==null){
       dateString = today.format('YYYY-MM-DD');
     }
@@ -713,7 +716,7 @@ const validateSurgeryDate = async (surgeryId,propertyKey,status=true) => {
        
         try {
           const data = await listPatients();  // Call the listPatients method
-          console.log(data)
+          //console.log(data)
           setPatients(data);  // Update state with the fetched data
           
           
@@ -730,7 +733,7 @@ const validateSurgeryDate = async (surgeryId,propertyKey,status=true) => {
         //setLoading(true);
 
       }
-      console.log(refreshTab)
+     // console.log(refreshTab)
       if (refreshTab=="patientsList"){
         fetchPatients();
         console.log("redux refreshTab:"+refreshTab)
@@ -743,7 +746,7 @@ const validateSurgeryDate = async (surgeryId,propertyKey,status=true) => {
 
 
       }
-      console.log(patients)
+     // console.log(patients)
 
 
 
@@ -766,17 +769,10 @@ const validateSurgeryDate = async (surgeryId,propertyKey,status=true) => {
       if (!patients || !patients[selectedListType]) {
         return   <Spin size="large" spinning={loading}></Spin>;
       }
-      
-      
-
-
-
-
-
       return (<Table
       rowSelection={{
        type: "checkbox",
-       ...rowSelection,
+       ...getRowSelection(record.property),
      }}
      columns={columns.map(col => ({
        ...col,
@@ -822,8 +818,8 @@ const validateSurgeryDate = async (surgeryId,propertyKey,status=true) => {
     return (
       <div>
        {contextHolder}
-          <ButtonCollection dataSource={patients} columns={docColumns} ids={selectedSurgeries} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate} 
-          selectedDataType={selectedListType} changeDataType={changeListType} dataTypes={dataTypes} 
+          <ButtonCollection dataSource={patients} columns={docColumns} selectedRecords={selectedSurgeries} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate} 
+          selectedDataType={selectedListType} changeDataType={changeListType} dataTypes={dataTypes}  setLoading={setLoading}
           
           />
           

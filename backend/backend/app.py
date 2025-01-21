@@ -220,7 +220,7 @@ def addSurgery():
      print(data)
      print(data.keys())
      # error handling for missing required fields for surgery
-     required_attributes = ["ID","examDate","disease","organ","surgeryName","surgeryId"]
+     required_attributes = ["ID","examDate","disease","organ","surgeryName","surgeryId","surgeonist","diseaseDescription"]
      for required_attribute in required_attributes:
             if required_attribute not in data:
                 return jsonify({"error": "Missing attribute:{0}".format(required_attribute)}), 400
@@ -233,7 +233,9 @@ def addSurgery():
      disease =  data.get("disease")
      organ = data.get("organ")
      surgeryName = data.get("surgeryName")
-     optional_attributes = ["diseaseDescription","comments","surgeryDate","referral"]
+     surgeonist = data.get("surgeonist")
+     diseaseDescription =data.get("diseaseDescription")
+     optional_attributes = ["comments","surgeryDate","referral","duty"]
      optional_attr_values = {}
      for optional_attribute in optional_attributes:
         if optional_attribute in data:
@@ -243,21 +245,46 @@ def addSurgery():
                     valid = is_valid_date( optional_attr_values[optional_attribute])
                     if valid==False:
                         return jsonify({"error": "Error date format for surgeryDate"}), 400 
-                if optional_attribute=="referral":
+                if optional_attribute in optional_attributes[2:4]:
                     if optional_attr_values[optional_attribute] not in [0,1]:
-                        return jsonify({"error": "Error value for referral"}), 400 
+                        return jsonify({"error": "Error value for {0}".format(optional_attribute)}), 400 
         else:
             optional_attr_values[optional_attribute] = None
      surgery =Surgery.query.filter_by(surgeryId=surgeryId).first()
      if surgery is None:
-        surgery = Surgery(examDate= examDate,disease=disease,diseaseDescription=optional_attr_values["diseaseDescription"],organ=organ,surgeryName=surgeryName,patientId=patientId,comments=optional_attr_values["comments"])
+        surgery = Surgery(examDate= examDate,disease=disease,diseaseDescription=diseaseDescription,organ=organ,surgeryName=surgeryName,patientId=patientId,comments=optional_attr_values["comments"],surgeonist=surgeonist)
+        if "duty" in optional_attr_values:
+            surgery.duty = optional_attr_values["duty"]
+            if  optional_attr_values["duty"]==1:
+                surgery.surgeryDate = examDate
+                surgery.active = 0
         db.session.add(surgery)
         db.session.commit()
         return jsonify({"message": f"Surgery with {surgery.surgeryId} added successfully!","id":surgery.surgeryId}), 201
      else:
+        active =surgery.active
+        print(optional_attr_values)
+        if "surgeryDate"in optional_attr_values:
+            if optional_attr_values["surgeryDate"] is None:
+                if "referral" in optional_attr_values:
+                    if optional_attr_values["referral"]==1:
+                        active = 0
+                    else:
+                        if "duty" in optional_attr_values:
+                            if optional_attr_values["duty"]==1:
+                                print("test")
+                                optional_attr_values["surgeryDate"] =surgery.examDate
+                                active = 0
+                            else:
+                                active = 1
+                        else:
+                            active = 1
+            else:
+                active = 0
         surgeryTable = Surgery.__table__
+        print(optional_attr_values)
         with db.engine.connect() as connection:
-            stmt = update(surgeryTable).where(surgeryTable.c.surgeryId==surgeryId).values(examDate=examDate,disease=disease,diseaseDescription=optional_attr_values["diseaseDescription"],organ=organ,surgeryName=surgeryName,patientId=patientId,comments=optional_attr_values["comments"],surgeryDate=optional_attr_values["surgeryDate"],referral=optional_attr_values["referral"])
+            stmt = update(surgeryTable).where(surgeryTable.c.surgeryId==surgeryId).values(examDate=examDate,disease=disease,diseaseDescription=diseaseDescription,organ=organ,surgeryName=surgeryName,patientId=patientId,comments=optional_attr_values["comments"],surgeryDate=optional_attr_values["surgeryDate"],referral=optional_attr_values["referral"],surgeonist=surgeonist,active = active,duty=optional_attr_values["duty"])
             result = connection.execute(stmt)
             connection.commit()
         return jsonify({"message": f"Surgery with {surgeryId} updated successfully!","id":surgeryId}), 200

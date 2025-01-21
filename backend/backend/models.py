@@ -85,6 +85,7 @@ class Surgery(db.Model):
     surgeryId = Column(Integer, primary_key=True, autoincrement=True)
     examDate = Column(Date, nullable=False)
     disease = Column(String(90), nullable=False)
+    surgeonist =  Column(String(90), nullable=False,default='Άγνωστο')
     diseaseDescription = Column(Text, nullable=False)
 
     
@@ -98,9 +99,10 @@ class Surgery(db.Model):
     comments = Column(Text)
    
     
-    # Active and referral fields
+    # Active,referral and duty fields
     active = Column(Boolean, default=True)
     referral = Column(Boolean, default=False)
+    duty = Column(Boolean, default=False)
     
     # Foreign key references patients (patientId)
     patientId = Column(Integer, ForeignKey('patients.ID'), nullable=True)
