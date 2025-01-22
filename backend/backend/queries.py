@@ -7,6 +7,8 @@ from datetime import datetime
 
 # retrieve list of patients
 def formPatientsListQuery(db):
+    #  display comparison operator based on severity
+     severity_operator = case((SurgeryType.severity.in_(['Μικρή', 'Μεσαία', 'Μεγάλη']), '<'),else_='>')
      query  = db.session.query(
         Surgery.surgeryId.label('id'),
         Patient.name.label("name"),
@@ -17,11 +19,13 @@ def formPatientsListQuery(db):
         Officer.officerRank.label("rank"),
         Officer.armyRank.label("armyRank"),
         func.concat(Patient.name, ' ', Patient.surname).label('patientName'), # get the conatenation of patient name and surname
+        func.concat(SurgeryType.severity).label("severity"),
         Patient.property.label("property"), #get the property
         Surgery.disease.label('disease'),  # get the name of related disease
         Surgery.diseaseDescription.label("diseaseDescription"),
         Surgery.surgeonist.label("surgeonist"),
         Surgery.organ.label("organ"),
+        Surgery.duty.label("duty"),
         Surgery.surgeryName.label("surgery"),
         Surgery.comments.label("comments"),
        func.date_format(Surgery.examDate, '%Y-%m-%d').label('examDate'), # get exam date IN YYYY-MM-DD format
@@ -42,7 +46,7 @@ def formPatientsListQuery(db):
         Surgery.surgeryDate.is_not(None).label("surgeryDone") # check if surgeryDate exists
         # outer join with the corresponding table for getting discharge date for soldier
         ).outerjoin(Soldier, Patient.ID == Soldier.soldierID).join(Surgery,Patient.ID == Surgery.patientId
-        ).outerjoin(Officer,Officer.officerID==Patient.ID)
+        ).outerjoin(Officer,Officer.officerID==Patient.ID).join(SurgeryType,SurgeryType.name==Surgery.surgeryName)
      return query   
 
 

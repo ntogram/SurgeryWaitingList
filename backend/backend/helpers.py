@@ -59,7 +59,7 @@ def readPatientListsFromDB(query,condition):
     if condition is not None:
         filteredQuery =  query.filter(condition)
     patients =filteredQuery.all()
-    print(patients)
+    
      # Organize patients into groups by their property
     grouped_patients = {}
     propertiesDict = {"Μόνιμος Στρατιωτικός":"Μόνιμοι Στρατιωτικοί","Έφεδρος Στρατιωτικός":"Έφεδροι Στρατιωτικοί","Αστυνομικός":"Αστυνομικοί","Απόστρατος":"Απόστρατοι","Μέλος":"Μέλη","Ιδιώτης":"Ιδιώτες"}
@@ -87,6 +87,7 @@ def readPatientListsFromDB(query,condition):
             'examDate':patient.examDate,
             'surgeryDate':patient.surgeryDate,
             'discharge_date':patient.discharge_date,
+            'severity':patient.severity,
             "active":patient.active,
             'dischargeStatus':patient.dischargeStatus,
             'referral':patient.referral,

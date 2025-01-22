@@ -249,6 +249,15 @@ const PatientsList  = () => {
           
           },
           {
+            title: 'Βαθμός', 
+            dataIndex: 'rank',
+            key: 'rank',
+            fixed: 'left',
+            sorter: (value1, value2) => value1['rank'].localeCompare(value2['rank']),
+            ...getColumnSearchProps('rank', searchText, setSearchText)
+          
+          },
+         /* {
             title: 'Ιδιότητα', 
             dataIndex: 'property',
             key: 'property',
@@ -256,7 +265,7 @@ const PatientsList  = () => {
             sorter: (value1, value2) => value1['property'].localeCompare(value2['property']),
             filters: (locfullProperties.concat("Όλοι")).map( fullProperty =>({text:fullProperty,value:fullProperty})),
             onFilter: (value, record) => value=="Όλοι"?true:record.property.includes(value)
-          },
+          },*/
           {
             title: 'Ημερομηνία Εξέτασης', 
             dataIndex: 'examDate',
@@ -317,6 +326,33 @@ const PatientsList  = () => {
           
           </div>}</div>
             
+          },
+          {
+            title: 'Από εφημερία', 
+            dataIndex: 'duty',
+            key: 'duty',
+            fixed: 'left', 
+            sorter: (value1, value2) => value1['duty'].localeCompare(value2['duty']),
+            filters: booleanAnswers.concat(["-"]).map( booleanAnswer =>({text:booleanAnswer,value:booleanAnswer})),
+            onFilter: (value, record) =>  value=='Όλες'?true:record.duty.includes(value)
+          },
+          {
+            title: 'Ονοματεπώνυμο Χειρουργού', 
+            dataIndex: 'surgeonist',
+            key: 'surgeonist',
+            fixed: 'left',
+            sorter: (value1, value2) => value1['surgeonist'].localeCompare(value2['surgeonist']),
+            ...getColumnSearchProps('surgeonist', searchText, setSearchText)
+          
+          },
+          {
+            title: 'Διάρκεια επεμβάσεων', 
+            dataIndex: 'severity',
+            key: 'severity',
+            fixed: 'left', 
+            sorter: (value1, value2) => value1['severity'].localeCompare(value2['severity']),
+           // filters: (locfullProperties.concat("Όλοι")).map( fullProperty =>({text:fullProperty,value:fullProperty})),
+          //  onFilter: (value, record) => value=="Όλοι"?true:record.property.includes(value)
           },
           {
             title: 'Παραμένει στη λίστα', 
