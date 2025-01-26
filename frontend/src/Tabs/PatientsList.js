@@ -27,7 +27,7 @@ const PatientsList  = () => {
    const [editFormId,setEditFormId] =useState(null);// each record has its own edit form. Each edit form  has an id (same as the record id)
    const [searchText, setSearchText] = useState('');
   const [patients, setPatients] = useState([]);
-   const {today,surgeries,dataTypes,fullProperties} = useSelector((state) => state.constants); 
+   const {today,surgeries,dataTypes,fullProperties,severities} = useSelector((state) => state.constants); 
    const current = useSelector((state) => state.tab.selectedTab);
    const surgeryTypes =  (Array.from(new Set(Object.values(surgeries).flat())).sort());
    const booleanAnswers=["Ναι","Όχι","Όλες"]
@@ -346,13 +346,13 @@ const PatientsList  = () => {
           
           },
           {
-            title: 'Διάρκεια επεμβάσεων', 
+            title: 'Διάρκεια επεμβάσεων Μικρή < 30 λεπτά Μεσαία < 75 λεπτά Μεγάλη < 210 λεπτά Πολύ μεγάλη > 210 λεπτά', 
             dataIndex: 'severity',
             key: 'severity',
             fixed: 'left', 
             sorter: (value1, value2) => value1['severity'].localeCompare(value2['severity']),
-           // filters: (locfullProperties.concat("Όλοι")).map( fullProperty =>({text:fullProperty,value:fullProperty})),
-          //  onFilter: (value, record) => value=="Όλοι"?true:record.property.includes(value)
+            filters: (severities.concat("Όλοι")).map( severity =>({text:severity,value:severity})),
+            onFilter: (value, record) => value=="Όλοι"?true:record.severity===value
           },
           {
             title: 'Παραμένει στη λίστα', 
@@ -795,7 +795,7 @@ const validateSurgeryDate = async (surgeryId,propertyKey,status=true) => {
     //const headers = columns.filter(col => col.title!= "Λειτουργίες");
     
     const columns = generateColumns();
-    const docColumns = columns.filter(col => col.title!= "Λειτουργίες");
+    const docColumns = ['Α/Α','Ονοματεπώνυμο Ασθενούς','Βαθμός','Ημερομηνία Εξέτασης','Πάθηση','Ημερομηνία Επέμβασης','Από εφημερία','Ονοματεπώνυμο Χειρουργού','Διάρκεια επεμβάσεων Μικρή < 30 λεπτά Μεσαία < 75 λεπτά Μεγάλη < 210 λεπτά Πολύ μεγάλη > 210 λεπτά']  ;
     const mainColumns = generateMainColumns();
     const allPropertiesRows = generateMainData();
     const selectedallPropertiesIds = allPropertiesRows.map((item) => item.key);

@@ -11,7 +11,8 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 const Filehandler = ({columns,dataSource,op}) =>{
     const current = useSelector((state) => state.tab.selectedTab);
-    const subtitles = useSelector((state) =>state.constants.statisticTypes)
+    const subtitles = useSelector((state) =>state.constants.dataTypes)
+    const subtableTitles =useSelector((state) => state.constants.fullProperties)
     const today = useSelector((state) => state.constants.today); // get title of current tab
     
     
@@ -37,6 +38,15 @@ const Filehandler = ({columns,dataSource,op}) =>{
 
 
     }
+
+  
+
+
+
+
+
+
+
     // Extract excel headers
     const getHeaders = ()=>{
       const headers = columns.map(col => col.title);
@@ -47,8 +57,13 @@ const Filehandler = ({columns,dataSource,op}) =>{
       let rows =  null;
     
       if (current == "patientsList"){
-        rows = dataSource.map(record =>columns.map(col => record[col.key]));
-        console.log(rows)
+        console.log(dataSource)
+        console.log(columns.length);
+       //let 
+       // let  subtableTitle = new Array(columns.length).fill("")
+        //subtableTitle[0]=
+        //rows = dataSource.map(record =>columns.map(col => record[col.key]));
+        //console.log(rows)
       }
       else if (current=="statisticsByOrgan" || current=="statisticsBySurgeryType"){
         rows = {};
@@ -69,8 +84,55 @@ const Filehandler = ({columns,dataSource,op}) =>{
 
 
     const createPdf = ()=>{
-      //  form doc title
+      // main title
       const title = formDocTitle();
+      // table titles
+      const tableHeaders = subtitles;
+      // Extract table column headers and rows
+      const columnNames = getHeaders();
+      const tableRows = getRows();
+      let ypos=20;
+      const doc = new jsPDF();
+      callAddFont.call(doc);
+      doc.setFontSize(16);
+      // Add text or tables using the custom font
+      doc.text(title, 10, 10);
+      console.log(tableHeaders)
+      for (const tableHeader of tableHeaders) {
+        doc.setFontSize(14);
+        doc.text(tableHeader, 10, ypos);
+        if (current=="statisticsByOrgan" || current=="statisticsBySurgeryType"){
+                doc.autoTable({
+                  head: [columnNames],
+                  body: tableRows[tableHeader],
+                  startY: ypos+10,
+                  styles: {
+                    font: "Times New Roman",
+                    fontStyle: "normal",
+                  }
+                
+                });
+              }
+        else {
+
+
+
+        }
+        ypos = 20;
+        if (tableHeader !="Επόμενο Τρίμηνο"){
+          doc.addPage();
+        }
+      }
+        const docfile ={"doc":doc,"title":title}
+        return docfile;
+    }
+
+
+
+
+/*
+      //  form doc title
+      //const title = formDocTitle();
       const tableTitles= formDocSubtitles();
       // Extract table column headers and rows
       const columnNames = getHeaders();
@@ -127,13 +189,12 @@ const Filehandler = ({columns,dataSource,op}) =>{
 
     }
 
-      const docfile ={"doc":doc,"title":title}
+      //const docfile ={"doc":doc,"title":title}
       return docfile;
-    }
+    //}*/
     const downloadPdf = () =>{
       // retrieve pdf created by invoking createPdf  along with document file  
       const docfile = createPdf();
-      // extract document title & file
       const title = docfile["title"];
       const doc =  docfile["doc"];
       // Form filename
@@ -141,6 +202,33 @@ const Filehandler = ({columns,dataSource,op}) =>{
       const filename = formFileName(title,extension);
       // save doc as filename
       doc.save(filename);
+     /* // retrieve pdf created by invoking createPdf  along with document file  
+      const docfile = createPdf();
+      //return
+      // extract document title & file
+      const title = docfile["title"];
+      const doc =  docfile["doc"];
+      // Form filename
+      const extension="pdf";
+      const filename = formFileName(title,extension);
+      // save doc as filename
+      doc.save(filename);*/
+      // Initialize jsPDF
+     // const doc = new jsPDF();
+      //callAddFont.call(doc);
+     // doc.addFileToVFS('Times New Roman-normal.ttf', font);
+     //doc.addFont('Times New Roman-normal.ttf', 'Times New Roman', 'normal');
+      //doc.setFont("Times New Roman");
+      //doc.setFontSize(16);
+      // Add Greek text
+     // doc.text("Γειά σου Κόσμε", 10, 10);
+
+      // Save the PDF
+     // doc.save("greek-text.pdf");
+
+
+
+
     }
   
 
