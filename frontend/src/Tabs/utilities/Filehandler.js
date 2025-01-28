@@ -9,6 +9,7 @@ import callAddFont from './pdfFont'
 // imports for exporting excel
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { matchScreen } from 'antd/es/_util/responsiveObserver';
 const Filehandler = ({columns,dataSource,op}) =>{
     const current = useSelector((state) => state.tab.selectedTab);
     const subtitles = useSelector((state) =>state.constants.dataTypes)
@@ -49,6 +50,7 @@ const Filehandler = ({columns,dataSource,op}) =>{
 
     // Extract excel headers
     const getHeaders = ()=>{
+      console.log(columns)
       const headers = columns.map(col => col.title);
       return headers;
     }
@@ -57,18 +59,42 @@ const Filehandler = ({columns,dataSource,op}) =>{
       let rows =  null;
     
       if (current == "patientsList"){
+        rows = {};
+        let resultList = [];
+        let recordColumns =null
+        
+        
         console.log(dataSource)
         console.log(columns.length);
-       //let 
-       // let  subtableTitle = new Array(columns.length).fill("")
-        //subtableTitle[0]=
-        //rows = dataSource.map(record =>columns.map(col => record[col.key]));
-        //console.log(rows)
-      }
+        Object.keys(dataSource).forEach(key => {
+          const selectedSource = dataSource[key]; // Get the array for the key
+          subtableTitles.forEach( (subtableTitle)=> {
+            let mainTitle = new Array(columns.length).fill("");
+            mainTitle[0] =subtableTitle
+            const subselectedSource = selectedSource[subtableTitle]; // Get the array for the key
+            recordColumns =
+            console.log(columns)
+            const nestedRecords = subselectedSource.map(record => columns.map(col => record[col.key] ?? "-"));
+            resultList.push({"header":mainTitle,"records":nestedRecords});
+          
+      })
+      rows[key] = resultList
+      resultList =[]
+
+
+
+
+
+
+
+        console.log(rows)
+      })
+    }
       else if (current=="statisticsByOrgan" || current=="statisticsBySurgeryType"){
         rows = {};
         Object.keys(dataSource).forEach(key => {
           const selectedSource = dataSource[key]; // Get the array for the key
+    
           rows[key] = selectedSource.map(record => columns.map(col => record[col.key]));
           
       })
@@ -112,12 +138,50 @@ const Filehandler = ({columns,dataSource,op}) =>{
                   }
                 
                 });
+               
               }
         else {
+          tableRows[tableHeader].forEach( ({header,records})=> {
+            doc.autoTable({
+              startY: ypos+20,
+              head: [header], // Property name
+              styles: {
+                font: "Times New Roman",
+                fontStyle: "normal",
+                halign: "center", // Center align the property name
+                fillColor: [240, 240, 240], // Light grey background
+                textColor: [0, 0, 0], // Black text
+              },
+            });
+            doc.autoTable({
+              startY: doc.lastAutoTable.finalY, // Start after the property name
+              head: [columns], // Columns header
+              body: records, // Table rows
+              styles: {
+                font: "Times New Roman",
+                fontStyle: "normal",
+              },
+            });
+            
+
+
+
+            ypos= ypos +doc.lastAutoTable.finalY + 20;
+
+
+
+
+          })
+          
+     
+
 
 
 
         }
+
+
+        
         ypos = 20;
         if (tableHeader !="Επόμενο Τρίμηνο"){
           doc.addPage();
@@ -251,24 +315,59 @@ const Filehandler = ({columns,dataSource,op}) =>{
       //  form doc title
       const title = formDocTitle();
       // assign sheet names
-      const sheetNames= formDocSubtitles();
+      const sheetNames= subtitles;
 
 
       // Extract table column headers and rows
       const columnNames = getHeaders();
-      console.log(columnNames)
       const tableRows = getRows();
       // Create a workbook and a worksheet
       const workbook = XLSX.utils.book_new();
       let worksheetData = null;
       let worksheet = null;
+      let currentRow = null;
       if (current == "patientsList"){
-          worksheetData = []
-          worksheetData = worksheetData.concat([columnNames], tableRows);
-          // create worksheet with worksheetData
-          worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
-          // add the worksheet to workbook.  appended worksheet named as title
-          XLSX.utils.book_append_sheet(workbook, worksheet, "Φύλλο1");
+        for (const sheetName of sheetNames) {
+          currentRow = 0;
+          worksheetData = tableRows[sheetName]
+          worksheet = {};
+          // loop workheetdata
+          worksheetData.forEach((value) => { 
+            // add title
+            const cellAddress = XLSX.utils.encode_cell({ r: currentRow, c: 0 }); // Vertical: r = index, c = 0
+            worksheet[cellAddress] = { t: "s", v: value["header"][0] };
+            //add table headers
+            columnNames.forEach((columnName,index) => {
+              const cellAddress = XLSX.utils.encode_cell({ r: currentRow+1, c: index }); // Row 2, Column
+              worksheet[cellAddress] = { t: "s", v: columnName };
+            });
+            //  add row data
+            value["records"].forEach((patientData, patientIndex) => {
+              patientData.forEach((patientValue, dataIndex) => {
+                const cellAddress = XLSX.utils.encode_cell({ r: currentRow+patientIndex + 2, c: dataIndex }); // Start from row 3
+                worksheet[cellAddress] = { t:   typeof value === "number" ? "n" : "s", v: patientValue };
+              });
+              
+
+
+            });
+            // Increment the row to position the next table below the current one
+            currentRow += 2 + value["records"].length; // Header + column names + data rows
+
+            // Dynamically calculate the range for !ref for this table
+            const lastColumn = XLSX.utils.encode_col(columnNames.length - 1);
+            worksheet["!ref"] = `A1:${lastColumn}${currentRow}`;
+            
+            
+
+
+
+          })
+          console.log(sheetName)
+          console.log(worksheet["!ref"])
+          // Add the worksheet to the workbook with the current sheetName
+          XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+        }
       }
       else if (current=="statisticsByOrgan" || current=="statisticsBySurgeryType"){
           for (const sheetName of sheetNames) {

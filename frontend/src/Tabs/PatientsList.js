@@ -795,7 +795,8 @@ const validateSurgeryDate = async (surgeryId,propertyKey,status=true) => {
     //const headers = columns.filter(col => col.title!= "Λειτουργίες");
     
     const columns = generateColumns();
-    const docColumns = ['Α/Α','Ονοματεπώνυμο Ασθενούς','Βαθμός','Ημερομηνία Εξέτασης','Πάθηση','Ημερομηνία Επέμβασης','Από εφημερία','Ονοματεπώνυμο Χειρουργού','Διάρκεια επεμβάσεων Μικρή < 30 λεπτά Μεσαία < 75 λεπτά Μεγάλη < 210 λεπτά Πολύ μεγάλη > 210 λεπτά']  ;
+    const docfields =  ['Ονοματεπώνυμο Ασθενούς','Βαθμός','Ημερομηνία Εξέτασης','Πάθηση','Ημερομηνία Επέμβασης','Από εφημερία','Ονοματεπώνυμο Χειρουργού','Διάρκεια επεμβάσεων Μικρή < 30 λεπτά Μεσαία < 75 λεπτά Μεγάλη < 210 λεπτά Πολύ μεγάλη > 210 λεπτά']  ;
+    const docColumns = columns.filter(col =>docfields.includes(col.title));
     const mainColumns = generateMainColumns();
     const allPropertiesRows = generateMainData();
     const selectedallPropertiesIds = allPropertiesRows.map((item) => item.key);
