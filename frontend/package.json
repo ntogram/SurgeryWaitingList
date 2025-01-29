@@ -26,7 +26,9 @@
     "redux": "^5.0.1",
     "redux-persist": "^6.0.0",
     "web-vitals": "^2.1.4",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "xlsx-js-style": "^1.2.0",
+    "xlsx-style": "^0.8.13"
   },
   "scripts": {
     "start": "react-scripts start",

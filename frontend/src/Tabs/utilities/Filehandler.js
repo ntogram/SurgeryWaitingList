@@ -266,29 +266,7 @@ const Filehandler = ({columns,dataSource,op}) =>{
       const filename = formFileName(title,extension);
       // save doc as filename
       doc.save(filename);
-     /* // retrieve pdf created by invoking createPdf  along with document file  
-      const docfile = createPdf();
-      //return
-      // extract document title & file
-      const title = docfile["title"];
-      const doc =  docfile["doc"];
-      // Form filename
-      const extension="pdf";
-      const filename = formFileName(title,extension);
-      // save doc as filename
-      doc.save(filename);*/
-      // Initialize jsPDF
-     // const doc = new jsPDF();
-      //callAddFont.call(doc);
-     // doc.addFileToVFS('Times New Roman-normal.ttf', font);
-     //doc.addFont('Times New Roman-normal.ttf', 'Times New Roman', 'normal');
-      //doc.setFont("Times New Roman");
-      //doc.setFontSize(16);
-      // Add Greek text
-     // doc.text("Γειά σου Κόσμε", 10, 10);
-
-      // Save the PDF
-     // doc.save("greek-text.pdf");
+  
 
 
 
@@ -327,6 +305,9 @@ const Filehandler = ({columns,dataSource,op}) =>{
       let worksheet = null;
       let currentRow = null;
       if (current == "patientsList"){
+         // Define an array to store column widths
+        let columnWidths = Array(columnNames.length).fill({ wch: 20 }); 
+        
         for (const sheetName of sheetNames) {
           currentRow = 0;
           worksheetData = tableRows[sheetName]
@@ -335,17 +316,25 @@ const Filehandler = ({columns,dataSource,op}) =>{
           worksheetData.forEach((value) => { 
             // add title
             const cellAddress = XLSX.utils.encode_cell({ r: currentRow, c: 0 }); // Vertical: r = index, c = 0
-            worksheet[cellAddress] = { t: "s", v: value["header"][0] };
+            worksheet[cellAddress] = { t: "s", v: value["header"][0],
+              
+              
+              
+             };
             //add table headers
             columnNames.forEach((columnName,index) => {
               const cellAddress = XLSX.utils.encode_cell({ r: currentRow+1, c: index }); // Row 2, Column
-              worksheet[cellAddress] = { t: "s", v: columnName };
+              worksheet[cellAddress] = { t: "s", v: columnName};
+             // Set a larger width for table headers
+             columnWidths[index] = { wch: Math.max(20, columnName.length + 5) };
             });
             //  add row data
             value["records"].forEach((patientData, patientIndex) => {
               patientData.forEach((patientValue, dataIndex) => {
                 const cellAddress = XLSX.utils.encode_cell({ r: currentRow+patientIndex + 2, c: dataIndex }); // Start from row 3
-                worksheet[cellAddress] = { t:   typeof value === "number" ? "n" : "s", v: patientValue };
+                worksheet[cellAddress] = { t:   typeof value === "number" ? "n" : "s", v: patientValue  };
+                 // Adjust column width based on the longest content in each column
+                 columnWidths[dataIndex] = {wch: Math.max(columnWidths[dataIndex].wch, String(patientValue).length + 5)};
               });
               
 
@@ -363,8 +352,8 @@ const Filehandler = ({columns,dataSource,op}) =>{
 
 
           })
-          console.log(sheetName)
-          console.log(worksheet["!ref"])
+           // Set column widths in the worksheet
+          worksheet["!cols"] = columnWidths;
           // Add the worksheet to the workbook with the current sheetName
           XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
         }
@@ -375,6 +364,8 @@ const Filehandler = ({columns,dataSource,op}) =>{
             // for each table, create a worksheet
             worksheetData = worksheetData.concat([columnNames], tableRows[sheetName]);
             worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+            // Set Column Widths**
+            worksheet["!cols"] = columnNames.map((col) => ({ wch: col.length + 20 }));
             // add the worksheet for each tanle to workbook.  appended worksheet named as  the value of corresponding sheet name
             XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
           }
