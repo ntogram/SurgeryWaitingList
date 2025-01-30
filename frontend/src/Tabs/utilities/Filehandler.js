@@ -435,7 +435,7 @@ const Filehandler = ({columns,dataSource,op}) =>{
 
 
 
-    return  <Tooltip placement="bottom" arrow={false} title={op}><Button shape="circle" color="primary" variant="link" icon={retrieveBtnIcon()} onClick={handleClick}/></Tooltip>
+    return  <Tooltip placement="bottom" arrow={false} title={op}><Button shape="circle" color="primary" variant="link" icon={retrieveBtnIcon()} onClick={handleClick}  disabled={!dataSource || Object.keys(dataSource).length === 0}/></Tooltip>
 
 
 }

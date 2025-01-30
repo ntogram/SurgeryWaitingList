@@ -42,7 +42,7 @@ const ButtonCollection = ({columns,dataSource,selectedRecords,handleDateSurgeryC
       }];
       
       if (current=="patientsList"){
-        toolboxItems.splice(4, 0, {title:<GlobalDateSelector selectedRecords={selectedRecords} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate} setLoading={setLoading}/>});
+        toolboxItems.splice(4, 0, {title:<GlobalDateSelector dataSource={dataSource} selectedRecords={selectedRecords} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate} setLoading={setLoading}/>});
       }
       const dataOptions = dataTypes.map(dataType => ({ 
           value: dataType, 

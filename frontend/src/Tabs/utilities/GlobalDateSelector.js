@@ -1,10 +1,10 @@
 import React,{useState} from 'react'
 import { useSelector} from 'react-redux';
 import {CheckOutlined} from '@ant-design/icons'
-import {Button,DatePicker} from 'antd';
+import {Button,DatePicker,Tooltip} from 'antd';
 
 
-const GlobalDateSelector= ({selectedRecords,handleDateSurgeryChange,validateSurgeryDate,setLoading})=>{
+const GlobalDateSelector= ({dataSource,selectedRecords,handleDateSurgeryChange,validateSurgeryDate,setLoading})=>{
     const today = useSelector((state)=> state.constants.today)
   
     const handleMultiDateSurgeryChange = (date,dateString)=>{
@@ -37,16 +37,16 @@ const GlobalDateSelector= ({selectedRecords,handleDateSurgeryChange,validateSurg
 
     return <div>
     <span><DatePicker variant="filled" style={{maxWidth: '70%',width: '100%' }}  onChange={(date,dateString)=>handleMultiDateSurgeryChange(date,dateString)} 
-    defaultValue={today} 
-     /></span><Button 
+    defaultValue={today}  disabled={!dataSource || Object.keys(dataSource).length === 0}
+     /></span> <Tooltip placement="bottom" arrow={false} title={"Επικύρωση"}><Button 
      type="primary" 
      shape="circle"
      style={{ marginLeft: '5%',backgroundColor: '#28a745', borderColor: '#28a745', color: '#fff' }} 
-     onClick={() => validateMultiSurgeryDate()}
+     onClick={() => validateMultiSurgeryDate()}  disabled={!dataSource || Object.keys(dataSource).length === 0}
     
    >
      <CheckOutlined />
-   </Button></div>
+   </Button></Tooltip></div>
 
 
 
