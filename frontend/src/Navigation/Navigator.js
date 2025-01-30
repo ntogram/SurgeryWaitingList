@@ -77,7 +77,7 @@ const Navigator = () => {
                 <Route path="*" element={<Navigate to={'/'+`${current}`} />}/>
               </Routes>
             </Content>
-            <Footer style={{ textAlign: 'center' }}>©2024 Δημιουργήθηκε από ΓΕΠ</Footer>
+            <Footer style={{ textAlign: 'center' }}>©2024-2025 Δημιουργήθηκε από ΓΕΠ</Footer>
           </Layout>
         </Router>
         </AuthManager>
