@@ -856,7 +856,7 @@ const validateSurgeryDate = async (surgeryId,propertyKey,status=true) => {
       <div>
        {contextHolder}
           <ButtonCollection dataSource={patients} columns={docColumns} selectedRecords={selectedSurgeries} handleDateSurgeryChange={handleDateSurgeryChange} validateSurgeryDate={validateSurgeryDate} 
-          selectedDataType={selectedListType} changeDataType={changeListType} dataTypes={dataTypes}  setLoading={setLoading}
+          selectedDataType={selectedListType} changeDataType={changeListType} dataTypes={dataTypes}   setLoading={setLoading}
           
           />
           

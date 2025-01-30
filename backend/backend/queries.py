@@ -131,6 +131,7 @@ FROM (
     FROM surgerywaitinglist.surgeries s
     JOIN surgerywaitinglist.surgerytypes st 
     ON s.surgeryName = st.name
-    WHERE s.surgeryDate IS NULL AND s.active = 1 AND s.referral = 0 and s.surgeryId != :surgeryId  AND s.examDate<=:examDate
+    WHERE ((s.surgeryDate IS NULL AND s.active = 1 AND s.referral = 0 and s.surgeryId != :surgeryId  AND s.examDate<=:examDate) OR 
+    (s.surgeryDate>=s.examDate AND s.active = 0 AND s.referral = 0))
 ) AS DURATION;
 """)

@@ -344,6 +344,14 @@ def calculateWaitingTime():
     if valid== False:
         return jsonify({"error": "Error date format for examDate"}), 400 
 
+    # get surgery with the given id
+    surgery = db.session.get(Surgery, surgeryId)
+    if surgery:    
+        if surgery.duty==1:
+            estimatedDuration = 0.0
+            return jsonify({"estimatedDuration":estimatedDuration,"examDate":examDate,"surgeryDate":expectedSurgeryDate}),200
+
+
 
     # execute the query for calculating the waiting time
     result = db.session.execute(QUERY_CALC_WAITING_TIME,{"surgeryId": surgeryId,"examDate":examDate})
@@ -354,8 +362,6 @@ def calculateWaitingTime():
     estimatedDuration =  float(rowResult[0])
     print("initial estimation:",estimatedDuration)
     # Find expected surgery date
-    # get surgery with the given id
-    surgery = db.session.get(Surgery, surgeryId)
     if surgery:     
         examDate = surgery.examDate
         expectedSurgeryDate = getExpectedSurgeryDate(examDate,estimatedDuration) # calculate expected surgery date
