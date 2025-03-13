@@ -71,9 +71,12 @@ const Filehandler = ({columns,dataSource,op}) =>{
           subtableTitles.forEach( (subtableTitle)=> {
             let mainTitle = new Array(columns.length).fill("");
             mainTitle[0] =subtableTitle
-            const subselectedSource = selectedSource[subtableTitle]; // Get the array for the key
-            recordColumns =
-            console.log(columns)
+            const subselectedSource = selectedSource[subtableTitle] ?? []; // Get the array for the key
+           console.log(key)
+            console.log(selectedSource)
+            console.log(mainTitle)
+            console.log(subselectedSource)
+            //console.log(columns)
             const nestedRecords = subselectedSource.map(record => columns.map(col => record[col.key] ?? "-"));
             resultList.push({"header":mainTitle,"records":nestedRecords});
           
@@ -435,7 +438,7 @@ const Filehandler = ({columns,dataSource,op}) =>{
 
 
 
-    return  <Tooltip placement="bottom" arrow={false} title={op}><Button shape="circle" color="primary" variant="link" icon={retrieveBtnIcon()} onClick={handleClick}  disabled={!dataSource || Object.keys(dataSource).length === 0}/></Tooltip>
+    return  <Tooltip placement="bottom" arrow={false} title={op}><Button shape="circle" color="primary" variant="link" icon={retrieveBtnIcon()} onClick={handleClick}/></Tooltip>
 
 
 }
