@@ -166,6 +166,7 @@ def add_rank():
     armyRank =  None
     if "armyRank" in data:
         armyRank =data.get("armyRank")
+    print(armyRank)
     #check if  the rank has been already stored for the patient(army officer or policeman) with officerID
     existing_officer = Officer.query.filter_by(officerID=officerId).first()
     if existing_officer is None:
@@ -175,7 +176,7 @@ def add_rank():
         db.session.commit()
         return jsonify({"message": f"Rank for Patient with {officerId} added successfully!"}), 201
     else:
-        if existing_officer.officerRank == rank or existing_officer.armyRank == armyRank:
+        if existing_officer.officerRank == rank and existing_officer.armyRank == armyRank:
              return jsonify({"message": f"Rank for Patient with {officerId} has already been stored"}), 200
         else:
             existing_officer.officerRank = rank
