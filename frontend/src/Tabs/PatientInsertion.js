@@ -6,14 +6,14 @@ import {setRefreshTab,setTab} from '../redux/reducers/tabSlice';
 import axios from 'axios';
 import dayjs from 'dayjs';
 //import 'dayjs/locale/el'
-import { Form, Input, Button,DatePicker,Select,InputNumber, Space,Switch,Checkbox } from 'antd';
+import { Form, Input, Button,DatePicker,Select,InputNumber, Space,Switch,Checkbox,Tabs,Tooltip } from 'antd';
 import PatientSummary from '../PatientSummary'
 import { useNavigate } from 'react-router-dom';
 import { Faker, el } from '@faker-js/faker'; 
 //import aimg from './armyRankIcons/ges.jpg'
 
 
-
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 
 
 
@@ -55,9 +55,22 @@ const PatientInsertion  = ({displayUpdateFields=false,initData=null}) => {
   const [referral, setReferral] = useState(initData?.referral ?? 'Όχι');
   const [surgeryDateDisabled,setSurgeryDateDisabled] = useState(initData?.surgeryDateDisabled ?? null);
   const [referralDisabled,setreferralDisabled] = useState(initData?.referralDisabled ?? null);
-  
+  const [errors, setErrors] = useState({});// an object that will contain
 
   const [submittedData, setSubmittedData] = useState(location.state?.submittedData );
+
+
+  
+
+
+
+
+
+
+
+
+
+
 
   const addUpdateFields = () => {
     return (  <div>
@@ -183,6 +196,7 @@ const  renderArmyRankIcon = (iconName) =>{
   return name;
 }
 
+  // Handle form validation
 
 
 
@@ -258,6 +272,24 @@ const  renderArmyRankIcon = (iconName) =>{
     setSubmittedData(null);
   };
 
+
+
+  // display errors when form submission failed
+  const displayErrors = (errorInfo) =>{
+    console.log("test",errorInfo)
+    const emptyRequiredFields = errorInfo.errorFields.map((field) => field.name[0]);
+    // required Fields
+    const requiredFields ={"1":["patientName","patientSurname","fatherName","age","checkupDate","property","rank","armyRank","dischargeDate"],
+                           "2":["diseaseName","diseaseDescription","organ","surgeonist","checkupDate","surgery"]}
+    
+    
+    const newErrors  = {
+      "1": requiredFields["1"].some(field => emptyRequiredFields.includes(field)),
+      "2": requiredFields["2"].some(field => emptyRequiredFields.includes(field))
+    };
+    console.log(newErrors);
+    setErrors(newErrors);
+  }
 
   const onReturnToForm = () => {
 
@@ -447,21 +479,18 @@ const sendData = async () =>{
       
   }, [submittedData,submissionCount,initData]);  // Empty dependency array to run the effect once when the component loads
   
-  return (
-    <div>
-      
-   
-        {/* Antd Form */}
-      {(submittedData===null || submittedData===undefined || displayUpdateFields==true)?
-      <Form
-        name="basic"
-        form={form} 
-        initialValues={initData || {"duty":false}}
-        style={{ ...baseStyle, ...updateStyle }}
-        autoComplete="off"
-        onFinish={submitForm}
-      >
-        {/* patientName Field */}
+  
+  const formTabs =[
+    {
+      key: "1",
+      label: <span>Προσωπικά Στοιχεία {errors["1"] && (
+        <Tooltip title="Παρακαλώ συμπληρώστε τα απαιτούμενα πεδία">
+          <ExclamationCircleOutlined style={{ color: "red", marginLeft: 5 }} />
+        </Tooltip>
+      )}</span>,
+      children: (
+        <>
+            {/* patientName Field */}
         <Form.Item
           label="Ονομα"
           name="patientName"
@@ -477,11 +506,6 @@ const sendData = async () =>{
         >
           <Input placeholder="Επώνυμο" variant="filled" />
         </Form.Item>
-
-
-
-
-
         {/* fatherName Field */}
         <Form.Item
           label="Πατρώνυμο"
@@ -506,13 +530,6 @@ const sendData = async () =>{
         >
           <DatePicker variant="filled"  style={{maxWidth: '100%',width: '100%' }}   defaultValue={initData?.checkUpDate ?? null} maxDate={today} /> 
         </Form.Item>
-
-
-
-
-
-
-        
          {/* Property Dropdown */}
          <Form.Item
           label="Ιδιότητα"
@@ -615,7 +632,19 @@ const sendData = async () =>{
           <DatePicker variant="filled" style={{maxWidth: '100%',width: '100%' }} minDate={today}  defaultValue={initData?.dischargeDate ?? null}    /> 
         </Form.Item>
           )}
-
+        </>
+      ),
+    },
+    {
+      key: "2",
+      label: <span>Λεπτομέρειες Περιστατικού{errors["2"] && (
+        <Tooltip title="Παρακαλώ συμπληρώστε τα απαιτούμενα πεδία">
+          <ExclamationCircleOutlined style={{ color: "red", marginLeft: 5 }} />
+        </Tooltip>
+      )}</span>,
+      children: (
+        <>
+          
         {/* diseaseName Field */}
         <Form.Item
           label="Όνομα Πάθησης"
@@ -694,24 +723,7 @@ const sendData = async () =>{
               >
                  <TextArea rows={4} style={{resize: 'both',overflow: 'auto',maxWidth:'none'}} variant='filled' placeholder="Σχόλια" maxLength={textBoxLength} />
         </Form.Item>
-
-     
-   
-
-
-     
-       
-
-
-
-
-
-
-
-
-
-
-        {/* Submit Button */}
+        {/* Form Buttons */}
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Space wrap>
           <Button type="primary" htmlType="submit">
@@ -726,14 +738,55 @@ const sendData = async () =>{
         
         </Space>
         </Form.Item>
-      </Form>:null}
-      {!displayUpdateFields && <PatientSummary submittedData={submittedData} />}
+        </>
+      ),
+    },
+  ];
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  return ( <div>
       
+   
+    {/* Antd Form */}
+  {(submittedData===null || submittedData===undefined || displayUpdateFields==true)?
+  <Form
+    name="basic"
+    form={form} 
+    initialValues={initData || {"duty":false}}
+    style={{ ...baseStyle, ...updateStyle }}
+    autoComplete="off"
+    onFinish={submitForm}
+    onFinishFailed={displayErrors}
+  >
+  <Tabs defaultActiveKey="1" items={formTabs} />
 
-     
 
-    </div>
-  );
-};
 
+
+
+
+
+
+
+
+
+  </Form>:null}
+  {!displayUpdateFields && <PatientSummary submittedData={submittedData} />}
+  </div>)
+      
+   
+  {/* Antd Form */}
+
+
+}
+
+  
+  
 export default PatientInsertion;
